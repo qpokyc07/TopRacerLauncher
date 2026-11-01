@@ -21,10 +21,21 @@ public partial class ChatWindow : Window
         BeginAnimation(OpacityProperty,
             new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(160)));
 
+        // Размер окна запоминается между запусками.
+        if (App.Settings.ChatWidth >= 420) Width = App.Settings.ChatWidth;
+        if (App.Settings.ChatHeight >= 420) Height = App.Settings.ChatHeight;
+
         Closed += (_, _) =>
         {
             foreach (var tab in _tabs.Values) tab.Detach();
             if (ReferenceEquals(_instance, this)) _instance = null;
+
+            if (WindowState == WindowState.Normal)
+            {
+                App.Settings.ChatWidth = Width;
+                App.Settings.ChatHeight = Height;
+                App.SaveState();
+            }
         };
     }
 

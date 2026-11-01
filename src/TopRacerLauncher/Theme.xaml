@@ -401,13 +401,24 @@
 
     <!-- ====== Контекстное меню ====== -->
     <Style TargetType="ContextMenu">
-        <Setter Property="Background" Value="{DynamicResource BgPanelBrush}"/>
+        <Setter Property="Background" Value="#F5101218"/>
         <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource GlassBorderBrush}"/>
+        <Setter Property="BorderBrush" Value="#40FFFFFF"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="4"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="HasDropShadow" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="10" Padding="4">
+                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style TargetType="MenuItem">
@@ -416,13 +427,26 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="MenuItem">
-                    <Border x:Name="Bd" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
-                        <ContentPresenter ContentSource="Header"
-                                          Margin="22,0,22,0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="10,6"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="Check" Grid.Column="0" Text="&#x2713;" FontSize="11"
+                                       Foreground="{DynamicResource AccentBrush}" Visibility="Collapsed"
+                                       Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <ContentPresenter Grid.Column="1" ContentSource="Header"
+                                              VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+                        </Trigger>
                         <Trigger Property="IsHighlighted" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="#26FFFFFF"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.45"/>

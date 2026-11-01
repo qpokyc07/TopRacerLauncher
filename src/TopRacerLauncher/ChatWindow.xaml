@@ -2,13 +2,13 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="TopRacerLauncher"
-        Width="540" Height="640"
-        WindowStyle="None" ResizeMode="NoResize"
+        Width="540" Height="640" MinWidth="420" MinHeight="420"
+        WindowStyle="None" ResizeMode="CanResize"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource BgWindowBrush}"
         FontFamily="Segoe UI">
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="52" ResizeBorderThickness="0"
+        <WindowChrome CaptionHeight="52" ResizeBorderThickness="6"
                       GlassFrameThickness="0" CornerRadius="0"
                       UseAeroCaptionButtons="False"/>
     </WindowChrome.WindowChrome>

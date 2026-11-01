@@ -92,7 +92,11 @@ public partial class CallWindow : Window
         if (sender is not FrameworkElement fe || fe.DataContext is not CallParticipant participant) return;
         e.Handled = true;
 
-        var menu = new System.Windows.Controls.ContextMenu { PlacementTarget = fe };
+        var menu = new System.Windows.Controls.ContextMenu
+        {
+            PlacementTarget = fe,
+            Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint,
+        };
 
         var panel = new StackPanel { Margin = new Thickness(12), Width = 190 };
         panel.Children.Add(new TextBlock
@@ -187,7 +191,11 @@ public partial class CallWindow : Window
 
     private void MicButton_Click(object sender, RoutedEventArgs e)
     {
-        var menu = new System.Windows.Controls.ContextMenu { PlacementTarget = MicButton };
+        var menu = new System.Windows.Controls.ContextMenu
+        {
+            PlacementTarget = MicButton,
+            Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom,
+        };
         AddDeviceItem(menu, "Системный по умолчанию", "", VoiceEngine.InputDeviceName,
             value =>
             {
@@ -210,7 +218,11 @@ public partial class CallWindow : Window
 
     private void SpkButton_Click(object sender, RoutedEventArgs e)
     {
-        var menu = new System.Windows.Controls.ContextMenu { PlacementTarget = SpkButton };
+        var menu = new System.Windows.Controls.ContextMenu
+        {
+            PlacementTarget = SpkButton,
+            Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom,
+        };
         AddDeviceItem(menu, "Системное по умолчанию", "", VoiceEngine.OutputDeviceName,
             value =>
             {

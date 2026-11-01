@@ -110,6 +110,10 @@ public sealed class Settings
     /// <summary>Киоск-режим: не выпускать посетителя из лаунчера.</summary>
     public bool KioskMode { get; set; }
 
+    /// <summary>Размер окна чата (0 — по умолчанию).</summary>
+    public double ChatWidth { get; set; }
+    public double ChatHeight { get; set; }
+
     /// <summary>Откуда брать обновления: URL на update.json или путь к папке с ним.</summary>
     public string UpdateUrl { get; set; } = DefaultUpdateUrl;
 

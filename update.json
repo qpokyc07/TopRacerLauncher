@@ -1,5 +1,5 @@
 {
-  "version": "1.6.3",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.6.3/TopRacerLauncher.exe",
-  "notes": "1.6.3 — можно назначить свою клавишу Push-to-Talk в окне звонка (кнопка «Клавиша»), поправлена высота кнопок микрофона и наушников."
+  "version": "1.6.4",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.6.4/TopRacerLauncher.exe",
+  "notes": "1.6.4 — тёмное контекстное меню без белой полосы, меню устройств открывается под кнопкой, окно чата можно растягивать (размер запоминается)."
 }
