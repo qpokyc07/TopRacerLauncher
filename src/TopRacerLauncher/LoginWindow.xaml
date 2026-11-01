@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:TopRacerLauncher"
         Title="TopRacerLauncher"
-        Width="470" Height="430"
+        Width="470" Height="520"
         WindowStyle="None" ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource BgWindowBrush}"

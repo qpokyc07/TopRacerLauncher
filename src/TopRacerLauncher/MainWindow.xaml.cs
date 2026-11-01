@@ -542,6 +542,15 @@ public partial class MainWindow : Window
     private void WelcomeStart_Click(object sender, RoutedEventArgs e)
         => WelcomeOverlay.Visibility = Visibility.Collapsed;
 
+    private void Support_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo("https://t.me/qpokycnow") { UseShellExecute = true });
+        }
+        catch { /* нет браузера — не мешаем */ }
+    }
+
     /// <summary>Админ завершает сессию и освобождает место следующему гостю.</summary>
     private void EndSession_Click(object sender, RoutedEventArgs e)
     {

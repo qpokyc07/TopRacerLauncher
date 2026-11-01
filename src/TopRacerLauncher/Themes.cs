@@ -12,7 +12,8 @@ public sealed record ThemeInfo(
     string BgWindow,
     string BgPanel,
     string BgCard,
-    string BgCardHover);
+    string BgCardHover,
+    string? BgWindow2 = null);
 
 /// <summary>Палитра тем приложения.</summary>
 public static class Themes
@@ -71,6 +72,64 @@ public static class Themes
         new("graphite", "Графит",
             "#8A94A6", "#A3ACBC", "#6F7889",
             "#FF15181B", "#E61E2125", "#CC24282D", "#E62C3036"),
+
+        // --- дополнительные палитры ---
+        new("slate",  "Сланцевая",
+            "#64748B", "#7E8CA3", "#4E5A6E",
+            "#FF12151A", "#E61B1F26", "#CC21262E", "#E6292F38"),
+
+        new("emerald", "Изумруд",
+            "#10B981", "#2ED3A0", "#0C9367",
+            "#FF0F1A16", "#E6182320", "#CC1E2A26", "#E626332E"),
+
+        new("rose",   "Роза",
+            "#F43F5E", "#FF6480", "#D12E4C",
+            "#FF1A1216", "#E6231B20", "#CC2A2127", "#E633292F"),
+
+        new("sky",    "Небо",
+            "#0EA5E9", "#38BDF8", "#0B86BE",
+            "#FF101820", "#E619222A", "#CC1F2932", "#E6273239"),
+
+        new("violet", "Виолет",
+            "#7C3AED", "#9A5CFF", "#6529C6",
+            "#FF14111C", "#E61D1A28", "#CC232031", "#E62B283B"),
+
+        new("cocoa",  "Какао",
+            "#A16207", "#C07C18", "#825005",
+            "#FF17130D", "#E6201B14", "#CC272119", "#E62F2820"),
+
+        new("steel",  "Сталь",
+            "#475569", "#5E6E85", "#37444F",
+            "#FF121519", "#E61B1F24", "#CC21262C", "#E6292F36"),
+
+        new("lime",   "Лайм",
+            "#84CC16", "#9FE03A", "#6BA80F",
+            "#FF141A0F", "#E61D2415", "#CC232A1B", "#E62B3322"),
+
+        // --- градиентные фоны ---
+        new("sunset", "Закат (градиент)",
+            "#FF7A45", "#FF9A6B", "#D95E2E",
+            "#FF1A1020", "#E6221830", "#CC281E3A", "#E6302545", "#FF2B1030"),
+
+        new("ocean",  "Океан (градиент)",
+            "#2BB5D6", "#4FD0EC", "#1E93AF",
+            "#FF0B1A2A", "#E6132436", "#CC182C40", "#E61F354C", "#FF103040"),
+
+        new("neon",   "Неон (градиент)",
+            "#C026D3", "#DC4AEC", "#9C1DAF",
+            "#FF120A1A", "#E61A0F26", "#CC21132F", "#E6291A39", "#FF250F35"),
+
+        new("cyber",  "Кибер (градиент)",
+            "#00C2A8", "#22E0C4", "#009C87",
+            "#FF0A1418", "#E6121E23", "#CC18252B", "#E61F2E35", "#FF102430"),
+
+        new("aurora", "Сияние (градиент)",
+            "#4ADE80", "#6FF09C", "#33B863",
+            "#FF0A1A1A", "#E6122426", "#CC182B2E", "#E61F3438", "#FF14283A"),
+
+        new("gold",   "Золото (градиент)",
+            "#D4AF37", "#E8C657", "#B08F24",
+            "#FF1A1408", "#E6231C0E", "#CC2A2214", "#E6332919", "#FF2A2010"),
     };
 
     public static ThemeInfo Find(string? key) =>
@@ -86,10 +145,36 @@ public static class Themes
         SetBrush(app, "AccentBrush", t.Accent);
         SetBrush(app, "AccentHoverBrush", t.AccentHover);
         SetBrush(app, "AccentPressedBrush", t.AccentPressed);
-        SetBrush(app, "BgWindowBrush", t.BgWindow);
+        SetWindowBrush(app, t.BgWindow, t.BgWindow2);
         SetBrush(app, "BgPanelBrush", t.BgPanel);
         SetBrush(app, "BgCardBrush", t.BgCard);
         SetBrush(app, "BgCardHoverBrush", t.BgCardHover);
+    }
+
+    /// <summary>Фон окна: сплошной цвет или плавный градиент (если задан второй цвет).</summary>
+    private static void SetWindowBrush(System.Windows.Application app, string fromHex, string? toHex)
+    {
+        try
+        {
+            if (ColorConverter.ConvertFromString(fromHex) is not Color from) return;
+
+            Brush brush;
+
+            if (!string.IsNullOrWhiteSpace(toHex) &&
+                ColorConverter.ConvertFromString(toHex) is Color to)
+            {
+                brush = new LinearGradientBrush(from, to, new System.Windows.Point(0, 0),
+                    new System.Windows.Point(1, 1));
+            }
+            else
+            {
+                brush = new SolidColorBrush(from);
+            }
+
+            brush.Freeze();
+            app.Resources["BgWindowBrush"] = brush;
+        }
+        catch { /* некорректный цвет — оставляем прежний */ }
     }
 
     private static void SetBrush(System.Windows.Application app, string resourceKey, string colorHex)

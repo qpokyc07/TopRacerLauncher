@@ -655,6 +655,14 @@
         </Setter>
     </Style>
 
+    <!-- ====== Ссылка (поддержка/соцсети) ====== -->
+    <Style x:Key="SupportLink" TargetType="Hyperlink">
+        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="TextDecorations" Value="{x:Null}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+
     <!-- ====== Секция-панель (карточка настроек) ====== -->
     <Style x:Key="PanelCard" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource BgPanelBrush}"/>
