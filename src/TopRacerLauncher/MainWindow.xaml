@@ -506,7 +506,7 @@
         </Border>
         <!-- ===== Экран приветствия (киоск/клуб) ===== -->
         <Grid x:Name="WelcomeOverlay" Grid.RowSpan="4" Panel.ZIndex="50" Visibility="Collapsed"
-              Background="#F2080A0E">
+              Background="#C7080A0E">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="&#x1F44B;" FontSize="46" HorizontalAlignment="Center"/>
                 <TextBlock Text="Добро пожаловать" FontSize="30" FontWeight="Bold"
@@ -515,9 +515,12 @@
                 <TextBlock Text="Top Racer" FontSize="46" FontWeight="Black"
                            Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"
                            Margin="0,2,0,0"/>
-                <TextBlock Text="Следи за нами в соцсетях" FontSize="15"
-                           Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center"
-                           Margin="0,14,0,0"/>
+                <TextBlock Text="Следи за нами в соцсетях" FontSize="16" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextBrush}" HorizontalAlignment="Center"
+                           Margin="0,16,0,0"/>
+                <TextBlock Text="Розыгрыши бесплатных минут и ценные призы — каждый месяц"
+                           FontSize="13.5" Foreground="{DynamicResource AccentBrush}"
+                           HorizontalAlignment="Center" Margin="0,6,0,0"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,22,0,0">
                     <Border Width="148" Height="148" CornerRadius="12" Background="White" Margin="0,0,18,0">
