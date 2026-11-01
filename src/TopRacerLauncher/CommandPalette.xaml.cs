@@ -16,6 +16,7 @@ public sealed class PaletteItem
 public partial class CommandPalette : Window
 {
     private readonly List<PaletteItem> _all;
+    private bool _closing;
 
     public CommandPalette(IEnumerable<PaletteItem> items)
     {
@@ -92,9 +93,17 @@ public partial class CommandPalette : Window
     {
         if (Results.SelectedItem is not PaletteItem item) return;
 
+        _closing = true;
         Close();
         Application.Current.Dispatcher.BeginInvoke(item.Run);
     }
 
-    private void Window_Deactivated(object sender, EventArgs e) => Close();
+    private void Window_Deactivated(object sender, EventArgs e)
+    {
+        // Окно может терять активацию уже во время закрытия — повторный Close даёт исключение.
+        if (_closing) return;
+
+        _closing = true;
+        Close();
+    }
 }

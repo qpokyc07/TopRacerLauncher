@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.6.0/TopRacerLauncher.exe",
-  "notes": "1.6.0 — живые карточки (зум, тень, градиент), skeleton-загрузка с шиммером, стеклянные тени у шапки и нижней панели при прокрутке, командная палитра Ctrl+K, плавное появление окон."
+  "version": "1.6.1",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.6.1/TopRacerLauncher.exe",
+  "notes": "1.6.1 — исправлен краш при запуске игры из Ctrl+K (двойное закрытие окна палитры); панель описания игры сворачивается в строку «Описание»."
 }

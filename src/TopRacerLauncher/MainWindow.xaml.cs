@@ -657,20 +657,15 @@ public partial class MainWindow : Window
 
     private bool _detailsCollapsed;
 
-    /// <summary>Сворачивает/разворачивает панель описания (в половину ширины).</summary>
+    /// <summary>Сворачивает/разворачивает описание игры в одну строку.</summary>
     private void ToggleDetails_Click(object sender, RoutedEventArgs e)
     {
         _detailsCollapsed = !_detailsCollapsed;
 
-        DetailsPanel.Width = _detailsCollapsed ? 200 : 360;
-        DetailCoverBlock.Visibility = _detailsCollapsed ? Visibility.Collapsed : Visibility.Visible;
-        DetailDescription.Visibility = _detailsCollapsed ? Visibility.Collapsed : Visibility.Visible;
-        DetailGenres.Visibility = _detailsCollapsed ? Visibility.Collapsed : Visibility.Visible;
-        DetailSubtitle.Visibility = _detailsCollapsed ? Visibility.Collapsed : Visibility.Visible;
-        DetailTitle.FontSize = _detailsCollapsed ? 14 : 19;
-
-        DetailsToggle.Content = _detailsCollapsed ? "\u2039" : "\u203A";
-        DetailsToggle.ToolTip = _detailsCollapsed ? "Развернуть описание" : "Свернуть описание";
+        DetailsBody.Visibility = _detailsCollapsed ? Visibility.Collapsed : Visibility.Visible;
+        DetailsChevron.RenderTransform = new System.Windows.Media.RotateTransform(_detailsCollapsed ? -90 : 0);
+        DetailsChevron.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+        DetailsHeaderText.Text = _detailsCollapsed ? "Описание (свернуто)" : "Описание";
     }
 
 
