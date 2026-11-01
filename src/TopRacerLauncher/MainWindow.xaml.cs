@@ -659,6 +659,12 @@ public partial class MainWindow : Window
     private void Help_Click(object sender, RoutedEventArgs e)
         => new HelpWindow { Owner = this }.ShowDialog();
 
+    private void PromoCode_Click(object sender, RoutedEventArgs e)
+    {
+        new PromoRedeemWindow { Owner = this }.ShowDialog();
+        RefreshUi();
+    }
+
     private void Promo_Click(object sender, RoutedEventArgs e)
         => new PromoWindow { Owner = this }.ShowDialog();
 

@@ -1,5 +1,5 @@
 {
-  "version": "1.7.5",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.7.5/TopRacerLauncher.exe",
-  "notes": "1.7.5 — исправлена кнопка «Позвонить» в чате (не определялся активный собеседник), кнопка справки «?» стала крупнее и в цвет темы."
+  "version": "1.8.0",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.8.0/TopRacerLauncher.exe",
+  "notes": "1.8.0 — промокоды на минуты: администратор создаёт коды (минуты, число использований, срок) в админ-меню, гость вводит код кнопкой «Промокод» и получает время."
 }

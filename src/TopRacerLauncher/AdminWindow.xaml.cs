@@ -53,6 +53,7 @@ public partial class AdminWindow : Window
         KioskCheck.IsChecked = s.KioskMode;
         UserNameBox.Text = s.UserName;
         RefreshPlayStats(DateTime.Today);
+        RefreshPromoList();
         TransparentPanelsCheck.IsChecked = s.TransparentPanels;
         AccentTitlesCheck.IsChecked = s.AccentTitles;
         MakeSectionsCollapsible();
@@ -884,6 +885,35 @@ public partial class AdminWindow : Window
 
         SetArtStatus("Доступна версия " + info.Version, autoHide: true);
         new UpdateWindow(info, url) { Owner = this }.Show();
+    }
+
+    private void RefreshPromoList()
+    {
+        PromoList.ItemsSource = null;
+        PromoList.ItemsSource = App.Settings.PromoCodes.ToList();
+    }
+
+    private void CreatePromo_Click(object sender, RoutedEventArgs e)
+    {
+        int minutes = int.TryParse(PromoMinutesBox.Text.Trim(), out int m) ? m : 30;
+        int uses = int.TryParse(PromoUsesBox.Text.Trim(), out int u) ? u : 1;
+        int days = int.TryParse(PromoDaysBox.Text.Trim(), out int d) ? d : 30;
+
+        var promo = PromoService.Create(minutes, uses, days);
+
+        NewPromoText.Text = "Код: " + promo.Code + "  •  " + promo.Minutes + " мин";
+        NewPromoText.Visibility = Visibility.Visible;
+
+        RefreshPromoList();
+    }
+
+    private void DeletePromo_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement fe || fe.Tag is not string code) return;
+
+        App.Settings.PromoCodes.RemoveAll(p => string.Equals(p.Code, code, StringComparison.OrdinalIgnoreCase));
+        App.SaveState();
+        RefreshPromoList();
     }
 
     private void Panels_Changed(object sender, RoutedEventArgs e)

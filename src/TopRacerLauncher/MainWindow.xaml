@@ -566,6 +566,10 @@
                 <!-- Акция и ссылка справа -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"
                             VerticalAlignment="Center">
+                    <Button Content="Промокод" Height="30" Padding="14,0" FontSize="11.5"
+                            FontWeight="SemiBold" Margin="0,0,8,0"
+                            Style="{StaticResource BaseButton}" Click="PromoCode_Click"
+                            ToolTip="Ввести код на дополнительные минуты"/>
                     <Button Content="Хочешь до 30 минут бесплатно?" Height="30" Padding="14,0"
                             FontSize="11.5" FontWeight="SemiBold" Margin="0,0,16,0"
                             Style="{StaticResource PrimaryButton}" Click="Promo_Click"/>

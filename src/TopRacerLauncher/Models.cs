@@ -123,6 +123,12 @@ public sealed class Settings
     public double ChatWidth { get; set; }
     public double ChatHeight { get; set; }
 
+    /// <summary>Промокоды на дополнительные минуты.</summary>
+    public List<PromoCode> PromoCodes { get; set; } = new();
+
+    /// <summary>Уже использованные промокоды (чтобы один код не сработал дважды).</summary>
+    public List<string> RedeemedPromos { get; set; } = new();
+
     /// <summary>Откуда брать обновления: URL на update.json или путь к папке с ним.</summary>
     public string UpdateUrl { get; set; } = DefaultUpdateUrl;
 

@@ -250,6 +250,62 @@
                     </StackPanel>
                 </Border>
 
+                <!-- ===== Промокоды ===== -->
+                <Border Style="{StaticResource PanelCard}" Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="Промокоды на минуты" Style="{StaticResource H1Text}"/>
+                        <TextBlock Text="Код добавляет игроку указанное количество минут. Один код срабатывает один раз на компьютере."
+                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <TextBlock Text="Минуты" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBox x:Name="PromoMinutesBox" Style="{StaticResource BaseTextBox}" Width="64"
+                                     Height="32" Text="30" Margin="0,0,12,0"/>
+                            <TextBlock Text="Использований" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBox x:Name="PromoUsesBox" Style="{StaticResource BaseTextBox}" Width="64"
+                                     Height="32" Text="10" Margin="0,0,12,0"/>
+                            <TextBlock Text="Дней" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBox x:Name="PromoDaysBox" Style="{StaticResource BaseTextBox}" Width="64"
+                                     Height="32" Text="30" Margin="0,0,12,0"/>
+                            <Button Content="Создать код" Height="32" Padding="14,0" FontSize="12.5"
+                                    Style="{StaticResource PrimaryButton}" Click="CreatePromo_Click"/>
+                        </StackPanel>
+
+                        <TextBlock x:Name="NewPromoText" Text="" FontSize="13" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource AccentBrush}" Margin="0,10,0,0" Visibility="Collapsed"/>
+
+                        <ScrollViewer MaxHeight="180" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="PromoList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#10FFFFFF" CornerRadius="8" Padding="10,8" Margin="0,0,0,6">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Code}" FontSize="13.5" FontWeight="Bold"
+                                                           Foreground="{DynamicResource AccentBrush}"
+                                                           VerticalAlignment="Center" Width="90"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Info}" FontSize="12"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                <Button Grid.Column="2" Content="Удалить" Height="26" Padding="10,0"
+                                                        FontSize="11" Style="{StaticResource BaseButton}"
+                                                        Click="DeletePromo_Click" Tag="{Binding Code}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
+
                 <!-- ===== Статистика по играм ===== -->
                 <Border Style="{StaticResource PanelCard}" Margin="0,0,0,16">
                     <StackPanel>

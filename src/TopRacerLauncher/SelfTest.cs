@@ -48,7 +48,22 @@ public static class SelfTest
 
         try
         {
-            Check("PBKDF2: верный пароль принимается", () =>
+            Check("Промокод: создание и погашение", () =>
+        {
+            var promo = PromoService.Create(15, 1, 1);
+            if (!PromoService.TryRedeem(promo.Code, out int minutes, out string error))
+                return "не погасился: " + error;
+            if (minutes != 15) return "неверные минуты: " + minutes;
+
+            if (PromoService.TryRedeem(promo.Code, out _, out _))
+                return "повторное погашение прошло";
+
+            App.Settings.PromoCodes.RemoveAll(p => p.Code == promo.Code);
+            App.Settings.RedeemedPromos.RemoveAll(c => c == promo.Code);
+            return null;
+        });
+
+        Check("PBKDF2: верный пароль принимается", () =>
             {
                 var s = new Settings();
                 ConfigStore.SetPassword(s, "correct horse battery");
