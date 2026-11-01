@@ -250,6 +250,60 @@
                     </StackPanel>
                 </Border>
 
+                <!-- ===== Статистика по играм ===== -->
+                <Border Style="{StaticResource PanelCard}" Margin="0,0,0,16">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="Статистика по играм" Style="{StaticResource H1Text}"/>
+                            <TextBlock x:Name="PlayStatsTotal" Text="" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <TextBlock Text="Сколько времени проведено в каждой игре."
+                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <Button Content="Сегодня" Height="32" Padding="14,0"
+                                    Style="{StaticResource BaseButton}" Click="PlayStatsToday_Click"/>
+                            <Button Content="7 дней" Height="32" Padding="14,0" Margin="8,0,0,0"
+                                    Style="{StaticResource BaseButton}" Click="PlayStatsWeek_Click"/>
+                            <Button Content="Всё время" Height="32" Padding="14,0" Margin="8,0,0,0"
+                                    Style="{StaticResource BaseButton}" Click="PlayStatsAll_Click"/>
+                        </StackPanel>
+
+                        <ScrollViewer MaxHeight="280" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="PlayStatsList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#10FFFFFF" CornerRadius="8" Padding="10,8" Margin="0,0,0,6">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource TextBrush}"
+                                                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding TimeText}" FontSize="13"
+                                                           FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"
+                                                           VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding LaunchesText}" FontSize="11.5"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <TextBlock x:Name="PlayStatsEmpty" Text="Пока нет данных — запустите игру."
+                                   FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                   Visibility="Collapsed" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
                 <!-- ===== Система и безопасность ===== -->
                 <Grid Margin="0,16,0,0">
                     <Grid.ColumnDefinitions>

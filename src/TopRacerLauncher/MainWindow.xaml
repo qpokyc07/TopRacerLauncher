@@ -37,7 +37,10 @@
                 BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="0,0,0,1">
             <Grid>
                 <!-- Логотип -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="16,0,0,0">
+                <StackPanel x:Name="LogoArea" Orientation="Horizontal" HorizontalAlignment="Left"
+                            VerticalAlignment="Center" Margin="16,0,0,0" Cursor="Hand"
+                            ToolTip="Открыть админ-меню" MouseLeftButtonUp="Logo_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True">
                     <Border Width="30" Height="30" CornerRadius="7" Background="{DynamicResource AccentBrush}">
                         <TextBlock Text="TR" FontWeight="Bold" FontSize="12" Foreground="White"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>

@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.4.0/TopRacerLauncher.exe",
-  "notes": "1.4.0 — 27 тем оформления (включая градиентные), подписи ТГ/ВК/MAX под QR, ссылка поддержки в углу, исправлено обрезание окна входа, крупнее текст на экране приветствия."
+  "version": "1.4.1",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.4.1/TopRacerLauncher.exe",
+  "notes": "1.4.1 — статистика по играм (время, запуски, сегодня/7 дней/всё время) и открытие админ-меню кликом по логотипу Top Racer Launcher."
 }

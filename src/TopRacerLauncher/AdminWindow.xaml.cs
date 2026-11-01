@@ -47,6 +47,7 @@ public partial class AdminWindow : Window
         HideStoreCheck.IsChecked = s.HideStoreWindows;
         KioskCheck.IsChecked = s.KioskMode;
         UserNameBox.Text = s.UserName;
+        RefreshPlayStats(DateTime.Today);
         UpdateUrlBox.Text = s.UpdateUrl;
         VersionLabel.Text = "Текущая версия: " + UpdateService.CurrentVersion;
 
@@ -836,6 +837,27 @@ public partial class AdminWindow : Window
     }
 
     // ---------- История и статистика ----------
+
+    // ---------- Статистика по играм ----------
+
+    private void RefreshPlayStats(DateTime? since)
+    {
+        var rows = PlayStats.Aggregate(since);
+
+        PlayStatsList.ItemsSource = rows;
+        PlayStatsEmpty.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        var total = PlayStats.TotalTime(rows);
+        PlayStatsTotal.Text = rows.Count == 0
+            ? ""
+            : $"Всего: {(int)total.TotalHours} ч {total.Minutes:D2} мин";
+    }
+
+    private void PlayStatsToday_Click(object sender, RoutedEventArgs e) => RefreshPlayStats(DateTime.Today);
+
+    private void PlayStatsWeek_Click(object sender, RoutedEventArgs e) => RefreshPlayStats(DateTime.Today.AddDays(-6));
+
+    private void PlayStatsAll_Click(object sender, RoutedEventArgs e) => RefreshPlayStats(null);
 
     private void RefreshHistory()
     {

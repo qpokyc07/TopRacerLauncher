@@ -26,6 +26,9 @@ public sealed class GameRunner : IDisposable
     private static int _hideTicksLeft;
 
     public string? CurrentTitle { get; private set; }
+
+    private DateTime? _sessionStart;
+    private string? _sessionTitle;
     public string? CurrentExePath { get; private set; }
 
     public bool IsRunning
@@ -102,6 +105,9 @@ public sealed class GameRunner : IDisposable
         _process = proc;
         CurrentExePath = target.Path;
         CurrentTitle = game.Title;
+
+        _sessionStart = DateTime.UtcNow;
+        _sessionTitle = game.Title;
 
         HistoryLog.Add("game_start", title: game.Title, detail: target.Path);
 
@@ -238,7 +244,22 @@ public sealed class GameRunner : IDisposable
         if ((killed || wasRunning) && !string.IsNullOrEmpty(CurrentTitle))
             HistoryLog.Add("game_kill", title: CurrentTitle);
 
+        CompleteSession();
         return killed || wasRunning;
+    }
+
+    /// <summary>Фиксирует длительность текущей сессии в статистике (если игра уже завершилась).</summary>
+    public void CompleteSession()
+    {
+        if (_sessionStart == null || string.IsNullOrEmpty(_sessionTitle)) return;
+
+        var duration = DateTime.UtcNow - _sessionStart.Value;
+        var title = _sessionTitle;
+
+        _sessionStart = null;
+        _sessionTitle = null;
+
+        try { PlayStats.Add(title, duration); } catch { /* статистика не критична */ }
     }
 
     private static IEnumerable<Process> SafeGetProcesses()

@@ -161,6 +161,9 @@ public partial class MainWindow : Window
 
     private void OnTick(object? sender, EventArgs e)
     {
+        // Игра закрылась сама — фиксируем длительность в статистике.
+        try { if (!App.Runner.IsRunning) App.Runner.CompleteSession(); } catch { }
+
         var s = App.Settings;
 
         // Ограничение по времени выключено: играем без таймера и блокировок.
@@ -876,6 +879,14 @@ public partial class MainWindow : Window
             e.Handled = true;
             ToggleLock();
         }
+    }
+
+    /// <summary>Клик по логотипу «Top Racer Launcher» открывает админ-меню (как Ctrl+1).</summary>
+    private void Logo_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton != MouseButton.Left) return;
+        e.Handled = true;
+        OpenAdminMenu();
     }
 
     private void OpenAdminMenu()
