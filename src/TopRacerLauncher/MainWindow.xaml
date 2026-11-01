@@ -41,9 +41,7 @@
                             VerticalAlignment="Center" Margin="16,0,0,0" Cursor="Hand"
                             ToolTip="Открыть админ-меню" MouseLeftButtonUp="Logo_Click"
                             WindowChrome.IsHitTestVisibleInChrome="True">
-                    <Border Width="34" Height="34" CornerRadius="8" ClipToBounds="True" Background="#0B0D12">
-                        <Image Source="/Assets/logo.jpg" Stretch="UniformToFill"/>
-                    </Border>
+                    <Image Source="/Assets/logo.png" Width="44" Height="44" Stretch="Uniform"/>
                     <TextBlock Text="TopRacer" FontWeight="Bold" FontSize="16" Foreground="{StaticResource TextBrush}"
                                VerticalAlignment="Center" Margin="10,0,0,0"/>
                     <TextBlock Text="Launcher" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource AccentBrush}"
@@ -511,6 +509,14 @@
                 </StackPanel>
             </Grid>
         </Border>
+        <!-- Ссылка на разработчика (всегда в углу) -->
+        <TextBlock Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                   Margin="0,0,26,10" FontSize="11.5" Panel.ZIndex="40"
+                   Foreground="{StaticResource TextSecondaryBrush}">
+            По всем вопросам —
+            <Hyperlink Click="Support_Click" Style="{StaticResource SupportLink}">@qpokycnow</Hyperlink>
+        </TextBlock>
+
         <!-- ===== Экран приветствия (киоск/клуб) ===== -->
         <Grid x:Name="WelcomeOverlay" Grid.RowSpan="4" Panel.ZIndex="50" Visibility="Collapsed"
               Background="#C7080A0E">

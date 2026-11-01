@@ -1,5 +1,5 @@
 {
-  "version": "1.5.0",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.5.0/TopRacerLauncher.exe",
-  "notes": "1.5.0 — вкладки в чате, QR на Телеграм и ВКонтакте, лого клуба в шапке, кнопки Браузер/Steam в цвет темы, таймер только вверху, тонкий скроллбар, трёхцветные градиентные темы, исправлен значок замка."
+  "version": "1.5.1",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.5.1/TopRacerLauncher.exe",
+  "notes": "1.5.1 — исправлен значок эмодзи в чате (векторный смайлик), лого клуба крупнее и без фона, постоянная ссылка @qpokycnow в правом нижнем углу."
 }

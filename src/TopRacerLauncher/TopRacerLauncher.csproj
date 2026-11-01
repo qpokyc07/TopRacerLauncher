@@ -12,9 +12,9 @@
     <Product>TopRacerLauncher</Product>
     <Company>TopRacer</Company>
     <Description>Игровой лаунчер с закрытой системой и таймером</Description>
-    <Version>1.5.0</Version>
-    <AssemblyVersion>1.5.0.0</AssemblyVersion>
-    <FileVersion>1.5.0.0</FileVersion>
+    <Version>1.5.1</Version>
+    <AssemblyVersion>1.5.1.0</AssemblyVersion>
+    <FileVersion>1.5.1.0</FileVersion>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-        <Resource Include="Assets\logo.jpg" />
+        <Resource Include="Assets\logo.png" />
     <Resource Include="Assets\qr-tg.png" />
     <Resource Include="Assets\qr-vk.png" />
   </ItemGroup>

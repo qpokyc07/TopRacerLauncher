@@ -169,11 +169,43 @@ public sealed class ChatTab
         };
         sendButton.Click += (_, _) => Send();
 
+        // Векторный смайлик: глифы эмодзи в WPF рисуются неровно.
+        var smiley = new Grid { Width = 22, Height = 22 };
+        smiley.Children.Add(new System.Windows.Shapes.Ellipse
+        {
+            Stroke = Resource<Brush>("TextBrush") ?? Brushes.White,
+            StrokeThickness = 1.6,
+        });
+        smiley.Children.Add(new System.Windows.Shapes.Ellipse
+        {
+            Width = 3.4,
+            Height = 3.4,
+            Fill = Resource<Brush>("TextBrush") ?? Brushes.White,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(5.6, 7.4, 0, 0),
+        });
+        smiley.Children.Add(new System.Windows.Shapes.Ellipse
+        {
+            Width = 3.4,
+            Height = 3.4,
+            Fill = Resource<Brush>("TextBrush") ?? Brushes.White,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(0, 7.4, 5.6, 0),
+        });
+        smiley.Children.Add(new System.Windows.Shapes.Path
+        {
+            Data = System.Windows.Media.Geometry.Parse("M 5.4,12.6 A 6,5.4 0 0 0 16.6,12.6"),
+            Stroke = Resource<Brush>("TextBrush") ?? Brushes.White,
+            StrokeThickness = 1.6,
+            StrokeStartLineCap = PenLineCap.Round,
+            StrokeEndLineCap = PenLineCap.Round,
+        });
+
         var emojiButton = new Button
         {
-            Content = "\u263A",
-            FontFamily = new FontFamily("Segoe UI Symbol"),
-            FontSize = 18,
+            Content = smiley,
             Width = 40,
             Height = 40,
             Padding = new Thickness(0),
