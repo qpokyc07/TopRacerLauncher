@@ -1,5 +1,5 @@
 {
-  "version": "1.4.2",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.4.2/TopRacerLauncher.exe",
-  "notes": "1.4.2 — каждый раздел админ-меню сворачивается в одну строку по клику на заголовок; темы оформления — прокручиваемая полоса цветных образцов."
+  "version": "1.5.0",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.5.0/TopRacerLauncher.exe",
+  "notes": "1.5.0 — вкладки в чате, QR на Телеграм и ВКонтакте, лого клуба в шапке, кнопки Браузер/Steam в цвет темы, таймер только вверху, тонкий скроллбар, трёхцветные градиентные темы, исправлен значок замка."
 }

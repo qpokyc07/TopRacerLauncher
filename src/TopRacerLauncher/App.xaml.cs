@@ -257,9 +257,16 @@ public partial class App : Application
                     : call
                         ? new CallWindow()
                         : chat
-                            ? new ChatWindow(new LanPeer { Id = "demo", Name = "Тестер", Game = "Counter-Strike 2" })
+                            ? new ChatWindow()
                             : new AdminWindow();
         demo.Show();
+
+        if (chat)
+        {
+            ChatWindow.Open(new LanPeer { Id = "demo-a", Name = "Тестер", Game = "CS 2" });
+            ChatWindow.Open(new LanPeer { Id = "demo-b", Name = "Второй друг", Game = "Dota 2" });
+        }
+
         return true;
     }
 #endif

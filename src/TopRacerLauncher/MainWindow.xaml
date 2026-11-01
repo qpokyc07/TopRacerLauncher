@@ -41,9 +41,8 @@
                             VerticalAlignment="Center" Margin="16,0,0,0" Cursor="Hand"
                             ToolTip="Открыть админ-меню" MouseLeftButtonUp="Logo_Click"
                             WindowChrome.IsHitTestVisibleInChrome="True">
-                    <Border Width="30" Height="30" CornerRadius="7" Background="{DynamicResource AccentBrush}">
-                        <TextBlock Text="TR" FontWeight="Bold" FontSize="12" Foreground="White"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Border Width="34" Height="34" CornerRadius="8" ClipToBounds="True" Background="#0B0D12">
+                        <Image Source="/Assets/logo.jpg" Stretch="UniformToFill"/>
                     </Border>
                     <TextBlock Text="TopRacer" FontWeight="Bold" FontSize="16" Foreground="{StaticResource TextBrush}"
                                VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -87,7 +86,12 @@
                             MouseLeftButtonUp="LockToggle_Click"
                             ToolTip="Ctrl+2 — заблокировать/разблокировать окно">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock x:Name="LockIcon" Text="&#x1F512;" FontSize="12" VerticalAlignment="Center"/>
+                            <Grid Width="11" Height="13" VerticalAlignment="Center" Margin="0,0,6,0">
+                                <Path Data="M 2,5.2 L 2,3.6 A 3.4,3.4 0 0 1 8.8,3.6 L 8.8,5.2"
+                                      Stroke="White" StrokeThickness="1.5" VerticalAlignment="Top"/>
+                                <Border Background="White" CornerRadius="1.5" Height="7.2"
+                                        VerticalAlignment="Bottom"/>
+                            </Grid>
                             <TextBlock x:Name="LockText" Text="Закрыто" FontSize="12" FontWeight="SemiBold"
                                        Foreground="White" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -471,7 +475,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Остаток времени -->
-                <StackPanel x:Name="TimerPanel" Grid.Column="0" VerticalAlignment="Center" Width="330">
+                <StackPanel x:Name="TimerPanel" Grid.Column="0" VerticalAlignment="Center" Width="330" Visibility="Collapsed">
                     <Grid>
                         <TextBlock x:Name="SessionStatusText" Text="Сеанс не запущен" FontSize="13"
                                    Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"/>
@@ -486,11 +490,11 @@
                 <!-- Быстрые ссылки и подсказка -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"
                             HorizontalAlignment="Center">
-                    <Button Content="&#x1F310; Браузер" Height="30" Padding="12,0" FontSize="12"
-                            Style="{StaticResource BaseButton}" Click="OpenBrowser_Click" Margin="0,0,8,0"
+                    <Button Content="Браузер" Height="36" Padding="18,0" FontSize="13" FontWeight="SemiBold"
+                            Style="{StaticResource PrimaryButton}" Click="OpenBrowser_Click" Margin="0,0,8,0"
                             ToolTip="Открыть браузер (в закрытом режиме — по паролю)"/>
-                    <Button Content="&#x1F3AE; Steam" Height="30" Padding="12,0" FontSize="12"
-                            Style="{StaticResource BaseButton}" Click="OpenSteam_Click" Margin="0,0,14,0"
+                    <Button Content="Steam" Height="36" Padding="18,0" FontSize="13" FontWeight="SemiBold"
+                            Style="{StaticResource PrimaryButton}" Click="OpenSteam_Click" Margin="0,0,16,0"
                             ToolTip="Открыть Steam (в закрытом режиме — по паролю)"/>
                     <TextBlock Text="Клик по обложке — запустить игру  •  Ctrl+1 — админ-меню"
                                FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
@@ -512,22 +516,23 @@
               Background="#C7080A0E">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="&#x1F44B;" FontSize="46" HorizontalAlignment="Center"/>
-                <TextBlock Text="Добро пожаловать" FontSize="34" FontWeight="Bold"
+                <TextBlock Text="Добро пожаловать" FontSize="38" FontWeight="Bold"
                            Foreground="White" HorizontalAlignment="Center"
                            Margin="0,12,0,0"/>
-                <TextBlock Text="Top Racer" FontSize="52" FontWeight="Black"
+                <TextBlock Text="Top Racer" FontSize="58" FontWeight="Black"
                            Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"
                            Margin="0,2,0,0"/>
-                <TextBlock Text="Следи за нами в соцсетях" FontSize="18" FontWeight="SemiBold"
+                <TextBlock Text="Следи за нами в соцсетях" FontSize="20" FontWeight="SemiBold"
                            Foreground="White" HorizontalAlignment="Center"
                            Margin="0,18,0,0"/>
                 <TextBlock Text="Розыгрыши бесплатных минут и ценные призы — каждый месяц"
-                           FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
+                           FontSize="16.5" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
                            HorizontalAlignment="Center" Margin="0,7,0,0"/>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,22,0,0">
-                    <StackPanel Margin="0,0,18,0">
-                        <Border Width="148" Height="148" CornerRadius="12" Background="White">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
+                    <StackPanel x:Name="QrBlock1" Margin="0,0,18,0">
+                        <Border Width="160" Height="160" CornerRadius="12" Background="Transparent"
+                                BorderBrush="#22FFFFFF" BorderThickness="1">
                             <Image x:Name="Qr1" Stretch="Uniform" Margin="8"/>
                         </Border>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
@@ -540,8 +545,9 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <StackPanel Margin="0,0,18,0">
-                        <Border Width="148" Height="148" CornerRadius="12" Background="White">
+                    <StackPanel x:Name="QrBlock2" Margin="0,0,18,0">
+                        <Border Width="160" Height="160" CornerRadius="12" Background="Transparent"
+                                BorderBrush="#22FFFFFF" BorderThickness="1">
                             <Image x:Name="Qr2" Stretch="Uniform" Margin="8"/>
                         </Border>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
@@ -554,8 +560,9 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <StackPanel>
-                        <Border Width="148" Height="148" CornerRadius="12" Background="White">
+                    <StackPanel x:Name="QrBlock3">
+                        <Border Width="160" Height="160" CornerRadius="12" Background="Transparent"
+                                BorderBrush="#22FFFFFF" BorderThickness="1">
                             <Image x:Name="Qr3" Stretch="Uniform" Margin="8"/>
                         </Border>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
@@ -568,7 +575,6 @@
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
-
                 <Button Content="Начать" Width="300" Height="50" Margin="0,26,0,0"
                         FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryButton}"
                         Click="WelcomeStart_Click"/>

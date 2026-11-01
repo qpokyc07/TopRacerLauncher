@@ -47,7 +47,6 @@ public partial class MainWindow : Window
     private string _friendsSignature = "";
 
     private readonly Dictionary<string, int> _unread = new();
-    private readonly Dictionary<string, ChatWindow> _chats = new();
 
     public MainWindow()
     {
@@ -389,8 +388,12 @@ public partial class MainWindow : Window
     {
         Dispatcher.BeginInvoke(new Action(() =>
         {
-            // Чат с этим другом уже открыт — просто показываем там, без уведомления.
-            if (_chats.TryGetValue(peer.Id, out var open) && open.IsVisible) return;
+            // Чат с этим другом уже открыт — показываем сообщение во вкладке, без уведомления.
+            if (ChatWindow.IsOpenWith(peer.Id))
+            {
+                ChatWindow.NotifyIncoming(peer, text);
+                return;
+            }
 
             _unread[peer.Id] = _unread.TryGetValue(peer.Id, out int n) ? n + 1 : 1;
             SoundAlert.Info();
@@ -402,19 +405,10 @@ public partial class MainWindow : Window
 
     private void OpenChat(LanPeer peer)
     {
-        if (_chats.TryGetValue(peer.Id, out var existing) && existing.IsVisible)
-        {
-            existing.Activate();
-            return;
-        }
-
         _unread.Remove(peer.Id);
         RefreshFriends();
 
-        var chat = new ChatWindow(peer) { Owner = this };
-        _chats[peer.Id] = chat;
-        chat.Closed += (_, _) => _chats.Remove(peer.Id);
-        chat.Show();
+        ChatWindow.Open(peer, this);
     }
 
     private void FriendChat_Click(object sender, RoutedEventArgs e)
@@ -521,9 +515,29 @@ public partial class MainWindow : Window
     {
         var dir = Path.Combine(ConfigStore.ConfigDirectory, "qr");
 
-        Qr1.Source = LoadQr(Path.Combine(dir, "qr1.png"));
-        Qr2.Source = LoadQr(Path.Combine(dir, "qr2.png"));
-        Qr3.Source = LoadQr(Path.Combine(dir, "qr3.png"));
+        // Свои картинки из папки qr, иначе встроенные QR на Телеграм и ВКонтакте.
+        Qr1.Source = LoadQr(Path.Combine(dir, "qr1.png")) ?? LoadResourceImage("/Assets/qr-tg.png");
+        Qr2.Source = LoadQr(Path.Combine(dir, "qr2.png")) ?? LoadResourceImage("/Assets/qr-vk.png");
+        Qr3.Source = LoadQr(Path.Combine(dir, "qr3.png")) ?? LoadResourceImage("/Assets/qr-max.png");
+
+        // Блоки без картинки не показываем, чтобы не висели пустые рамки.
+        QrBlock1.Visibility = Qr1.Source == null ? Visibility.Collapsed : Visibility.Visible;
+        QrBlock2.Visibility = Qr2.Source == null ? Visibility.Collapsed : Visibility.Visible;
+        QrBlock3.Visibility = Qr3.Source == null ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private static System.Windows.Media.Imaging.BitmapImage? LoadResourceImage(string packPath)
+    {
+        try
+        {
+            var image = new System.Windows.Media.Imaging.BitmapImage();
+            image.BeginInit();
+            image.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+            image.UriSource = new Uri("pack://application:,,," + packPath, UriKind.Absolute);
+            image.EndInit();
+            return image;
+        }
+        catch { return null; }
     }
 
     private static System.Windows.Media.Imaging.BitmapImage? LoadQr(string path)
@@ -772,12 +786,10 @@ public partial class MainWindow : Window
         if (!s.TimerEnabled)
         {
             TimerChip.Visibility = Visibility.Collapsed;
-            TimerPanel.Visibility = Visibility.Collapsed;
             return;
         }
 
         TimerChip.Visibility = Visibility.Visible;
-        TimerPanel.Visibility = Visibility.Visible;
 
         int total = Math.Max(1, s.SessionMinutes * 60);
 
@@ -1117,7 +1129,6 @@ public partial class MainWindow : Window
         LockBadge.Background = unlocked
             ? new SolidColorBrush(Color.FromRgb(0x0F, 0xB8, 0x5E))
             : new SolidColorBrush(Color.FromRgb(0xD6, 0x45, 0x45));
-        LockIcon.Text = unlocked ? "\u1F513" : "\u1F512";   // 🔓 / 🔒
         LockText.Text = unlocked ? "Открыто" : "Закрыто";
         LockBadge.ToolTip = unlocked
             ? "Ctrl+2 — заблокировать окно (сворачивание и настройки потребуют пароль)"

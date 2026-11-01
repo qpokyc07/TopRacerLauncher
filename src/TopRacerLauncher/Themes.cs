@@ -13,7 +13,8 @@ public sealed record ThemeInfo(
     string BgPanel,
     string BgCard,
     string BgCardHover,
-    string? BgWindow2 = null);
+    string? BgWindow2 = null,
+    string? BgWindow3 = null);
 
 /// <summary>Палитра тем приложения.</summary>
 public static class Themes
@@ -106,30 +107,30 @@ public static class Themes
             "#84CC16", "#9FE03A", "#6BA80F",
             "#FF141A0F", "#E61D2415", "#CC232A1B", "#E62B3322"),
 
-        // --- градиентные фоны ---
+        // --- градиентные фоны (три цвета: тёмный → насыщенный → тёмный) ---
         new("sunset", "Закат (градиент)",
             "#FF7A45", "#FF9A6B", "#D95E2E",
-            "#FF1A1020", "#E6221830", "#CC281E3A", "#E6302545", "#FF2B1030"),
+            "#FF12060F", "#E6221830", "#CC281E3A", "#E6302545", "#FF2B0F2A", "#FF5C1A3A"),
 
         new("ocean",  "Океан (градиент)",
             "#2BB5D6", "#4FD0EC", "#1E93AF",
-            "#FF0B1A2A", "#E6132436", "#CC182C40", "#E61F354C", "#FF103040"),
+            "#FF05111E", "#E6132436", "#CC182C40", "#E61F354C", "#FF0A2A44", "#FF0E4A66"),
 
         new("neon",   "Неон (градиент)",
             "#C026D3", "#DC4AEC", "#9C1DAF",
-            "#FF120A1A", "#E61A0F26", "#CC21132F", "#E6291A39", "#FF250F35"),
+            "#FF0B0514", "#E61A0F26", "#CC21132F", "#E6291A39", "#FF2A0638", "#FF55105A"),
 
         new("cyber",  "Кибер (градиент)",
             "#00C2A8", "#22E0C4", "#009C87",
-            "#FF0A1418", "#E6121E23", "#CC18252B", "#E61F2E35", "#FF102430"),
+            "#FF04100E", "#E6121E23", "#CC18252B", "#E61F2E35", "#FF0A2A26", "#FF0E4A3E"),
 
         new("aurora", "Сияние (градиент)",
             "#4ADE80", "#6FF09C", "#33B863",
-            "#FF0A1A1A", "#E6122426", "#CC182B2E", "#E61F3438", "#FF14283A"),
+            "#FF05130D", "#E6122426", "#CC182B2E", "#E61F3438", "#FF0C2A24", "#FF124A44"),
 
         new("gold",   "Золото (градиент)",
             "#D4AF37", "#E8C657", "#B08F24",
-            "#FF1A1408", "#E6231C0E", "#CC2A2214", "#E6332919", "#FF2A2010"),
+            "#FF100C05", "#E6231C0E", "#CC2A2214", "#E6332919", "#FF2A2008", "#FF4A3810"),
     };
 
     public static ThemeInfo Find(string? key) =>
@@ -145,14 +146,14 @@ public static class Themes
         SetBrush(app, "AccentBrush", t.Accent);
         SetBrush(app, "AccentHoverBrush", t.AccentHover);
         SetBrush(app, "AccentPressedBrush", t.AccentPressed);
-        SetWindowBrush(app, t.BgWindow, t.BgWindow2);
+        SetWindowBrush(app, t.BgWindow, t.BgWindow2, t.BgWindow3);
         SetBrush(app, "BgPanelBrush", t.BgPanel);
         SetBrush(app, "BgCardBrush", t.BgCard);
         SetBrush(app, "BgCardHoverBrush", t.BgCardHover);
     }
 
     /// <summary>Фон окна: сплошной цвет или плавный градиент (если задан второй цвет).</summary>
-    private static void SetWindowBrush(System.Windows.Application app, string fromHex, string? toHex)
+    private static void SetWindowBrush(System.Windows.Application app, string fromHex, string? toHex, string? thirdHex)
     {
         try
         {
@@ -160,11 +161,23 @@ public static class Themes
 
             Brush brush;
 
-            if (!string.IsNullOrWhiteSpace(toHex) &&
-                ColorConverter.ConvertFromString(toHex) is Color to)
+            if (!string.IsNullOrWhiteSpace(toHex) && ColorConverter.ConvertFromString(toHex) is Color to)
             {
-                brush = new LinearGradientBrush(from, to, new System.Windows.Point(0, 0),
-                    new System.Windows.Point(1, 1));
+                // Насыщенный переход: тёмный → цвет → тёмный по диагонали.
+                var gradient = new LinearGradientBrush
+                {
+                    StartPoint = new System.Windows.Point(0, 0),
+                    EndPoint = new System.Windows.Point(1, 1),
+                };
+
+                gradient.GradientStops.Add(new GradientStop(from, 0));
+                gradient.GradientStops.Add(new GradientStop(to, 0.55));
+
+                var last = ColorConverter.ConvertFromString(
+                    string.IsNullOrWhiteSpace(thirdHex) ? fromHex : thirdHex!) is Color c ? c : from;
+                gradient.GradientStops.Add(new GradientStop(last, 1));
+
+                brush = gradient;
             }
             else
             {
