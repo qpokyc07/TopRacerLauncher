@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:TopRacerLauncher"
         Title="TopRacerLauncher"
-        Width="360" Height="430"
+        Width="540" Height="268"
         WindowStyle="None" ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource BgWindowBrush}"
@@ -31,34 +31,44 @@
                     Click="Close_Click" Content="&#x2715;" FontSize="10" WindowChrome.IsHitTestVisibleInChrome="True"/>
         </Grid>
 
-        <!-- Тело -->
-        <StackPanel Grid.Row="1" Margin="24,16,24,18">
-            <Border x:Name="IconBadge" Width="42" Height="42" CornerRadius="21" Background="#2A3F5F"
-                    HorizontalAlignment="Center" Margin="0,0,0,10">
-                <TextBlock x:Name="IconText" Text="&#x1F512;" FontSize="18"
+        <!-- Тело: горизонтальная компоновка -->
+        <Grid Grid.Row="1" Margin="24,16,24,18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border x:Name="IconBadge" Grid.Column="0" Width="64" Height="64" CornerRadius="32"
+                    Background="#2A3F5F" VerticalAlignment="Center" Margin="0,0,20,0">
+                <TextBlock x:Name="IconText" Text="&#x1F512;" FontSize="26"
                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
 
-            <TextBlock x:Name="TitleText" Text="Вход в TopRacerLauncher"
-                       FontSize="17" FontWeight="Bold" Foreground="{StaticResource TextBrush}"
-                       HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
-            <TextBlock x:Name="SubtitleText"
-                       Text="Введите пароль администратора"
-                       FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"
-                       HorizontalAlignment="Center" TextAlignment="Center" Margin="0,6,0,0" TextWrapping="Wrap"/>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock x:Name="TitleText" Text="Вход в TopRacerLauncher"
+                           FontSize="17" FontWeight="Bold" Foreground="{StaticResource TextBrush}"
+                           TextWrapping="Wrap"/>
+                <TextBlock x:Name="SubtitleText" Text="Введите пароль администратора"
+                           FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"
+                           TextWrapping="Wrap" Margin="0,4,0,0"/>
 
-            <TextBlock Text="Пароль" FontSize="12" FontWeight="SemiBold"
-                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,14,0,6"/>
-            <local:MaskedInput x:Name="PasswordInput" Style="{StaticResource BaseTextBox}" Height="36"
-                               FontSize="13" MaxLength="64" KeyDown="Password_KeyDown"/>
+                <local:MaskedInput x:Name="PasswordInput" Style="{StaticResource BaseTextBox}" Height="36"
+                                   FontSize="13" MaxLength="64" KeyDown="Password_KeyDown" Margin="0,12,0,0"/>
 
-            <TextBlock x:Name="ErrorText" Foreground="{StaticResource DangerBrush}" FontSize="11.5"
-                       Margin="0,8,0,0" TextWrapping="Wrap" Visibility="Collapsed"/>
+                <TextBlock x:Name="ErrorText" Foreground="{StaticResource DangerBrush}" FontSize="11.5"
+                           Margin="0,6,0,0" TextWrapping="Wrap" Visibility="Collapsed"/>
 
-            <Button x:Name="SubmitButton" Content="Войти" Style="{StaticResource PrimaryButton}"
-                    Height="38" FontSize="13" Margin="0,16,0,0" Click="Submit_Click" IsDefault="True"/>
-            <Button x:Name="CancelButton" Content="Отмена" Style="{StaticResource BaseButton}"
-                    Height="34" FontSize="12" Margin="0,8,0,0" Click="Close_Click" IsCancel="True"/>
-        </StackPanel>
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="SubmitButton" Grid.Column="0" Content="Войти" Style="{StaticResource PrimaryButton}"
+                            Height="36" FontSize="13" Click="Submit_Click" IsDefault="True"/>
+                    <Button x:Name="CancelButton" Grid.Column="1" Content="Отмена" Style="{StaticResource BaseButton}"
+                            Height="36" FontSize="12" Margin="8,0,0,0" Click="Close_Click" IsCancel="True"/>
+                </Grid>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

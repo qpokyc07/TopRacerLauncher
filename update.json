@@ -1,5 +1,5 @@
 {
-  "version": "1.7.2",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.7.2/TopRacerLauncher.exe",
-  "notes": "1.7.2 — компактное аккуратное окно входа (360x430): меньше заголовок, отступы и кнопки."
+  "version": "1.7.3",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.7.3/TopRacerLauncher.exe",
+  "notes": "1.7.3 — окно входа стало прямоугольным и компактным (540x268): иконка слева, поле и кнопки справа."
 }
