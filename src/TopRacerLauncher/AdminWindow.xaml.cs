@@ -19,6 +19,10 @@ public partial class AdminWindow : Window
     public AdminWindow()
     {
         InitializeComponent();
+
+        Opacity = 0;
+        BeginAnimation(OpacityProperty,
+            new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(160)));
         Loaded += OnLoaded;
         _uiTimer.Tick += (_, _) => UpdateRemainingLabel();
         _uiTimer.Start();

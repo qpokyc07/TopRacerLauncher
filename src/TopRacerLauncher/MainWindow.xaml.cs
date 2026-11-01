@@ -503,6 +503,33 @@ public partial class MainWindow : Window
         }));
     }
 
+    /// <summary>Тень у шапки и нижней панели, когда список прокручен — эффект «стекла».</summary>
+    private void Library_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        bool scrolled = e.VerticalOffset > 4;
+
+        var shadow = scrolled
+            ? new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = System.Windows.Media.Colors.Black,
+                BlurRadius = 20,
+                ShadowDepth = 3,
+                Opacity = 0.55,
+            }
+            : null;
+
+        HeaderBar.Effect = shadow;
+        BottomBar.Effect = scrolled
+            ? new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = System.Windows.Media.Colors.Black,
+                BlurRadius = 20,
+                ShadowDepth = -3,
+                Opacity = 0.55,
+            }
+            : null;
+    }
+
     // ---------- Экран приветствия и завершение сессии ----------
 
     private void ShowWelcome()
@@ -881,6 +908,13 @@ public partial class MainWindow : Window
         bool ctrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
         if (!ctrl) return;
 
+        if (e.Key == Key.K && Keyboard.Modifiers == ModifierKeys.Control)
+        {
+            e.Handled = true;
+            OpenCommandPalette();
+            return;
+        }
+
         if (e.Key is Key.D1 or Key.NumPad1)
         {
             e.Handled = true;
@@ -899,6 +933,38 @@ public partial class MainWindow : Window
         if (e.ChangedButton != MouseButton.Left) return;
         e.Handled = true;
         OpenAdminMenu();
+    }
+
+    /// <summary>Командная палитра: игры и быстрые действия (Ctrl+K).</summary>
+    private void OpenCommandPalette()
+    {
+        var items = new List<PaletteItem>();
+
+        foreach (var game in App.Settings.Games)
+        {
+            if (game.Locked && !App.AdminUnlocked) continue;
+
+            var target = game;
+            items.Add(new PaletteItem
+            {
+                Title = target.Title,
+                Subtitle = "Играть",
+                Run = () =>
+                {
+                    if (!EnsureCanPlay()) return;
+                    LaunchGame(target);
+                },
+            });
+        }
+
+        items.Add(new PaletteItem { Title = "Админ-меню", Subtitle = "Ctrl+1", Run = OpenAdminMenu });
+        items.Add(new PaletteItem { Title = "Завершить сессию", Subtitle = "Клуб", Run = () => EndSession_Click(this, new RoutedEventArgs()) });
+        items.Add(new PaletteItem { Title = "Экран приветствия", Subtitle = "Показать", Run = ShowWelcome });
+        items.Add(new PaletteItem { Title = "Открыть Steam", Subtitle = "Клиент", Run = () => OpenSteam_Click(this, new RoutedEventArgs()) });
+        items.Add(new PaletteItem { Title = "Открыть браузер", Subtitle = "Интернет", Run = () => OpenBrowser_Click(this, new RoutedEventArgs()) });
+        items.Add(new PaletteItem { Title = "Проверить обновления", Subtitle = "Версия " + UpdateService.CurrentVersion, Run = () => _ = CheckUpdatesAsync() });
+
+        new CommandPalette(items) { Owner = this }.ShowDialog();
     }
 
     private void OpenAdminMenu()

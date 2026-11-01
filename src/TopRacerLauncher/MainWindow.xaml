@@ -33,7 +33,7 @@
                 Visibility="Collapsed" Panel.ZIndex="-1"/>
 
         <!-- ================= Верхняя панель ================= -->
-        <Border Grid.Row="0" Background="{DynamicResource BgPanelBrush}"
+        <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BgPanelBrush}"
                 BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="0,0,0,1">
             <Grid>
                 <!-- Логотип -->
@@ -170,7 +170,8 @@
             </Grid.ColumnDefinitions>
 
 
-            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Padding="0">
+            <ScrollViewer x:Name="LibraryScroll" Grid.Column="0" VerticalScrollBarVisibility="Auto" Padding="0"
+                          ScrollChanged="Library_ScrollChanged">
                 <ItemsControl x:Name="GamesItems" Margin="26,22,26,26">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -276,9 +277,34 @@
                                                    Visibility="{Binding HasBackground, Converter={StaticResource BoolToVis}}"/>
                                             <Border Background="#73000000"
                                                     Visibility="{Binding HasBackground, Converter={StaticResource BoolToVis}}"/>
-                                            <!-- Цветная заглушка, если нет ни фона, ни обложки -->
-                                            <Border Background="{Binding PlaceholderBrush}"
-                                                    Visibility="{Binding ShowPlaceholder, Converter={StaticResource BoolToVis}}"/>
+                                            <!-- Заглушка + шиммер (пока нет обложки) -->
+                                            <Grid ClipToBounds="True"
+                                                  Visibility="{Binding ShowPlaceholder, Converter={StaticResource BoolToVis}}">
+                                                <Border Background="{Binding PlaceholderBrush}"/>
+                                                <Border Width="130" HorizontalAlignment="Left" Opacity="0.45">
+                                                    <Border.Background>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                            <GradientStop Color="#00FFFFFF" Offset="0"/>
+                                                            <GradientStop Color="#66FFFFFF" Offset="0.5"/>
+                                                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Border.Background>
+                                                    <Border.RenderTransform>
+                                                        <TranslateTransform X="-160"/>
+                                                    </Border.RenderTransform>
+                                                    <Border.Triggers>
+                                                        <EventTrigger RoutedEvent="Loaded">
+                                                            <BeginStoryboard>
+                                                                <Storyboard RepeatBehavior="Forever">
+                                                                    <DoubleAnimation
+                                                                        Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                                        From="-160" To="380" Duration="0:0:1.8"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </EventTrigger>
+                                                    </Border.Triggers>
+                                                </Border>
+                                            </Grid>
                                             <!-- Буква-инициал, если нет обложки -->
                                             <TextBlock Text="{Binding Initial}"
                                                        FontSize="{Binding Ui.CoverFontSize, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -293,6 +319,16 @@
                                                     <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="2" Opacity="0.7"/>
                                                 </Image.Effect>
                                             </Image>
+                                            <!-- Мягкий градиент снизу -->
+                                            <Border VerticalAlignment="Bottom" Height="70" IsHitTestVisible="False">
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                        <GradientStop Color="#00000000" Offset="0"/>
+                                                        <GradientStop Color="#8C000000" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                            </Border>
+
                                             <!-- Бейдж «играет» -->
                                             <Border Background="{DynamicResource AccentBrush}" CornerRadius="3"
                                                     Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Top"
@@ -378,7 +414,7 @@
             </Border>
 
             <!-- ===== Друзья в локальной сети ===== -->
-            <Border Grid.Row="2" Background="{DynamicResource BgPanelBrush}"
+            <Border x:Name="BottomBar" Grid.Row="2" Background="{DynamicResource BgPanelBrush}"
                     BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1"
                     CornerRadius="18" Padding="14">
                 <Grid>

@@ -16,6 +16,11 @@ public partial class ChatWindow : Window
     public ChatWindow()
     {
         InitializeComponent();
+
+        Opacity = 0;
+        BeginAnimation(OpacityProperty,
+            new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(160)));
+
         Closed += (_, _) =>
         {
             foreach (var tab in _tabs.Values) tab.Detach();
