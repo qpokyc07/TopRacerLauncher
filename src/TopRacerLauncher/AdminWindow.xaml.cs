@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -152,59 +153,59 @@ public partial class AdminWindow : Window
 
         foreach (var theme in Themes.All)
         {
-            var btn = new Button
+            var accent = MakeBrush(theme.Accent, theme.BgWindow2);
+
+            var chip = new Border
             {
                 Tag = theme.Key,
-                Width = 130,
-                Height = 44,
-                Margin = new Thickness(0, 0, 10, 10),
-                Content = BuildThemePreview(theme),
-                ToolTip = theme.Name,
+                Width = 54,
+                Height = 40,
+                Margin = new Thickness(0, 0, 8, 0),
+                CornerRadius = new CornerRadius(9),
+                Background = accent,
+                BorderThickness = new Thickness(2),
+                BorderBrush = Brushes.Transparent,
                 Cursor = System.Windows.Input.Cursors.Hand,
+                ToolTip = theme.Name,
             };
-            btn.Click += Theme_Click;
-            ThemeButtonsPanel.Children.Add(btn);
+
+            chip.MouseLeftButtonUp += ThemeChip_Click;
+            ThemeButtonsPanel.Children.Add(chip);
         }
 
         HighlightActiveTheme();
     }
 
-    private static System.Windows.UIElement BuildThemePreview(ThemeInfo theme)
+    /// <summary>Цвет темы: для градиентных — плавный переход от акцента ко второму цвету.</summary>
+    private static Brush MakeBrush(string accentHex, string? secondHex)
     {
-        var accent = new SolidColorBrush(
-            (Color)ColorConverter.ConvertFromString(theme.Accent)!);
-        accent.Freeze();
+        var accent = (Color)ColorConverter.ConvertFromString(accentHex)!;
 
-        var stack = new StackPanel { Orientation = Orientation.Horizontal };
+        Brush brush;
 
-        stack.Children.Add(new Border
+        if (!string.IsNullOrWhiteSpace(secondHex) &&
+            ColorConverter.ConvertFromString(secondHex) is Color second)
         {
-            Width = 30,
-            Height = 30,
-            Background = accent,
-            CornerRadius = new CornerRadius(6),
-        });
-        stack.Children.Add(new TextBlock
+            brush = new LinearGradientBrush(accent, second, new System.Windows.Point(0, 0),
+                new System.Windows.Point(1, 1));
+        }
+        else
         {
-            Text = theme.Name,
-            Foreground = FindResourceSafe("TextBrush"),
-            FontSize = 12.5,
-            VerticalAlignment = VerticalAlignment.Center,
-            Margin = new Thickness(10, 0, 0, 0),
-        });
+            brush = new SolidColorBrush(accent);
+        }
 
-        return stack;
+        brush.Freeze();
+        return brush;
     }
-
     private static Brush FindResourceSafe(string key)
     {
         if (Application.Current?.TryFindResource(key) is Brush b) return b;
         return Brushes.White;
     }
 
-    private void Theme_Click(object sender, RoutedEventArgs e)
+    private void ThemeChip_Click(object sender, MouseButtonEventArgs e)
     {
-        if (sender is not FrameworkElement fe || fe.Tag is not string key) return;
+        if (sender is not Border chip || chip.Tag is not string key) return;
 
         Themes.Apply(key);
         App.Settings.AccentTheme = key;
@@ -214,15 +215,20 @@ public partial class AdminWindow : Window
 
     private void HighlightActiveTheme()
     {
+        var activeKey = App.Settings.AccentTheme;
+        var activeTheme = Themes.Find(activeKey);
+
+        ThemeNameText.Text = "Выбрана: " + activeTheme.Name;
+
         foreach (var child in ThemeButtonsPanel.Children)
         {
-            if (child is not Button b || b.Tag is not string key) continue;
-            bool active = string.Equals(key, App.Settings.AccentTheme, StringComparison.OrdinalIgnoreCase);
+            if (child is not Border chip || chip.Tag is not string key) continue;
 
-            b.BorderBrush = active
-                ? FindResourceSafe("AccentBrush")
-                : FindResourceSafe("BorderBrush");
-            b.BorderThickness = new Thickness(active ? 2 : 1);
+            bool active = string.Equals(key, activeKey, StringComparison.OrdinalIgnoreCase);
+
+            chip.BorderBrush = active ? Brushes.White : Brushes.Transparent;
+            chip.BorderThickness = new Thickness(active ? 2.5 : 0);
+            chip.Opacity = active ? 1.0 : 0.85;
         }
     }
 
