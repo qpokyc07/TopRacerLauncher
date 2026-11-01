@@ -473,7 +473,7 @@
                                             </Grid.ColumnDefinitions>
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13"
-                                                           Foreground="{StaticResource TextBrush}"
+                                                           Foreground="{Binding NameBrush}"
                                                            TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock Text="{Binding StatusText}" FontSize="11.5"
                                                            Foreground="{StaticResource TextSecondaryBrush}"
@@ -557,17 +557,24 @@
                             ToolTip="Открыть Steam (в закрытом режиме — по паролю)"/>
                 </StackPanel>
 
-                <!-- Подсказка по центру -->
-                <TextBlock Grid.Column="1" Text="Клик по обложке — запустить игру  •  Ctrl+K — поиск  •  Ctrl+1 — админ-меню"
-                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <!-- Справка по центру -->
+                <Button Grid.Column="1" Width="32" Height="32" HorizontalAlignment="Center"
+                        VerticalAlignment="Center" Style="{StaticResource CaptionButton}"
+                        Click="Help_Click" ToolTip="Как играть" Content="?&#x20;" FontSize="15"
+                        FontWeight="Bold"/>
 
-                <!-- Ссылка внизу справа -->
-                <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"
-                           FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}">
-                    По всем вопросам —
-                    <Hyperlink Click="Support_Click" Style="{StaticResource SupportLink}">@qpokycnow</Hyperlink>
-                </TextBlock>
+                <!-- Акция и ссылка справа -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+                    <Button Content="Хочешь до 30 минут бесплатно?" Height="30" Padding="14,0"
+                            FontSize="11.5" FontWeight="SemiBold" Margin="0,0,16,0"
+                            Style="{StaticResource PrimaryButton}" Click="Promo_Click"/>
+                    <TextBlock VerticalAlignment="Center" FontSize="11.5"
+                               Foreground="{StaticResource TextSecondaryBrush}">
+                        По всем вопросам —
+                        <Hyperlink Click="Support_Click" Style="{StaticResource SupportLink}">@qpokycnow</Hyperlink>
+                    </TextBlock>
+                </StackPanel>
             </Grid>
         </Border>
 

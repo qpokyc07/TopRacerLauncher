@@ -24,7 +24,7 @@ public partial class LaunchOverlayWindow : Window
         {
             var area = SystemParameters.WorkArea;
             Left = area.Left + (area.Width - ActualWidth) / 2;
-            Top = area.Top + area.Height * 0.12;
+            Top = area.Top + (area.Height - ActualHeight) / 2;
             _timer.Start();
         };
         _timer.Tick += (_, _) => Close();

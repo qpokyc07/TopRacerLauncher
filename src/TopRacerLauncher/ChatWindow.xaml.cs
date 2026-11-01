@@ -138,6 +138,16 @@ public partial class ChatWindow : Window
         }));
     }
 
+    /// <summary>Звонок текущему собеседнику (активная вкладка).</summary>
+    private void Call_Click(object sender, RoutedEventArgs e)
+    {
+        var active = _tabs.FirstOrDefault(kv => kv.Value.Content == TabHost.Content);
+        var peer = active.Value?.Peer;
+        if (peer == null) return;
+
+        CallLauncher.Call(peer, this);
+    }
+
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
 }
 
@@ -170,6 +180,8 @@ public sealed class ChatTab
     public FrameworkElement Content { get; }
 
     public string PeerName => _peer.Name;
+
+    public LanPeer Peer => _peer;
 
     public ChatTab(LanPeer peer)
     {

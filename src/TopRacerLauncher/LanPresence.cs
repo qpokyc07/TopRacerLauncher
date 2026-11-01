@@ -16,6 +16,7 @@ public sealed class LanPeer
 
     public string Room { get; init; } = "";
     public string Presence { get; init; } = "online";
+    public string Theme { get; init; } = "";
 
     public string Status => !string.IsNullOrWhiteSpace(Room)
         ? "в звонке"
@@ -149,6 +150,7 @@ public static class LanPresence
                 game = App.Runner.IsRunning ? (App.Runner.CurrentTitle ?? "") : "",
                 room = VoiceEngine.InCall ? VoiceEngine.RoomId.ToString() : "",
                 status = App.Settings.MyStatus,
+                theme = App.Settings.AccentTheme,
             };
 
             var bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload));
@@ -205,6 +207,7 @@ public static class LanPresence
                 var game = root.TryGetProperty("game", out var g) ? g.GetString() ?? "" : "";
                 var room = root.TryGetProperty("room", out var rr) ? rr.GetString() ?? "" : "";
                 var status = root.TryGetProperty("status", out var st) ? st.GetString() ?? "online" : "online";
+                var theme = root.TryGetProperty("theme", out var th) ? th.GetString() ?? "" : "";
 
                 bool added;
                 lock (Gate)
@@ -217,6 +220,7 @@ public static class LanPresence
                         Game = game,
                         Room = room,
                         Presence = status,
+                        Theme = theme,
                         EndPoint = from,
                         LastSeenUtc = DateTime.UtcNow,
                     };

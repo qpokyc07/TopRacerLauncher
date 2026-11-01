@@ -328,33 +328,121 @@ public partial class CallWindow : Window
     {
         if (!VoiceEngine.InCall) return;
 
-        // В комнате не больше 4 человек, включая себя.
         var roomText = VoiceEngine.RoomId.ToString();
-        int inRoom = 1 + LanPresence.GetPeers()
-            .Count(p => string.Equals(p.Room, roomText, StringComparison.OrdinalIgnoreCase));
 
-        if (inRoom >= 4)
+        var candidates = LanPresence.GetPeers()
+            .Where(p => !string.Equals(p.Room, roomText, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (candidates.Count == 0)
         {
-            MessageBox.Show(this, "В звонке уже 4 человека — больше не поместится.",
-                "Звонок", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(this, "В сети нет свободных друзей.", "Звонок",
+                MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
-        int invited = 0;
-        foreach (var peer in LanPresence.GetPeers())
+        var window = new Window
         {
-            if (string.Equals(peer.Room, VoiceEngine.RoomId.ToString(), StringComparison.OrdinalIgnoreCase))
-                continue;
+            Title = "Пригласить друзей",
+            Owner = this,
+            WindowStyle = WindowStyle.None,
+            AllowsTransparency = true,
+            Background = System.Windows.Media.Brushes.Transparent,
+            SizeToContent = SizeToContent.Height,
+            Width = 380,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            FontFamily = new System.Windows.Media.FontFamily("Segoe UI"),
+        };
 
-            LanPresence.SendCallInvite(peer, VoiceEngine.RoomId);
-            invited++;
+        var list = new StackPanel { Margin = new Thickness(0, 10, 0, 0) };
+        var boxes = new Dictionary<string, System.Windows.Controls.CheckBox>();
+
+        foreach (var peer in candidates)
+        {
+            var box = new System.Windows.Controls.CheckBox
+            {
+                Content = peer.Name + (string.IsNullOrWhiteSpace(peer.Game) ? "" : "  •  " + peer.Status),
+                IsChecked = true,
+                Margin = new Thickness(0, 0, 0, 10),
+                FontSize = 13,
+                Foreground = FindResource("TextBrush") as System.Windows.Media.Brush,
+            };
+            boxes[peer.Id] = box;
+            list.Children.Add(box);
         }
 
-        MessageBox.Show(this,
-            invited == 0 ? "В сети никого нет." : $"Приглашение отправлено: {invited}.",
-            "Звонок", MessageBoxButton.OK, MessageBoxImage.Information);
-    }
+        var invite = new Button
+        {
+            Content = "Пригласить",
+            Height = 38,
+            Padding = new Thickness(18, 0, 18, 0),
+            Style = FindResource("PrimaryButton") as Style,
+        };
 
+        var cancel = new Button
+        {
+            Content = "Отмена",
+            Height = 38,
+            Padding = new Thickness(18, 0, 18, 0),
+            Margin = new Thickness(8, 0, 0, 0),
+            Style = FindResource("BaseButton") as Style,
+        };
+
+        var buttons = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            Margin = new Thickness(0, 12, 0, 0),
+        };
+        buttons.Children.Add(cancel);
+        buttons.Children.Add(invite);
+
+        var root = new StackPanel { Margin = new Thickness(20, 18, 20, 18) };
+        root.Children.Add(new TextBlock
+        {
+            Text = "Кого пригласить в звонок",
+            FontSize = 16,
+            FontWeight = FontWeights.Bold,
+            Foreground = FindResource("TextBrush") as System.Windows.Media.Brush,
+            Margin = new Thickness(0, 0, 0, 6),
+        });
+        root.Children.Add(list);
+        root.Children.Add(buttons);
+
+        window.Content = new Border
+        {
+            CornerRadius = new CornerRadius(16),
+            Background = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#F50C0E13")),
+            BorderBrush = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#40FFFFFF")),
+            BorderThickness = new Thickness(1),
+            Padding = new Thickness(20, 16, 20, 16),
+            Child = root,
+        };
+
+        cancel.Click += (_, _) => window.Close();
+        invite.Click += (_, _) =>
+        {
+            int sent = 0;
+            foreach (var peer in candidates)
+            {
+                if (boxes.TryGetValue(peer.Id, out var box) && box.IsChecked == true)
+                {
+                    LanPresence.SendCallInvite(peer, VoiceEngine.RoomId);
+                    sent++;
+                }
+            }
+
+            window.Close();
+
+            if (sent > 0)
+                MessageBox.Show(this, $"Приглашение отправлено: {sent}.", "Звонок",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+        };
+
+        window.ShowDialog();
+    }
     private void HangUp_Click(object sender, RoutedEventArgs e)
     {
         PttHook.Uninstall();

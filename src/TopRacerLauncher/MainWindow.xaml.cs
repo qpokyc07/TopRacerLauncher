@@ -394,6 +394,7 @@ public partial class MainWindow : Window
             Name = p.Name,
             Status = p.Status,
             Typing = _typing.ContainsKey(p.Id),
+            NameBrush = ThemeBrush(p.Theme),
             Unread = _unread.TryGetValue(p.Id, out int n) ? n : 0,
         }).ToList();
 
@@ -421,6 +422,26 @@ public partial class MainWindow : Window
             new NoticeWindow("Новое сообщение — " + peer.Name, text, () => OpenChat(peer)).Show();
         }));
     }
+
+    /// <summary>Цвет имени друга — его акцент из темы приложения.</summary>
+    private static Brush ThemeBrush(string themeKey)
+    {
+        try
+        {
+            var theme = Themes.Find(themeKey);
+            var color = (Color)ColorConverter.ConvertFromString(theme.Accent)!;
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            return brush;
+        }
+        catch
+        {
+            return FindResourceStatic("TextBrush");
+        }
+    }
+
+    private static Brush FindResourceStatic(string key)
+        => Application.Current?.TryFindResource(key) as Brush ?? Brushes.White;
 
     private void OnTyping(LanPeer peer)
     {
@@ -477,10 +498,7 @@ public partial class MainWindow : Window
         if (sender is not FrameworkElement fe || fe.DataContext is not FriendVm vm) return;
         var peer = vm.Peer;
 
-        if (!VoiceEngine.InCall && !StartCall(Guid.NewGuid())) return;
-
-        LanPresence.SendCallInvite(peer, VoiceEngine.RoomId);
-        ShowCallWindow();
+        CallLauncher.Call(peer, this);
     }
 
     /// <summary>Включает голосовой движок и глобальный PTT.</summary>
@@ -638,6 +656,12 @@ public partial class MainWindow : Window
     private void WelcomeStart_Click(object sender, RoutedEventArgs e)
         => WelcomeOverlay.Visibility = Visibility.Collapsed;
 
+    private void Help_Click(object sender, RoutedEventArgs e)
+        => new HelpWindow { Owner = this }.ShowDialog();
+
+    private void Promo_Click(object sender, RoutedEventArgs e)
+        => new PromoWindow { Owner = this }.ShowDialog();
+
     private void Support_Click(object sender, RoutedEventArgs e)
     {
         try
@@ -756,9 +780,14 @@ public partial class MainWindow : Window
 
         DetailSubtitle.Text = string.Join("   •   ", bits);
         DetailGenres.Text = game.Genres ?? "";
-        DetailDescription.Text = string.IsNullOrWhiteSpace(game.Description)
+        // Описание показываем сокращённо, чтобы панель не приходилось прокручивать.
+        var description = game.Description ?? "";
+        if (description.Length > 260)
+            description = description[..257].TrimEnd() + "…";
+
+        DetailDescription.Text = string.IsNullOrWhiteSpace(description)
             ? "Метаданные не загружены. Ctrl+1 → выберите игру → «Метаданные»."
-            : game.Description!;
+            : description;
 
         DetailPlayButton.IsEnabled = true;
     }
@@ -1368,6 +1397,7 @@ public sealed class FriendVm
     public LanPeer Peer { get; init; } = new();
     public string Name { get; init; } = "";
     public string Status { get; init; } = "";
+    public Brush NameBrush { get; init; } = Brushes.White;
     public bool Typing { get; init; }
     public int Unread { get; init; }
     public bool ShowUnread => Unread > 0;

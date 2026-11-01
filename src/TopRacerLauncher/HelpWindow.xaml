@@ -1,0 +1,72 @@
+<Window x:Class="TopRacerLauncher.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TopRacerLauncher"
+        Width="720" Height="330"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        FontFamily="Segoe UI">
+    <Border CornerRadius="18" Background="#F50C0E13" BorderBrush="#40FFFFFF" BorderThickness="1"
+            Padding="26,22">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" BlurRadius="28" ShadowDepth="6" Opacity="0.55"/>
+        </Border.Effect>
+
+        <StackPanel>
+            <Grid>
+                <TextBlock Text="Как играть" FontSize="20" FontWeight="Bold"
+                           Foreground="{StaticResource TextBrush}" HorizontalAlignment="Left"/>
+                <Button HorizontalAlignment="Right" Width="34" Height="30" Content="&#x2715;"
+                        FontSize="11" Style="{StaticResource CaptionButton}" Click="Close_Click"/>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,22,0,0">
+                <StackPanel Width="170">
+                    <Border Width="54" Height="54" CornerRadius="27" Background="{DynamicResource AccentBrush}"
+                            HorizontalAlignment="Center">
+                        <TextBlock Text="1" FontSize="22" FontWeight="Bold" Foreground="White"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Выбери игру" FontSize="14" FontWeight="SemiBold" TextAlignment="Center"
+                               Foreground="{StaticResource TextBrush}" Margin="0,10,0,0"/>
+                    <TextBlock Text="Кликни по обложке" FontSize="11.5" TextAlignment="Center"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <TextBlock Text="&#x2192;" FontSize="24" Foreground="{DynamicResource AccentBrush}"
+                           VerticalAlignment="Center" Margin="4,0,4,34"/>
+
+                <StackPanel Width="170">
+                    <Border Width="54" Height="54" CornerRadius="27" Background="{DynamicResource AccentBrush}"
+                            HorizontalAlignment="Center">
+                        <TextBlock Text="2" FontSize="22" FontWeight="Bold" Foreground="White"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Нажми «Играть»" FontSize="14" FontWeight="SemiBold" TextAlignment="Center"
+                               Foreground="{StaticResource TextBrush}" Margin="0,10,0,0"/>
+                    <TextBlock Text="Справа в описании" FontSize="11.5" TextAlignment="Center"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <TextBlock Text="&#x2192;" FontSize="24" Foreground="{DynamicResource AccentBrush}"
+                           VerticalAlignment="Center" Margin="4,0,4,34"/>
+
+                <StackPanel Width="170">
+                    <Border Width="54" Height="54" CornerRadius="27" Background="{DynamicResource AccentBrush}"
+                            HorizontalAlignment="Center">
+                        <TextBlock Text="3" FontSize="22" FontWeight="Bold" Foreground="White"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Играй!" FontSize="14" FontWeight="SemiBold" TextAlignment="Center"
+                               Foreground="{StaticResource TextBrush}" Margin="0,10,0,0"/>
+                    <TextBlock Text="Время пойдёт по таймеру" FontSize="11.5" TextAlignment="Center"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+            </StackPanel>
+
+            <Button Content="Понятно" Width="200" Height="40" Margin="0,24,0,0"
+                    HorizontalAlignment="Center" Style="{StaticResource PrimaryButton}"
+                    Click="Close_Click"/>
+        </StackPanel>
+    </Border>
+</Window>

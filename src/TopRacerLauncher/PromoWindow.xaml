@@ -1,0 +1,53 @@
+<Window x:Class="TopRacerLauncher.PromoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TopRacerLauncher"
+        Width="560" Height="420"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        FontFamily="Segoe UI">
+    <Border CornerRadius="18" Background="#F50C0E13" BorderBrush="#40FFFFFF" BorderThickness="1"
+            Padding="26,22">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" BlurRadius="28" ShadowDepth="6" Opacity="0.55"/>
+        </Border.Effect>
+
+        <StackPanel>
+            <Grid>
+                <TextBlock Text="&#x1F381;" FontSize="26" HorizontalAlignment="Left"/>
+                <Button HorizontalAlignment="Right" Width="34" Height="30" Content="&#x2715;"
+                        FontSize="11" Style="{StaticResource CaptionButton}" Click="Close_Click"/>
+            </Grid>
+
+            <TextBlock Text="Хочешь до 30 минут бесплатно?" FontSize="20" FontWeight="Bold"
+                       Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+
+            <TextBlock Text="Чтобы получить дополнительные минуты, подпишись на наши соцсети — за каждую подписку +10 минут*."
+                       FontSize="13.5" Foreground="{StaticResource TextSecondaryBrush}"
+                       TextWrapping="Wrap" LineHeight="21" Margin="0,14,0,0"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,18,0,0">
+                <Border Width="46" Height="46" CornerRadius="23" Background="#2AABEE" Margin="0,0,16,0">
+                    <TextBlock Text="TG" FontSize="13" FontWeight="Bold" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <Border Width="46" Height="46" CornerRadius="23" Background="#0077FF" Margin="0,0,16,0">
+                    <TextBlock Text="VK" FontSize="13" FontWeight="Bold" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <Border Width="46" Height="46" CornerRadius="23" Background="#FF6B00">
+                    <TextBlock Text="M" FontSize="15" FontWeight="Bold" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+            </StackPanel>
+
+            <TextBlock Text="* Обязательно покажи администратору, что ты подписался."
+                       FontSize="11.5" Foreground="{DynamicResource AccentBrush}"
+                       TextWrapping="Wrap" Margin="0,20,0,0"/>
+
+            <Button Content="Понятно" Width="200" Height="40" Margin="0,18,0,0"
+                    HorizontalAlignment="Center" Style="{StaticResource PrimaryButton}"
+                    Click="Close_Click"/>
+        </StackPanel>
+    </Border>
+</Window>
