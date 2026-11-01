@@ -137,6 +137,12 @@
                     </Border>
 
 
+                    <!-- Завершить сессию (для клуба) -->
+                    <Button x:Name="EndSessionButton" Content="Завершить" Height="30" Padding="14,0"
+                            FontSize="12" Margin="0,0,10,0" Style="{StaticResource BaseButton}"
+                            WindowChrome.IsHitTestVisibleInChrome="True" Click="EndSession_Click"
+                            ToolTip="Завершить сессию и вернуть экран приветствия"/>
+
                     <!-- Кнопки окна: свернуть / развернуть / закрыть -->
                     <Button Content="&#x2500;" Style="{StaticResource CaptionButton}"
                             Click="Minimize_Click" WindowChrome.IsHitTestVisibleInChrome="True"
@@ -498,5 +504,36 @@
                 </StackPanel>
             </Grid>
         </Border>
+        <!-- ===== Экран приветствия (киоск/клуб) ===== -->
+        <Grid x:Name="WelcomeOverlay" Grid.RowSpan="4" Panel.ZIndex="50" Visibility="Collapsed"
+              Background="#F2080A0E">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="&#x1F44B;" FontSize="46" HorizontalAlignment="Center"/>
+                <TextBlock Text="Добро пожаловать" FontSize="30" FontWeight="Bold"
+                           Foreground="{StaticResource TextBrush}" HorizontalAlignment="Center"
+                           Margin="0,10,0,0"/>
+                <TextBlock Text="Top Racer" FontSize="46" FontWeight="Black"
+                           Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"
+                           Margin="0,2,0,0"/>
+                <TextBlock Text="Следи за нами в соцсетях" FontSize="15"
+                           Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center"
+                           Margin="0,14,0,0"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,22,0,0">
+                    <Border Width="148" Height="148" CornerRadius="12" Background="White" Margin="0,0,18,0">
+                        <Image x:Name="Qr1" Stretch="Uniform" Margin="8"/>
+                    </Border>
+                    <Border Width="148" Height="148" CornerRadius="12" Background="White" Margin="0,0,18,0">
+                        <Image x:Name="Qr2" Stretch="Uniform" Margin="8"/>
+                    </Border>
+                    <Border Width="148" Height="148" CornerRadius="12" Background="White">
+                        <Image x:Name="Qr3" Stretch="Uniform" Margin="8"/>
+                    </Border>
+                </StackPanel>
+
+                <Button Content="Начать" Width="260" Height="46" Margin="0,28,0,0"
+                        FontSize="15" Style="{StaticResource PrimaryButton}" Click="WelcomeStart_Click"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

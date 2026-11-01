@@ -107,6 +107,9 @@ public sealed class Settings
     /// <summary>Имя пользователя в лаунчере (видно друзьям в сети).</summary>
     public string UserName { get; set; } = "";
 
+    /// <summary>Киоск-режим: не выпускать посетителя из лаунчера.</summary>
+    public bool KioskMode { get; set; }
+
     /// <summary>Откуда брать обновления: URL на update.json или путь к папке с ним.</summary>
     public string UpdateUrl { get; set; } = DefaultUpdateUrl;
 

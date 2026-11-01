@@ -79,6 +79,16 @@ public partial class MainWindow : Window
             RefreshUi();
             _tick.Start();
 
+            // Клуб: киоск-режим и экран приветствия.
+            try
+            {
+                KioskMode.Apply(App.Settings.KioskMode);
+                if (App.Settings.KioskMode) Topmost = true;
+            }
+            catch { }
+
+            ShowWelcome();
+
             // Метаданные подтягиваются сами, в фоне.
             _ = FillMissingMetadataAsync();
 
@@ -275,6 +285,16 @@ public partial class MainWindow : Window
         {
             RefreshUi();
             _tick.Start();
+
+            // Клуб: киоск-режим и экран приветствия.
+            try
+            {
+                KioskMode.Apply(App.Settings.KioskMode);
+                if (App.Settings.KioskMode) Topmost = true;
+            }
+            catch { }
+
+            ShowWelcome();
         }
         else
         {
@@ -486,6 +506,68 @@ public partial class MainWindow : Window
         }));
     }
 
+    // ---------- Экран приветствия и завершение сессии ----------
+
+    private void ShowWelcome()
+    {
+        LoadQrCodes();
+        WelcomeOverlay.Visibility = Visibility.Visible;
+    }
+
+    private void LoadQrCodes()
+    {
+        var dir = Path.Combine(ConfigStore.ConfigDirectory, "qr");
+
+        Qr1.Source = LoadQr(Path.Combine(dir, "qr1.png"));
+        Qr2.Source = LoadQr(Path.Combine(dir, "qr2.png"));
+        Qr3.Source = LoadQr(Path.Combine(dir, "qr3.png"));
+    }
+
+    private static System.Windows.Media.Imaging.BitmapImage? LoadQr(string path)
+    {
+        try
+        {
+            if (!File.Exists(path)) return null;
+
+            var image = new System.Windows.Media.Imaging.BitmapImage();
+            image.BeginInit();
+            image.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+            image.UriSource = new Uri(path, UriKind.Absolute);
+            image.EndInit();
+            return image;
+        }
+        catch { return null; }
+    }
+
+    private void WelcomeStart_Click(object sender, RoutedEventArgs e)
+        => WelcomeOverlay.Visibility = Visibility.Collapsed;
+
+    /// <summary>Админ завершает сессию и освобождает место следующему гостю.</summary>
+    private void EndSession_Click(object sender, RoutedEventArgs e)
+    {
+        if (!RequireAdmin()) return;
+
+        var answer = MessageBox.Show(this,
+            "Завершить сессию и вернуть экран приветствия?\n\nТекущая игра будет закрыта, таймер сброшен.",
+            "Завершить сессию", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (answer != MessageBoxResult.Yes) return;
+
+        try { App.Runner.KillCurrent(); } catch { }
+
+        var s = App.Settings;
+        s.TimerEnabled = false;
+        s.TimerPaused = false;
+        s.Locked = false;
+        s.RemainingSeconds = 0;
+        s.PausedRemainingSeconds = 0;
+        s.SessionEndUtc = default;
+        App.SaveState();
+
+        RefreshTimerUi();
+        UpdateGameStatus();
+        ShowWelcome();
+    }
+
     // ---------- Быстрые ссылки ----------
 
     private void OpenBrowser_Click(object sender, RoutedEventArgs e)
@@ -645,6 +727,16 @@ public partial class MainWindow : Window
         {
             RefreshUi();
             _tick.Start();
+
+            // Клуб: киоск-режим и экран приветствия.
+            try
+            {
+                KioskMode.Apply(App.Settings.KioskMode);
+                if (App.Settings.KioskMode) Topmost = true;
+            }
+            catch { }
+
+            ShowWelcome();
             return true;
         }
 
@@ -1091,6 +1183,7 @@ public partial class MainWindow : Window
         if (_shuttingDown) return;
         _shuttingDown = true;
         _friendsTimer.Stop();
+        try { KioskMode.Disable(); } catch { }
         try { PttHook.Uninstall(); } catch { }
         try { VoiceEngine.LeaveCall(); } catch { }
         try { LanPresence.Stop(); } catch { }

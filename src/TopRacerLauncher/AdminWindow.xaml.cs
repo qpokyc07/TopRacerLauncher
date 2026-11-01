@@ -45,6 +45,7 @@ public partial class AdminWindow : Window
         SoundCheck.IsChecked = s.SoundAlerts;
         AutoCoversCheck.IsChecked = s.AutoCovers;
         HideStoreCheck.IsChecked = s.HideStoreWindows;
+        KioskCheck.IsChecked = s.KioskMode;
         UserNameBox.Text = s.UserName;
         UpdateUrlBox.Text = s.UpdateUrl;
         VersionLabel.Text = "Текущая версия: " + UpdateService.CurrentVersion;
@@ -786,6 +787,19 @@ public partial class AdminWindow : Window
 
         SetArtStatus("Доступна версия " + info.Version, autoHide: true);
         new UpdateWindow(info, url) { Owner = this }.Show();
+    }
+
+    private void Kiosk_Changed(object sender, RoutedEventArgs e)
+    {
+        bool enabled = KioskCheck.IsChecked == true;
+
+        App.Settings.KioskMode = enabled;
+        App.SaveState();
+
+        try { KioskMode.Apply(enabled); } catch { }
+        if (Owner is MainWindow main) main.Topmost = enabled;
+
+        SetArtStatus(enabled ? "Киоск-режим включён" : "Киоск-режим выключен", autoHide: true);
     }
 
     private void HideStore_Changed(object sender, RoutedEventArgs e)

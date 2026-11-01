@@ -289,6 +289,9 @@
                             <CheckBox x:Name="FullScreenCheck" Content="Полный экран"
                                       Margin="0,10,0,0" Checked="FullScreen_Changed" Unchecked="FullScreen_Changed"/>
 
+                            <CheckBox x:Name="KioskCheck" Content="Киоск-режим (не выпускать из лаунчера)"
+                                      Margin="0,10,0,0" Checked="Kiosk_Changed" Unchecked="Kiosk_Changed"/>
+
                             <TextBlock Text="Ваше имя (видно друзьям в сети)" Style="{StaticResource SecondaryText}"
                                        Margin="0,14,0,6"/>
                             <Grid>
