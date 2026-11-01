@@ -88,8 +88,8 @@ public partial class ChatWindow : Window
             var button = new Button
             {
                 Content = emoji,
-                Width = 34,
-                Height = 30,
+                Height = 32,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
                 FontSize = 15,
                 Margin = new Thickness(0),
                 Background = Brushes.Transparent,
@@ -133,7 +133,6 @@ public partial class ChatWindow : Window
             var button = new Button
             {
                 Content = content,
-                Width = 92,
                 Height = 48,
                 Margin = new Thickness(3),
                 Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(sticker.Color)),

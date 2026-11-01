@@ -70,12 +70,12 @@
                 </StackPanel>
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="140">
-                    <UniformGrid x:Name="EmojiGrid" Columns="8" HorizontalAlignment="Left"/>
+                    <UniformGrid x:Name="EmojiGrid" Columns="8" HorizontalAlignment="Stretch"/>
                 </ScrollViewer>
 
                 <ScrollViewer x:Name="StickerScroll" VerticalScrollBarVisibility="Auto" MaxHeight="140"
                               Visibility="Collapsed">
-                    <UniformGrid x:Name="StickerGrid" Columns="4" HorizontalAlignment="Left"/>
+                    <UniformGrid x:Name="StickerGrid" Columns="4" HorizontalAlignment="Stretch"/>
                 </ScrollViewer>
             </StackPanel>
         </Border>
