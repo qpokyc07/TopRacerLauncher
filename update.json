@@ -1,5 +1,5 @@
 {
-  "version": "1.7.3",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.7.3/TopRacerLauncher.exe",
-  "notes": "1.7.3 — окно входа стало прямоугольным и компактным (540x268): иконка слева, поле и кнопки справа."
+  "version": "1.7.4",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.7.4/TopRacerLauncher.exe",
+  "notes": "1.7.4 — на экран приветствия и в окно «Хочешь до 30 минут бесплатно?» добавлены фирменные QR-коды Телеграм, ВКонтакте и MAX."
 }
