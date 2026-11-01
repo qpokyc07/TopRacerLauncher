@@ -1,5 +1,5 @@
 {
-  "version": "1.6.1",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.6.1/TopRacerLauncher.exe",
-  "notes": "1.6.1 — исправлен краш при запуске игры из Ctrl+K (двойное закрытие окна палитры); панель описания игры сворачивается в строку «Описание»."
+  "version": "1.6.2",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.6.2/TopRacerLauncher.exe",
+  "notes": "1.6.2 — ревизия кода: убраны двойные сообщения в чате, исправлен учёт времени для игр через Steam/Epic, добавлены ограничения настроек голоса и обрезка журнала статистики."
 }

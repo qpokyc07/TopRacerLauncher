@@ -160,8 +160,14 @@ public partial class MainWindow : Window
 
     private void OnTick(object? sender, EventArgs e)
     {
-        // Игра закрылась сама — фиксируем длительность в статистике.
-        try { if (!App.Runner.IsRunning) App.Runner.CompleteSession(); } catch { }
+        // Игра, запущенная напрямую, закрылась сама — фиксируем длительность.
+        // Для запусков через Steam/Epic процесс-оболочка завершается сразу, поэтому их
+        // время пишется при завершении сеанса (KillCurrent).
+        try
+        {
+            if (App.Runner.HasDirectProcess && !App.Runner.IsRunning) App.Runner.CompleteSession();
+        }
+        catch { }
 
         var s = App.Settings;
 

@@ -68,6 +68,8 @@ public partial class App : Application
         Settings = ConfigStore.Load();
         _settingsLoaded = true;
 
+        try { PlayStats.Trim(); } catch { /* статистика не критична */ }
+
         if (ConfigStore.FatalError != null)
         {
             // Молча начинать с чистого конфига нельзя: это сброс пароля и потеря библиотеки.

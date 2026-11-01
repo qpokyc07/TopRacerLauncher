@@ -128,6 +128,9 @@ public static class ConfigStore
         if (string.IsNullOrWhiteSpace(s.UpdateUrl))
             s.UpdateUrl = Settings.DefaultUpdateUrl;
 
+        s.VoiceInputGain = Math.Clamp(s.VoiceInputGain, 0, 200);
+        s.VoiceKey = s.VoiceKey <= 0 ? 0x56 : s.VoiceKey;
+
         s.Games = s.Games
             .Where(g => g != null && !string.IsNullOrWhiteSpace(g.ExecutablePath))
             .ToList();

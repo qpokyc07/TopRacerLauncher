@@ -201,11 +201,10 @@ public sealed class ChatTab
 
         Content = root;
 
-        LanPresence.MessageReceived += OnPresenceMessage;
         LoadHistory();
     }
 
-    public void Detach() => LanPresence.MessageReceived -= OnPresenceMessage;
+    public void Detach() { /* подписки нет: сообщения приходят через ChatWindow.NotifyIncoming */ }
 
     public void FocusInput() => _input.Focus();
 
@@ -307,22 +306,11 @@ public sealed class ChatTab
         }
     }
 
-    private void OnPresenceMessage(LanPeer peer, string text)
-    {
-        if (!string.Equals(peer.Id, _peer.Id, StringComparison.Ordinal)) return;
-
-        ChatHistory.Append(peer.Id, peer.Name, text);
-
-        Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
-        {
-            if (!IsActive()) AddSystem("Новое сообщение…");
-            AddBubble(text, false, DateTime.Now.ToString("HH:mm"));
-        }));
-    }
-
-    /// <summary>Показывает входящее сообщение (вызывается и для неактивной вкладки).</summary>
+    /// <summary>Показывает входящее сообщение и сохраняет его в историю.</summary>
     public void ReceiveIncoming(string text)
     {
+        ChatHistory.Append(_peer.Id, _peer.Name, text);
+
         Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
         {
             if (!IsActive()) AddSystem("Новое сообщение…");

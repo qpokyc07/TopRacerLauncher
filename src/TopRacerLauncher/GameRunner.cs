@@ -31,6 +31,9 @@ public sealed class GameRunner : IDisposable
     private string? _sessionTitle;
     public string? CurrentExePath { get; private set; }
 
+    /// <summary>Игра запущена напрямую (exe), а не через оболочку магазина.</summary>
+    public bool HasDirectProcess => _process != null;
+
     public bool IsRunning
     {
         get
