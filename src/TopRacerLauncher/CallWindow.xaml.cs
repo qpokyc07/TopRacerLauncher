@@ -179,9 +179,10 @@ public partial class CallWindow : Window
 
         MicButton.Content = "Микрофон: " + (string.IsNullOrWhiteSpace(mic) ? "по умолчанию" : mic) + "  ▾";
         SpkButton.Content = "Наушники: " + (string.IsNullOrWhiteSpace(spk) ? "по умолчанию" : spk) + "  ▾";
-        ModeButton.Content = VoiceEngine.OpenMic
-            ? "Режим: постоянно"
-            : $"Режим: по кнопке ({(char)VoiceEngine.VoiceKey})";
+        ModeButton.Content = VoiceEngine.OpenMic ? "Режим: постоянно" : "Режим: по кнопке";
+
+        var key = System.Windows.Input.KeyInterop.KeyFromVirtualKey(VoiceEngine.VoiceKey);
+        PttKeyButton.Content = "Клавиша: " + (key == System.Windows.Input.Key.None ? "V" : key.ToString());
     }
 
     private void MicButton_Click(object sender, RoutedEventArgs e)
@@ -268,6 +269,48 @@ public partial class CallWindow : Window
     }
 
     // ---------- Кнопки ----------
+
+    private bool _capturingKey;
+
+    private void PttKey_Click(object sender, RoutedEventArgs e)
+    {
+        _capturingKey = true;
+        PttKeyButton.Content = "Нажмите клавишу…";
+        PttKeyButton.Focus();
+        Focus();
+    }
+
+    protected override void OnPreviewKeyDown(System.Windows.Input.KeyEventArgs e)
+    {
+        if (!_capturingKey)
+        {
+            base.OnPreviewKeyDown(e);
+            return;
+        }
+
+        e.Handled = true;
+
+        if (e.Key == System.Windows.Input.Key.Escape)
+        {
+            _capturingKey = false;
+            RefreshLabels();
+            return;
+        }
+
+        var key = e.Key == System.Windows.Input.Key.System ? e.SystemKey : e.Key;
+        int vk = System.Windows.Input.KeyInterop.VirtualKeyFromKey(key);
+        if (vk <= 0) return;
+
+        App.Settings.VoiceKey = vk;
+        App.SaveState();
+
+        VoiceEngine.VoiceKey = vk;
+        PttHook.Key = vk;
+
+        _capturingKey = false;
+        RefreshLabels();
+        UpdateTalkBadge();
+    }
 
     private void Invite_Click(object sender, RoutedEventArgs e)
     {

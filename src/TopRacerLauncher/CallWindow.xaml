@@ -68,13 +68,19 @@
 
         <!-- Настройки звука -->
         <StackPanel Grid.Row="3" Margin="12,8,12,0">
-            <Button x:Name="MicButton" Content="Микрофон: —" Height="30" HorizontalAlignment="Stretch"
+            <Button x:Name="MicButton" Content="Микрофон: —" Height="34" HorizontalAlignment="Stretch"
                     Style="{StaticResource BaseButton}" Click="MicButton_Click" Margin="0,0,0,8"/>
-            <Button x:Name="SpkButton" Content="Наушники: —" Height="30" HorizontalAlignment="Stretch"
+            <Button x:Name="SpkButton" Content="Наушники: —" Height="34" HorizontalAlignment="Stretch"
                     Style="{StaticResource BaseButton}" Click="SpkButton_Click" Margin="0,0,0,8"/>
-            <Button x:Name="ModeButton" Content="Режим: по кнопке" Height="34"
-                    HorizontalAlignment="Left" Padding="14,0" FontSize="12"
-                    Style="{StaticResource BaseButton}" Click="ToggleMode_Click"/>
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="ModeButton" Content="Режим: по кнопке" Height="32"
+                        Padding="12,0" FontSize="12"
+                        Style="{StaticResource BaseButton}" Click="ToggleMode_Click"/>
+                <Button x:Name="PttKeyButton" Content="Клавиша: V" Height="32" Margin="8,0,0,0"
+                        Padding="12,0" FontSize="12"
+                        Style="{StaticResource BaseButton}" Click="PttKey_Click"
+                        ToolTip="Назначить клавишу Push-to-Talk"/>
+            </StackPanel>
         </StackPanel>
         <!-- Кнопки -->
         <Grid Grid.Row="4" Margin="12,10,12,12">

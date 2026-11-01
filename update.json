@@ -1,5 +1,5 @@
 {
-  "version": "1.6.2",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.6.2/TopRacerLauncher.exe",
-  "notes": "1.6.2 — ревизия кода: убраны двойные сообщения в чате, исправлен учёт времени для игр через Steam/Epic, добавлены ограничения настроек голоса и обрезка журнала статистики."
+  "version": "1.6.3",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.6.3/TopRacerLauncher.exe",
+  "notes": "1.6.3 — можно назначить свою клавишу Push-to-Talk в окне звонка (кнопка «Клавиша»), поправлена высота кнопок микрофона и наушников."
 }
