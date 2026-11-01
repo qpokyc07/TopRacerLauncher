@@ -1,5 +1,5 @@
 {
-  "version": "1.8.1",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.8.1/TopRacerLauncher.exe",
-  "notes": "1.8.1 — исправлена установка обновлений: новый exe ставится сразу (переименование запущенного файла + подмена), без cmd-скрипта. Работает и при путях с русскими буквами."
+  "version": "1.8.2",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.8.2/TopRacerLauncher.exe",
+  "notes": "1.8.2 — тарифы на экране приветствия: 30 минут / 1 час / 2 часа по паролю администратора (запускают сессию нужной длины)."
 }

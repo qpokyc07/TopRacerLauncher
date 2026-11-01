@@ -650,6 +650,18 @@
                         FontSize="16" FontWeight="SemiBold" Style="{StaticResource PrimaryButton}"
                         Click="WelcomeStart_Click"/>
 
+                <!-- Тарифы: быстрый старт сессии -->
+                <TextBlock Text="Выберите время сессии" FontSize="12.5" TextAlignment="Center"
+                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,22,0,8"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="30 минут" Width="150" Height="38" Style="{StaticResource BaseButton}"
+                            Margin="0,0,10,0" FontSize="13" Click="WelcomeTariff_Click" Tag="30"/>
+                    <Button Content="1 час" Width="150" Height="38" Style="{StaticResource BaseButton}"
+                            Margin="0,0,10,0" FontSize="13" Click="WelcomeTariff_Click" Tag="60"/>
+                    <Button Content="2 часа" Width="150" Height="38" Style="{StaticResource BaseButton}"
+                            FontSize="13" Click="WelcomeTariff_Click" Tag="120"/>
+                </StackPanel>
+
 
             </StackPanel>
         </Grid>

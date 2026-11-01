@@ -653,6 +653,30 @@ public partial class MainWindow : Window
         catch { return null; }
     }
 
+    /// <summary>Тариф на экране приветствия: старт сессии заданной длины (по паролю админа).</summary>
+    private void WelcomeTariff_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement fe || fe.Tag is not string tag) return;
+        if (!int.TryParse(tag, out int minutes)) return;
+
+        if (!RequireAdmin()) return;
+
+        var settings = App.Settings;
+        settings.SessionMinutes = Math.Clamp(minutes, 30, 240);
+        settings.TimerEnabled = true;
+        settings.Locked = false;
+        settings.TimerPaused = false;
+
+        App.StartNewSession();
+        App.SaveState();
+
+        RefreshUi();
+        UpdateGameStatus();
+        WelcomeOverlay.Visibility = Visibility.Collapsed;
+
+        HistoryLog.Add("time_set", detail: minutes + " мин (тариф на экране приветствия)");
+    }
+
     private void WelcomeStart_Click(object sender, RoutedEventArgs e)
         => WelcomeOverlay.Visibility = Visibility.Collapsed;
 
