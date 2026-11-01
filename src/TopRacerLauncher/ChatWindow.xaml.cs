@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using System.Windows.Controls.Primitives;
 
 namespace TopRacerLauncher;
@@ -12,6 +13,7 @@ public partial class ChatWindow : Window
     private static ChatWindow? _instance;
 
     private readonly Dictionary<string, ChatTab> _tabs = new();
+    private readonly Dictionary<string, Button> _tabButtons = new();
 
     public ChatWindow()
     {
@@ -25,8 +27,11 @@ public partial class ChatWindow : Window
         if (App.Settings.ChatWidth >= 420) Width = App.Settings.ChatWidth;
         if (App.Settings.ChatHeight >= 420) Height = App.Settings.ChatHeight;
 
+        LanPresence.TypingReceived += OnTyping;
+
         Closed += (_, _) =>
         {
+            LanPresence.TypingReceived -= OnTyping;
             foreach (var tab in _tabs.Values) tab.Detach();
             if (ReferenceEquals(_instance, this)) _instance = null;
 
@@ -88,6 +93,7 @@ public partial class ChatWindow : Window
         button.Click += (_, _) => ActivateTab((string)button.Tag);
 
         TabsPanel.Children.Add(button);
+        _tabButtons[peer.Id] = button;
         ActivateTab(peer.Id);
     }
 
@@ -109,6 +115,27 @@ public partial class ChatWindow : Window
         }
 
         tab.FocusInput();
+    }
+
+    /// <summary>Показывает «печатает…» на вкладке собеседника.</summary>
+    private void OnTyping(LanPeer peer)
+    {
+        if (!_tabs.TryGetValue(peer.Id, out var tab) || !_tabButtons.TryGetValue(peer.Id, out var button)) return;
+
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            var name = tab.PeerName;
+            if (button.Content as string != name + "  •  печатает…")
+                button.Content = name + "  •  печатает…";
+
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                button.Content = name;
+            };
+            timer.Start();
+        }));
     }
 
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
@@ -137,9 +164,12 @@ public sealed class ChatTab
     private readonly StackPanel _log = new();
     private readonly ScrollViewer _scroll;
     private readonly TextBox _input;
+    private DateTime _lastTypingSent;
     private readonly Border _stickerPanel;
 
     public FrameworkElement Content { get; }
+
+    public string PeerName => _peer.Name;
 
     public ChatTab(LanPeer peer)
     {
@@ -159,6 +189,14 @@ public sealed class ChatTab
             if (e.Key != Key.Enter) return;
             e.Handled = true;
             Send();
+        };
+
+        _input.TextChanged += (_, _) =>
+        {
+            if (DateTime.UtcNow - _lastTypingSent < TimeSpan.FromSeconds(2)) return;
+
+            _lastTypingSent = DateTime.UtcNow;
+            try { LanPresence.SendTyping(_peer); } catch { }
         };
 
         var sendButton = new Button

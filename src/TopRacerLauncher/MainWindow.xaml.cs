@@ -47,6 +47,7 @@ public partial class MainWindow : Window
     private string _friendsSignature = "";
 
     private readonly Dictionary<string, int> _unread = new();
+    private readonly Dictionary<string, DateTime> _typing = new();
 
     public MainWindow()
     {
@@ -76,6 +77,7 @@ public partial class MainWindow : Window
             LoadAppBackground();
             CleanupOrphanMedia();
             RefreshUi();
+        ApplyPanelSettings();
             _tick.Start();
 
             // Клуб: киоск-режим и экран приветствия.
@@ -97,6 +99,7 @@ public partial class MainWindow : Window
             try { LanPresence.Start(); } catch { }
             LanPresence.CallInvited += OnCallInvited;
             LanPresence.MessageReceived += OnChatMessage;
+            LanPresence.TypingReceived += OnTyping;
             RefreshFriends();
             _friendsTimer.Start();
         };
@@ -106,6 +109,7 @@ public partial class MainWindow : Window
         PreviewKeyDown += OnPreviewKeyDown;
 
         RefreshUi();
+        ApplyPanelSettings();
     }
 
     // ---------- Библиотека ----------
@@ -256,6 +260,7 @@ public partial class MainWindow : Window
         App.ExtendSession(5);
         _warned5 = _warned1 = false;
         RefreshUi();
+        ApplyPanelSettings();
 
         var s = App.Settings;
         if (!s.Locked && !_tick.IsEnabled) _tick.Start();
@@ -282,6 +287,7 @@ public partial class MainWindow : Window
         App.Settings.SessionEndUtc = default;
         App.SaveState();
         RefreshUi();
+        ApplyPanelSettings();
 
         RequestUnlockOrExit();
     }
@@ -292,6 +298,7 @@ public partial class MainWindow : Window
         if (App.ShowRestrictedGate(this))
         {
             RefreshUi();
+        ApplyPanelSettings();
             _tick.Start();
 
             // Клуб: киоск-режим и экран приветствия.
@@ -376,11 +383,17 @@ public partial class MainWindow : Window
         if (signature == _friendsSignature) return;
         _friendsSignature = signature;
 
+        // «Печатает…» живёт 3 секунды.
+        foreach (var id in _typing.Where(kv => DateTime.UtcNow - kv.Value > TimeSpan.FromSeconds(3))
+                                  .Select(kv => kv.Key).ToList())
+            _typing.Remove(id);
+
         var items = peers.Select(p => new FriendVm
         {
             Peer = p,
             Name = p.Name,
             Status = p.Status,
+            Typing = _typing.ContainsKey(p.Id),
             Unread = _unread.TryGetValue(p.Id, out int n) ? n : 0,
         }).ToList();
 
@@ -407,6 +420,39 @@ public partial class MainWindow : Window
 
             new NoticeWindow("Новое сообщение — " + peer.Name, text, () => OpenChat(peer)).Show();
         }));
+    }
+
+    private void OnTyping(LanPeer peer)
+    {
+        _typing[peer.Id] = DateTime.UtcNow;
+        Dispatcher.BeginInvoke(new Action(RefreshFriends));
+    }
+
+    /// <summary>Переключает мой статус: в сети → отошёл → не беспокоить.</summary>
+    private void Status_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement fe) return;
+
+        var menu = new System.Windows.Controls.ContextMenu { PlacementTarget = fe, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
+        foreach (var (key, title) in new[] { ("online", "В сети"), ("away", "Отошёл"), ("dnd", "Не беспокоить") })
+        {
+            var item = new System.Windows.Controls.MenuItem
+            {
+                Header = title,
+                IsCheckable = true,
+                IsChecked = string.Equals(App.Settings.MyStatus, key, StringComparison.OrdinalIgnoreCase),
+            };
+            var captured = key;
+            item.Click += (_, _) =>
+            {
+                App.Settings.MyStatus = captured;
+                App.SaveState();
+                RefreshFriends();
+            };
+            menu.Items.Add(item);
+        }
+
+        menu.IsOpen = true;
     }
 
     private void OpenChat(LanPeer peer)
@@ -780,6 +826,7 @@ public partial class MainWindow : Window
         if (App.ShowRestrictedGate(this))
         {
             RefreshUi();
+        ApplyPanelSettings();
             _tick.Start();
 
             // Клуб: киоск-режим и экран приветствия.
@@ -862,6 +909,14 @@ public partial class MainWindow : Window
 
     }
 
+    /// <summary>Применяет настройки прозрачности панелей.</summary>
+    private void ApplyPanelSettings()
+    {
+        bool transparent = App.Settings.TransparentPanels;
+
+        FriendsPanel.Opacity = transparent ? 0.72 : 1.0;
+        DetailsPanel.Opacity = transparent ? 0.72 : 1.0;
+    }
     private void UpdateGameStatus()
     {
         bool running = App.Runner.IsRunning;
@@ -872,22 +927,12 @@ public partial class MainWindow : Window
             GameStatusDot.Fill = FindResource("OkBrush") as Brush ?? Brushes.LimeGreen;
             GameStatusText.Text = "Игра идёт: " + title;
             GameStatusText.Foreground = FindResource("TextBrush") as Brush ?? Brushes.White;
-            GameFooterText.Text = "Запущена игра: " + title;
-            GameFooterSubText.Text = App.Settings.TimerEnabled
-                ? "Закроется автоматически по таймеру"
-                : "Ограничение по времени выключено";
         }
         else
         {
             GameStatusDot.Fill = new SolidColorBrush(Color.FromRgb(0x6E, 0x6E, 0x7A));
             GameStatusText.Text = "Игра не запущена";
             GameStatusText.Foreground = FindResource("TextSecondaryBrush") as Brush ?? Brushes.Gray;
-            GameFooterText.Text = "Игра не запущена";
-            GameFooterSubText.Text = !App.Settings.TimerEnabled
-                ? "Ограничение по времени выключено"
-                : App.Settings.RemainingSeconds > 0
-                    ? "Выберите игру в библиотеке"
-                    : "Нет выданного времени — Ctrl+1";
         }
 
         foreach (var vm in App.Library.Items)
@@ -986,10 +1031,12 @@ public partial class MainWindow : Window
 
         // В админ-меню могли добавить игры, изменить время, тему, пропорции или фон.
         ApplyCardSettings();
+        ApplyPanelSettings();
         WindowState = App.Settings.FullScreen ? WindowState.Maximized : WindowState.Normal;
         RebuildLibrary();
         LoadAppBackground();
         RefreshUi();
+        ApplyPanelSettings();
 
         if (App.Settings.Locked)
         {
@@ -1321,8 +1368,10 @@ public sealed class FriendVm
     public LanPeer Peer { get; init; } = new();
     public string Name { get; init; } = "";
     public string Status { get; init; } = "";
+    public bool Typing { get; init; }
     public int Unread { get; init; }
     public bool ShowUnread => Unread > 0;
+    public string StatusText => Typing ? "печатает…" : Status;
 }
 
 /// <summary>Состояние UI главного окна (размер и пропорции карточек).</summary>
@@ -1330,7 +1379,7 @@ public sealed class UiState : System.ComponentModel.INotifyPropertyChanged
 {
     public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
 
-    private double _cardWidth = 178;
+    private double _cardWidth = 162;
     private double _cardAspect = 4.0 / 3.0;
 
     /// <summary>Ширина карточки в пикселях (значение ползунка 100–380).</summary>

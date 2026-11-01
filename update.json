@@ -1,5 +1,5 @@
 {
-  "version": "1.6.4",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.6.4/TopRacerLauncher.exe",
-  "notes": "1.6.4 — тёмное контекстное меню без белой полосы, меню устройств открывается под кнопкой, окно чата можно растягивать (размер запоминается)."
+  "version": "1.7.0",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.7.0/TopRacerLauncher.exe",
+  "notes": "1.7.0 — статусы («В сети / Отошёл / Не беспокоить») и индикатор «печатает…»; кнопки Браузер/Steam слева; убран статус игры справа; ссылка поддержки внизу; настройки прозрачных панелей и названий в цвет темы; карточки игр уже."
 }

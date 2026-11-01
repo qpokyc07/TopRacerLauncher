@@ -354,7 +354,7 @@
 
                                     <!-- Название -->
                                     <TextBlock Text="{Binding Title}" FontSize="14.5" FontWeight="Bold"
-                                               Foreground="{StaticResource TextBrush}"
+                                               Foreground="{Binding TitleForeground}"
                                                TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
                                                MaxHeight="58" Margin="10,10,10,12">
                                         <TextBlock.Effect>
@@ -434,7 +434,7 @@
             </Border>
 
             <!-- ===== Друзья в локальной сети ===== -->
-            <Border x:Name="BottomBar" Grid.Row="2" Background="{DynamicResource BgPanelBrush}"
+            <Border x:Name="FriendsPanel" Grid.Row="2" Background="{DynamicResource BgPanelBrush}"
                     BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1"
                     CornerRadius="18" Padding="14">
                 <Grid>
@@ -446,9 +446,14 @@
                     <Grid>
                         <TextBlock Text="Друзья в сети" FontWeight="Bold" FontSize="14"
                                    Foreground="{StaticResource TextBrush}"/>
-                        <TextBlock x:Name="FriendsCount" Text="" FontSize="12"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                   HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button Content="Статус" Height="24" Padding="10,0" FontSize="11"
+                                    Style="{StaticResource BaseButton}" Click="Status_Click"
+                                    ToolTip="Мой статус для друзей"/>
+                            <TextBlock x:Name="FriendsCount" Text="" FontSize="12" Margin="8,0,0,0"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
                     </Grid>
 
                     <ScrollViewer Grid.Row="1" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto">
@@ -470,7 +475,7 @@
                                                 <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13"
                                                            Foreground="{StaticResource TextBrush}"
                                                            TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Text="{Binding Status}" FontSize="11.5"
+                                                <TextBlock Text="{Binding StatusText}" FontSize="11.5"
                                                            Foreground="{StaticResource TextSecondaryBrush}"
                                                            Margin="0,2,0,0" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
@@ -519,7 +524,7 @@
         </Grid>
 
         <!-- ================= Нижняя панель ================= -->
-        <Border Grid.Row="2" Background="{DynamicResource BgPanelBrush}"
+        <Border x:Name="BottomBar" Grid.Row="2" Background="{DynamicResource BgPanelBrush}"
                 BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="0,1,0,0">
             <Grid Margin="18,0">
                 <Grid.ColumnDefinitions>
@@ -541,37 +546,30 @@
                                  Margin="0,9,0,0" Height="7" Style="{StaticResource TimerProgress}"/>
                 </StackPanel>
 
-                <!-- Быстрые ссылки и подсказка -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"
-                            HorizontalAlignment="Center">
+                <!-- Быстрые ссылки слева -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center"
+                            HorizontalAlignment="Left">
                     <Button Content="Браузер" Height="36" Padding="18,0" FontSize="13" FontWeight="SemiBold"
                             Style="{StaticResource PrimaryButton}" Click="OpenBrowser_Click" Margin="0,0,8,0"
                             ToolTip="Открыть браузер (в закрытом режиме — по паролю)"/>
                     <Button Content="Steam" Height="36" Padding="18,0" FontSize="13" FontWeight="SemiBold"
-                            Style="{StaticResource PrimaryButton}" Click="OpenSteam_Click" Margin="0,0,16,0"
+                            Style="{StaticResource PrimaryButton}" Click="OpenSteam_Click"
                             ToolTip="Открыть Steam (в закрытом режиме — по паролю)"/>
-                    <TextBlock Text="Клик по обложке — запустить игру  •  Ctrl+1 — админ-меню"
-                               FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
-                               VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <!-- Состояние игры -->
-                <StackPanel Grid.Column="2" VerticalAlignment="Center" Width="300" HorizontalAlignment="Right">
-                    <TextBlock x:Name="GameFooterText" Text="Игра не запущена" FontSize="13"
-                               Foreground="{StaticResource TextBrush}" HorizontalAlignment="Right"/>
-                    <TextBlock x:Name="GameFooterSubText" Text="" FontSize="12"
-                               Foreground="{StaticResource TextSecondaryBrush}"
-                               HorizontalAlignment="Right" Margin="0,4,0,0"/>
-                </StackPanel>
+                <!-- Подсказка по центру -->
+                <TextBlock Grid.Column="1" Text="Клик по обложке — запустить игру  •  Ctrl+K — поиск  •  Ctrl+1 — админ-меню"
+                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                <!-- Ссылка внизу справа -->
+                <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"
+                           FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}">
+                    По всем вопросам —
+                    <Hyperlink Click="Support_Click" Style="{StaticResource SupportLink}">@qpokycnow</Hyperlink>
+                </TextBlock>
             </Grid>
         </Border>
-        <!-- Ссылка на разработчика (всегда в углу) -->
-        <TextBlock Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                   Margin="0,0,26,10" FontSize="11.5" Panel.ZIndex="40"
-                   Foreground="{StaticResource TextSecondaryBrush}">
-            По всем вопросам —
-            <Hyperlink Click="Support_Click" Style="{StaticResource SupportLink}">@qpokycnow</Hyperlink>
-        </TextBlock>
 
         <!-- ===== Экран приветствия (киоск/клуб) ===== -->
         <Grid x:Name="WelcomeOverlay" Grid.RowSpan="4" Panel.ZIndex="50" Visibility="Collapsed"

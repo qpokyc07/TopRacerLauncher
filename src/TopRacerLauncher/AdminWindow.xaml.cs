@@ -53,6 +53,8 @@ public partial class AdminWindow : Window
         KioskCheck.IsChecked = s.KioskMode;
         UserNameBox.Text = s.UserName;
         RefreshPlayStats(DateTime.Today);
+        TransparentPanelsCheck.IsChecked = s.TransparentPanels;
+        AccentTitlesCheck.IsChecked = s.AccentTitles;
         MakeSectionsCollapsible();
         UpdateUrlBox.Text = s.UpdateUrl;
         VersionLabel.Text = "Текущая версия: " + UpdateService.CurrentVersion;
@@ -882,6 +884,18 @@ public partial class AdminWindow : Window
 
         SetArtStatus("Доступна версия " + info.Version, autoHide: true);
         new UpdateWindow(info, url) { Owner = this }.Show();
+    }
+
+    private void Panels_Changed(object sender, RoutedEventArgs e)
+    {
+        App.Settings.TransparentPanels = TransparentPanelsCheck.IsChecked == true;
+        App.SaveState();
+    }
+
+    private void Titles_Changed(object sender, RoutedEventArgs e)
+    {
+        App.Settings.AccentTitles = AccentTitlesCheck.IsChecked == true;
+        App.SaveState();
     }
 
     private void Kiosk_Changed(object sender, RoutedEventArgs e)

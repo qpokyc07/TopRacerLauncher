@@ -110,6 +110,15 @@ public sealed class Settings
     /// <summary>Киоск-режим: не выпускать посетителя из лаунчера.</summary>
     public bool KioskMode { get; set; }
 
+    /// <summary>Мой статус: online / away / dnd.</summary>
+    public string MyStatus { get; set; } = "online";
+
+    /// <summary>Полупрозрачные панели «Друзья» и «Описание».</summary>
+    public bool TransparentPanels { get; set; }
+
+    /// <summary>Названия игр цветом акцента темы.</summary>
+    public bool AccentTitles { get; set; }
+
     /// <summary>Размер окна чата (0 — по умолчанию).</summary>
     public double ChatWidth { get; set; }
     public double ChatHeight { get; set; }
@@ -184,6 +193,14 @@ public sealed class GameViewModel : INotifyPropertyChanged
 
     /// <summary>Игра скрыта от обычного режима (видна только в админ-режиме).</summary>
     public bool IsHidden { get; }
+
+    /// <summary>Цвет названия: акцент темы или обычный текст (настройка).</summary>
+    public System.Windows.Media.Brush TitleForeground =>
+        App.Settings.AccentTitles
+            ? (System.Windows.Application.Current?.TryFindResource("AccentBrush") as System.Windows.Media.Brush
+               ?? System.Windows.Media.Brushes.White)
+            : (System.Windows.Application.Current?.TryFindResource("TextBrush") as System.Windows.Media.Brush
+               ?? System.Windows.Media.Brushes.White);
 
     /// <summary>Показывать ли букву-инициал (нет обложки).</summary>
     public bool ShowInitial { get; }

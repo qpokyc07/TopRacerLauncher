@@ -15,10 +15,18 @@ public sealed class LanPeer
     public DateTime LastSeenUtc { get; set; }
 
     public string Room { get; init; } = "";
+    public string Presence { get; init; } = "online";
 
     public string Status => !string.IsNullOrWhiteSpace(Room)
         ? "в звонке"
-        : string.IsNullOrWhiteSpace(Game) ? "в сети" : "играет: " + Game;
+        : !string.IsNullOrWhiteSpace(Game)
+            ? "играет: " + Game
+            : Presence switch
+            {
+                "dnd" => "не беспокоить",
+                "away" => "отошёл",
+                _ => "в сети",
+            };
 }
 
 /// <summary>
@@ -43,6 +51,9 @@ public static class LanPresence
 
     /// <summary>Друг приглашает в голосовой звонок: (комната, имя зовущего).</summary>
     public static event Action<Guid, string>? CallInvited;
+
+    /// <summary>Друг начал печатать.</summary>
+    public static event Action<LanPeer>? TypingReceived;
 
     /// <summary>Пришло сообщение от друга: (отправитель, текст).</summary>
     public static event Action<LanPeer, string>? MessageReceived;
@@ -104,6 +115,17 @@ public static class LanPresence
         try { _udp.Send(bytes, bytes.Length, peer.EndPoint); } catch { }
     }
 
+    /// <summary>Сообщает другу, что я печатаю.</summary>
+    public static void SendTyping(LanPeer peer)
+    {
+        if (_udp == null || peer.EndPoint == null) return;
+
+        var payload = new { k = "typing", to = peer.Id, from = SelfId, name = SelfName };
+        var bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload));
+
+        try { _udp.Send(bytes, bytes.Length, peer.EndPoint); } catch { }
+    }
+
     /// <summary>Зовёт друга в комнату голосового звонка.</summary>
     public static void SendCallInvite(LanPeer peer, Guid room)
     {
@@ -126,6 +148,7 @@ public static class LanPresence
                 name = SelfName,
                 game = App.Runner.IsRunning ? (App.Runner.CurrentTitle ?? "") : "",
                 room = VoiceEngine.InCall ? VoiceEngine.RoomId.ToString() : "",
+                status = App.Settings.MyStatus,
             };
 
             var bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload));
@@ -181,6 +204,7 @@ public static class LanPresence
                 var name = root.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "";
                 var game = root.TryGetProperty("game", out var g) ? g.GetString() ?? "" : "";
                 var room = root.TryGetProperty("room", out var rr) ? rr.GetString() ?? "" : "";
+                var status = root.TryGetProperty("status", out var st) ? st.GetString() ?? "online" : "online";
 
                 bool added;
                 lock (Gate)
@@ -192,12 +216,30 @@ public static class LanPresence
                         Name = string.IsNullOrWhiteSpace(name) ? "Без имени" : name,
                         Game = game,
                         Room = room,
+                        Presence = status,
                         EndPoint = from,
                         LastSeenUtc = DateTime.UtcNow,
                     };
                 }
 
                 if (added) PeersChanged?.Invoke();
+                break;
+            }
+
+            case "typing":
+            {
+                var to = root.TryGetProperty("to", out var toEl) ? toEl.GetString() : null;
+                if (to != SelfId) return;
+
+                var fromId = root.TryGetProperty("from", out var f) ? f.GetString() ?? "" : "";
+                var name = root.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "";
+
+                TypingReceived?.Invoke(new LanPeer
+                {
+                    Id = fromId,
+                    Name = string.IsNullOrWhiteSpace(name) ? "Друг" : name,
+                    EndPoint = from,
+                });
                 break;
             }
 
