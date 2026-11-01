@@ -70,6 +70,21 @@ public partial class App : Application
 
         try { PlayStats.Trim(); } catch { /* статистика не критична */ }
 
+        // Хвосты от автообновления (старый exe и недокопированный новый).
+        try
+        {
+            var exe = Environment.ProcessPath;
+            if (!string.IsNullOrWhiteSpace(exe))
+            {
+                foreach (var suffix in new[] { ".old", ".new" })
+                {
+                    var leftover = exe + suffix;
+                    if (File.Exists(leftover)) File.Delete(leftover);
+                }
+            }
+        }
+        catch { /* занято — удалим в следующий раз */ }
+
         if (ConfigStore.FatalError != null)
         {
             // Молча начинать с чистого конфига нельзя: это сброс пароля и потеря библиотеки.

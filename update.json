@@ -1,5 +1,5 @@
 {
-  "version": "1.8.0",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.8.0/TopRacerLauncher.exe",
-  "notes": "1.8.0 — промокоды на минуты: администратор создаёт коды (минуты, число использований, срок) в админ-меню, гость вводит код кнопкой «Промокод» и получает время."
+  "version": "1.8.1",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.8.1/TopRacerLauncher.exe",
+  "notes": "1.8.1 — исправлена установка обновлений: новый exe ставится сразу (переименование запущенного файла + подмена), без cmd-скрипта. Работает и при путях с русскими буквами."
 }

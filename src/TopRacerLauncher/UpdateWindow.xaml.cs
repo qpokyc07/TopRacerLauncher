@@ -49,11 +49,11 @@ public partial class UpdateWindow : Window
 
         InstallButton.Content = "Устанавливаем…";
 
-        if (!UpdateService.ApplyAndRestart())
+        if (!UpdateService.ApplyAndRestart(out string applyError))
         {
             MessageBox.Show(this,
-                "Обновление скачано, но применить его не удалось.\n" +
-                "Файл лежит в папке:" + Environment.NewLine +
+                "Обновление скачано, но применить его не удалось.\n\n" + applyError +
+                "\n\nФайл лежит в папке:" + Environment.NewLine +
                 System.IO.Path.GetDirectoryName(UpdateService.PendingFile ?? ""),
                 "Обновление", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;

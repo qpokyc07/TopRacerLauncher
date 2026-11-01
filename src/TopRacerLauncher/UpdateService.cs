@@ -115,46 +115,55 @@ public static class UpdateService
         }
     }
 
-    /// <summary>Запускает скрипт замены exe и закрывает приложение.</summary>
-    public static bool ApplyAndRestart()
+    /// <summary>
+    /// Устанавливает обновление: подменяет exe рядом с текущим и запускает новую версию.
+    /// Работающий exe можно переименовать (это разрешено Windows), поэтому скрипты не нужны.
+    /// </summary>
+    public static bool ApplyAndRestart(out string error)
     {
-        if (PendingFile == null || !File.Exists(PendingFile)) return false;
+        error = "";
+
+        if (PendingFile == null || !File.Exists(PendingFile))
+        {
+            error = "Файл обновления не найден.";
+            return false;
+        }
 
         try
         {
             var currentExe = Environment.ProcessPath;
-            if (string.IsNullOrWhiteSpace(currentExe)) return false;
-
-            var script = Path.Combine(Path.GetDirectoryName(PendingFile)!, "apply-update.cmd");
-
-            var lines = new[]
+            if (string.IsNullOrWhiteSpace(currentExe))
             {
-                "@echo off",
-                "timeout /t 2 /nobreak >nul",
-                ":wait",
-                "tasklist /fi \"imagename eq TopRacerLauncher.exe\" | find /i \"TopRacerLauncher.exe\" >nul",
-                "if not errorlevel 1 (timeout /t 1 /nobreak >nul & goto wait)",
-                "copy /y \"" + PendingFile + "\" \"" + currentExe + "\" >nul",
-                "start \"\" \"" + currentExe + "\"",
-                "del \"%~f0\"",
-            };
+                error = "Не удалось определить путь к программе.";
+                return false;
+            }
 
-            File.WriteAllLines(script, lines);
+            var folder = Path.GetDirectoryName(currentExe);
+            var staged = currentExe + ".new";
+            var old = currentExe + ".old";
 
+            // 1) Кладём новый файл рядом (в ту же папку — тот же том).
+            File.Copy(PendingFile, staged, overwrite: true);
+
+            // 2) Старый exe переименовываем, новый ставим на его место.
+            try { if (File.Exists(old)) File.Delete(old); } catch { }
+
+            File.Move(currentExe, old);
+            File.Move(staged, currentExe);
+
+            // 3) Запускаем новую версию.
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
-                FileName = "cmd.exe",
-                Arguments = "/c \"" + script + "\"",
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                FileName = currentExe,
+                WorkingDirectory = folder,
+                UseShellExecute = true,
             });
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            error = ex.Message;
             return false;
         }
-    }
-}
+    }}
