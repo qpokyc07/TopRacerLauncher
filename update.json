@@ -1,5 +1,5 @@
 {
-  "version": "1.7.1",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.7.1/TopRacerLauncher.exe",
-  "notes": "1.7.1 — кнопка звонка в чате, выбор кого пригласить, справка «?» в три шага, акция «Хочешь до 30 минут бесплатно?», короткое описание, имена друзей в их цветах, тонкий скроллбар, «Игра запускается» по центру."
+  "version": "1.7.2",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.7.2/TopRacerLauncher.exe",
+  "notes": "1.7.2 — компактное аккуратное окно входа (360x430): меньше заголовок, отступы и кнопки."
 }
