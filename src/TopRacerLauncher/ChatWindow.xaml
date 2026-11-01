@@ -60,12 +60,12 @@
         <!-- Эмодзи и стикеры -->
         <Border Grid.Row="2" x:Name="EmojiPanel" Visibility="Collapsed"
                 Background="{DynamicResource BgPanelBrush}" BorderBrush="{StaticResource GlassBorderBrush}"
-                BorderThickness="0,1,0,0" Padding="8,6">
+                BorderThickness="0,1,0,0" Padding="10,8">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                    <Button x:Name="EmojiTab" Content="Эмодзи" Height="26" Padding="12,0" FontSize="11.5"
+                    <Button x:Name="EmojiTab" Content="Эмодзи" Height="28" Padding="14,0" FontSize="11.5"
                             Style="{StaticResource BaseButton}" Click="EmojiTab_Click"/>
-                    <Button x:Name="StickerTab" Content="Стикеры" Height="26" Padding="12,0" FontSize="11.5"
+                    <Button x:Name="StickerTab" Content="Стикеры" Height="28" Padding="14,0" FontSize="11.5"
                             Margin="6,0,0,0" Style="{StaticResource BaseButton}" Click="StickerTab_Click"/>
                 </StackPanel>
 
@@ -87,9 +87,23 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0" x:Name="EmojiButton" Content="&#x1F60A;" Width="40" Height="40"
-                    FontSize="16" Margin="0,0,8,0" Style="{StaticResource BaseButton}"
-                    Click="Emoji_Click" ToolTip="Эмодзи"/>
+            <Button Grid.Column="0" x:Name="EmojiButton" Width="40" Height="40"
+                    Margin="0,0,8,0" Style="{StaticResource BaseButton}"
+                    Click="Emoji_Click" ToolTip="Эмодзи и стикеры">
+                <Viewbox Width="20" Height="20">
+                    <Canvas Width="24" Height="24">
+                        <Ellipse Canvas.Left="2" Canvas.Top="2" Width="20" Height="20"
+                                 Stroke="{StaticResource TextBrush}" StrokeThickness="1.8"/>
+                        <Ellipse Canvas.Left="8" Canvas.Top="8.5" Width="2.6" Height="2.6"
+                                 Fill="{StaticResource TextBrush}"/>
+                        <Ellipse Canvas.Left="13.4" Canvas.Top="8.5" Width="2.6" Height="2.6"
+                                 Fill="{StaticResource TextBrush}"/>
+                        <Path Data="M 7.4,13.6 A 4.6,4.6 0 0 0 16.6,13.6"
+                              Stroke="{StaticResource TextBrush}" StrokeThickness="1.8"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                    </Canvas>
+                </Viewbox>
+            </Button>
 
             <TextBox x:Name="MessageBox" Grid.Column="1" Style="{StaticResource BaseTextBox}"
                      Height="40" MaxLength="400" KeyDown="MessageBox_KeyDown"/>
