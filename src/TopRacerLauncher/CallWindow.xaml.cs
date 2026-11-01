@@ -1,4 +1,7 @@
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace TopRacerLauncher;
@@ -59,22 +62,91 @@ public partial class CallWindow : Window
             return;
         }
 
-        var me = new
+        var list = new List<CallParticipant>
         {
-            Name = LanPresence.SelfName + " (вы)",
-            Status = VoiceEngine.OpenMic ? "микрофон открыт" : "по кнопке",
+            new()
+            {
+                Id = LanPresence.SelfGuid.ToString(),
+                Name = LanPresence.SelfName + " (вы)",
+                Status = "микрофон " + VoiceEngine.InputGain + "%",
+                IsMe = true,
+            },
         };
 
-        var others = LanPresence.GetPeers()
+        list.AddRange(LanPresence.GetPeers()
             .Where(p => string.Equals(p.Room, VoiceEngine.RoomId.ToString(), StringComparison.OrdinalIgnoreCase))
-            .Select(p => new { p.Name, Status = "в звонке" })
-            .ToList();
-
-        var list = new List<object> { me };
-        list.AddRange(others);
+            .Select(p => new CallParticipant
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Status = "громкость " + VoiceEngine.GetPeerVolume(Guid.TryParse(p.Id, out var gid) ? gid : Guid.Empty) + "%",
+            }));
 
         ParticipantsList.ItemsSource = list;
         CountText.Text = $"{list.Count}/4";
+    }
+
+    /// <summary>ПКМ по участнику — ползунок его громкости (или своего микрофона).</summary>
+    private void Participant_RightClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement fe || fe.DataContext is not CallParticipant participant) return;
+        e.Handled = true;
+
+        var menu = new System.Windows.Controls.ContextMenu { PlacementTarget = fe };
+
+        var panel = new StackPanel { Margin = new Thickness(12), Width = 190 };
+        panel.Children.Add(new TextBlock
+        {
+            Text = participant.IsMe ? "Громкость микрофона" : "Громкость: " + participant.Name,
+            FontWeight = FontWeights.Bold,
+            FontSize = 12,
+        });
+
+        int current = participant.IsMe
+            ? VoiceEngine.InputGain
+            : VoiceEngine.GetPeerVolume(Guid.TryParse(participant.Id, out var id) ? id : Guid.Empty);
+
+        var valueText = new TextBlock
+        {
+            Text = current + "%",
+            FontSize = 11,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            Margin = new Thickness(0, 4, 0, 0),
+        };
+
+        var slider = new Slider
+        {
+            Minimum = 0,
+            Maximum = 200,
+            Value = current,
+            TickFrequency = 10,
+            IsSnapToTickEnabled = true,
+            Margin = new Thickness(0, 8, 0, 0),
+        };
+
+        slider.ValueChanged += (_, _) =>
+        {
+            int value = (int)slider.Value;
+            valueText.Text = value + "%";
+
+            if (participant.IsMe)
+            {
+                VoiceEngine.InputGain = value;
+                App.Settings.VoiceInputGain = value;
+            }
+            else if (Guid.TryParse(participant.Id, out var peerId))
+            {
+                VoiceEngine.SetPeerVolume(peerId, value);
+            }
+
+            App.SaveState();
+            RefreshParticipants();
+        };
+
+        panel.Children.Add(slider);
+        panel.Children.Add(valueText);
+        menu.Items.Add(panel);
+        menu.IsOpen = true;
     }
 
     private void UpdateTalkBadge()
@@ -236,4 +308,13 @@ public partial class CallWindow : Window
     }
 
     private void Close_Click(object sender, RoutedEventArgs e) => HangUp_Click(sender, e);
+}
+
+/// <summary>Строка участника звонка.</summary>
+public sealed class CallParticipant
+{
+    public string Id { get; init; } = "";
+    public string Name { get; init; } = "";
+    public string Status { get; init; } = "";
+    public bool IsMe { get; init; }
 }

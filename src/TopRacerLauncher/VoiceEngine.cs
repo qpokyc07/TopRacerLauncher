@@ -30,6 +30,34 @@ public static class VoiceEngine
     public static string OutputDeviceName { get; set; } = "";
     public static int VoiceKey { get; set; } = 0x56;
 
+    /// <summary>Усиление своего микрофона, проценты (100 = без изменений).</summary>
+    public static int InputGain { get; set; } = 100;
+
+    private static readonly Dictionary<Guid, int> PeerVolumes = new();
+
+    public static int GetPeerVolume(Guid id) => PeerVolumes.TryGetValue(id, out int v) ? v : 100;
+
+    public static void SetPeerVolume(Guid id, int percent) => PeerVolumes[id] = Math.Clamp(percent, 0, 200);
+
+    /// <summary>Масштабирует 16-битный PCM на месте.</summary>
+    private static void ApplyGain(byte[] buffer, int offset, int count, double gain)
+    {
+        if (Math.Abs(gain - 1.0) < 0.01) return;
+
+        int end = offset + count;
+        for (int i = offset; i + 1 < end; i += 2)
+        {
+            short sample = (short)(buffer[i] | (buffer[i + 1] << 8));
+            int value = (int)(sample * gain);
+
+            if (value > short.MaxValue) value = short.MaxValue;
+            else if (value < short.MinValue) value = short.MinValue;
+
+            buffer[i] = (byte)(value & 0xFF);
+            buffer[i + 1] = (byte)((value >> 8) & 0xFF);
+        }
+    }
+
     public static event Action? StateChanged;
 
     /// <summary>Идёт ли сейчас передача нашего голоса.</summary>
@@ -156,6 +184,8 @@ public static class VoiceEngine
         SelfIdBytes().CopyTo(packet, 16);
         Buffer.BlockCopy(e.Buffer, 0, packet, HeaderSize, e.BytesRecorded);
 
+        ApplyGain(packet, HeaderSize, e.BytesRecorded, InputGain / 100.0);
+
         try { _udp.Send(packet, packet.Length, new IPEndPoint(IPAddress.Broadcast, Port)); }
         catch { /* сеть моргнула — пропускаем пакет */ }
     }
@@ -191,6 +221,10 @@ public static class VoiceEngine
                 var sender = new Guid(data.AsSpan(16, 16));
                 if (sender == LanPresence.SelfGuid) continue;
 
+                int volume = GetPeerVolume(sender);
+                if (volume <= 0) continue;
+
+                ApplyGain(data, HeaderSize, data.Length - HeaderSize, volume / 100.0);
                 _buffer?.AddSamples(data, HeaderSize, data.Length - HeaderSize);
             }
             catch { /* битый пакет */ }

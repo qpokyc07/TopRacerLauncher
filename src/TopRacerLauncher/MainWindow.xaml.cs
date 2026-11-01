@@ -421,6 +421,7 @@ public partial class MainWindow : Window
         VoiceEngine.OutputDeviceName = App.Settings.VoiceOutputDevice;
         VoiceEngine.OpenMic = App.Settings.VoiceMode == "open";
         VoiceEngine.VoiceKey = App.Settings.VoiceKey;
+        VoiceEngine.InputGain = App.Settings.VoiceInputGain;
         PttHook.Key = App.Settings.VoiceKey;
 
         if (!VoiceEngine.StartCall(room))

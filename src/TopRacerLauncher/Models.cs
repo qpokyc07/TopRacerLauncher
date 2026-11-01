@@ -124,6 +124,9 @@ public sealed class Settings
     /// <summary>Виртуальный код клавиши Push-to-Talk (по умолчанию V = 0x56).</summary>
     public int VoiceKey { get; set; } = 0x56;
 
+    /// <summary>Усиление своего микрофона, проценты (100 — как есть).</summary>
+    public int VoiceInputGain { get; set; } = 100;
+
 
     [System.Text.Json.Serialization.JsonIgnore]
     public bool PasswordSet => !string.IsNullOrEmpty(PasswordHash);
