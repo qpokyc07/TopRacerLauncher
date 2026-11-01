@@ -1,5 +1,5 @@
 {
-  "version": "1.4.1",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.4.1/TopRacerLauncher.exe",
-  "notes": "1.4.1 — статистика по играм (время, запуски, сегодня/7 дней/всё время) и открытие админ-меню кликом по логотипу Top Racer Launcher."
+  "version": "1.4.2",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.4.2/TopRacerLauncher.exe",
+  "notes": "1.4.2 — каждый раздел админ-меню сворачивается в одну строку по клику на заголовок; темы оформления — прокручиваемая полоса цветных образцов."
 }

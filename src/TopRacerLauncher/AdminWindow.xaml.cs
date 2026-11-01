@@ -49,6 +49,7 @@ public partial class AdminWindow : Window
         KioskCheck.IsChecked = s.KioskMode;
         UserNameBox.Text = s.UserName;
         RefreshPlayStats(DateTime.Today);
+        MakeSectionsCollapsible();
         UpdateUrlBox.Text = s.UpdateUrl;
         VersionLabel.Text = "Текущая версия: " + UpdateService.CurrentVersion;
 
@@ -146,6 +147,89 @@ public partial class AdminWindow : Window
     }
 
     // ---------- Тема оформления ----------
+
+    /// <summary>Превращает каждую карточку-раздел в сворачиваемую строку.</summary>
+    private void MakeSectionsCollapsible()
+    {
+        if (Content is not DependencyObject root) return;
+
+        var cards = new List<Border>();
+        CollectCards(root, cards);
+
+        foreach (var card in cards)
+        {
+            if (card.Child is not StackPanel content || content.Children.Count == 0) continue;
+            if (card.Tag is "collapsible") continue;
+
+            card.Tag = "collapsible";
+
+            // Первый элемент карточки — её заголовок (TextBlock или Grid с заголовком и меткой справа).
+            var headerSource = content.Children[0];
+            content.Children.RemoveAt(0);
+
+            var body = new StackPanel();
+            while (content.Children.Count > 0)
+            {
+                var child = content.Children[0];
+                content.Children.RemoveAt(0);
+                body.Children.Add(child);
+            }
+
+            var chevron = new System.Windows.Shapes.Path
+            {
+                Data = System.Windows.Media.Geometry.Parse("M 0,0 L 10,0 L 5,6 Z"),
+                Fill = FindResourceSafe("TextSecondaryBrush"),
+                Width = 10,
+                Height = 6,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(0, 0, 8, 0),
+                RenderTransformOrigin = new System.Windows.Point(0.5, 0.5),
+            };
+
+            var headerGrid = new Grid();
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            Grid.SetColumn(chevron, 0);
+            Grid.SetColumn(headerSource, 1);
+            headerGrid.Children.Add(chevron);
+            headerGrid.Children.Add(headerSource);
+
+            var header = new Button
+            {
+                Style = FindResource("SectionHeaderButton") as Style,
+                Content = headerGrid,
+                Margin = new Thickness(0, 0, 0, 4),
+                ToolTip = "Свернуть / развернуть",
+            };
+
+            header.Click += (_, _) =>
+            {
+                bool collapse = body.Visibility != Visibility.Collapsed;
+                body.Visibility = collapse ? Visibility.Collapsed : Visibility.Visible;
+                chevron.RenderTransform = new System.Windows.Media.RotateTransform(collapse ? -90 : 0);
+            };
+
+            content.Children.Add(header);
+            content.Children.Add(body);
+        }
+    }
+
+    private static void CollectCards(DependencyObject parent, List<Border> cards)
+    {
+        int count = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < count; i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+
+            if (child is Border border && border.Style is not null &&
+                border.Style == Application.Current?.TryFindResource("PanelCard"))
+            {
+                cards.Add(border);
+            }
+
+            CollectCards(child, cards);
+        }
+    }
 
     private void BuildThemeButtons()
     {
