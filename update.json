@@ -1,5 +1,5 @@
 {
-  "version": "1.5.2",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.5.2/TopRacerLauncher.exe",
-  "notes": "1.5.2 — эмодзи убраны, остались только стикеры; стикеры выглядят как наклейки: белый контур, скругление и тень."
+  "version": "1.5.3",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.5.3/TopRacerLauncher.exe",
+  "notes": "1.5.3 — исправлено: кнопка «Стикеры» снова открывает панель (не был подключён обработчик). Пара стикеров получила более читаемые иконки."
 }

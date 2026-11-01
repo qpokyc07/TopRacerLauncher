@@ -104,10 +104,10 @@ public sealed class ChatTab
     private static readonly (string Code, string Title, string Emoji, string Color)[] Stickers =
     {
         ("cs", "GO CS", "\U0001F3AF", "#E8542F"),
-        ("roblox", "GO ROBLOX", "\U0001F7E5", "#C0392B"),
+        ("roblox", "GO ROBLOX", "\U0001F9F1", "#C0392B"),
         ("mine", "GO MINE", "\u26CF", "#2E7D32"),
         ("dota", "GO DOTA", "\u2694", "#B71C1C"),
-        ("fortnite", "GO FORTNITE", "\U0001F3D7", "#1565C0"),
+        ("fortnite", "GO FORTNITE", "\U0001F528", "#1565C0"),
         ("gta", "GO GTA", "\U0001F697", "#F9A825"),
         ("among", "GO AMONG US", "\U0001F52A", "#6A1B9A"),
         ("gg", "GG WP", "\U0001F3C6", "#00838F"),
@@ -166,6 +166,7 @@ public sealed class ChatTab
             Style = Resource<Style>("BaseButton"),
             ToolTip = "Открыть стикеры",
         };
+        stickerButton.Click += (_, _) => ToggleStickers();
         var inputRow = new Grid { Margin = new Thickness(16, 10, 16, 14) };
         inputRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         inputRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
