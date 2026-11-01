@@ -101,20 +101,6 @@ public partial class ChatWindow : Window
 /// <summary>Одна вкладка чата: лог, панель эмодзи/стикеров и поле ввода.</summary>
 public sealed class ChatTab
 {
-    private static readonly string[] Emojis =
-    {
-        "\U0001F3AE", "\U0001F579", "\U0001F47E", "\U0001F47D", "\U0001F916", "\U0001F9DF",
-        "\U0001F9D9", "\U0001F409", "\U0001F432", "\U0001F480", "\u2620", "\U0001F3C6",
-        "\U0001F947", "\U0001F948", "\U0001F949", "\U0001F396", "\U0001F3AF", "\U0001F52B",
-        "\U0001F5E1", "\u2694", "\U0001F6E1", "\U0001F3F9", "\U0001F4A3", "\U0001F9E8",
-        "\U0001F680", "\U0001F4A5", "\U0001F525", "\u2B50", "\U0001F31F", "\u2728",
-        "\U0001F48E", "\U0001FA99", "\U0001F381", "\U0001F0CF", "\U0001F3B2", "\U0001F3B0",
-        "\U0001F3C1", "\U0001F697", "\U0001F3CE", "\U0001F699", "\U0001F3CD", "\U0001F681",
-        "\u2708", "\u26F5", "\U0001F3F0", "\U0001F5FA", "\U0001F9ED", "\u23F1",
-        "\u26A1", "\U0001F9CA", "\U0001F32A", "\U0001F451", "\U0001F9B8", "\U0001F9B9",
-        "\U0001F344", "\u2764", "\U0001F49A", "\U0001F3C5", "\U0001F9E0",
-    };
-
     private static readonly (string Code, string Title, string Emoji, string Color)[] Stickers =
     {
         ("cs", "GO CS", "\U0001F3AF", "#E8542F"),
@@ -135,7 +121,7 @@ public sealed class ChatTab
     private readonly StackPanel _log = new();
     private readonly ScrollViewer _scroll;
     private readonly TextBox _input;
-    private readonly Border _emojiPanel;
+    private readonly Border _stickerPanel;
 
     public FrameworkElement Content { get; }
 
@@ -169,75 +155,42 @@ public sealed class ChatTab
         };
         sendButton.Click += (_, _) => Send();
 
-        // Векторный смайлик: глифы эмодзи в WPF рисуются неровно.
-        var smiley = new Grid { Width = 22, Height = 22 };
-        smiley.Children.Add(new System.Windows.Shapes.Ellipse
+        var stickerButton = new Button
         {
-            Stroke = Resource<Brush>("TextBrush") ?? Brushes.White,
-            StrokeThickness = 1.6,
-        });
-        smiley.Children.Add(new System.Windows.Shapes.Ellipse
-        {
-            Width = 3.4,
-            Height = 3.4,
-            Fill = Resource<Brush>("TextBrush") ?? Brushes.White,
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(5.6, 7.4, 0, 0),
-        });
-        smiley.Children.Add(new System.Windows.Shapes.Ellipse
-        {
-            Width = 3.4,
-            Height = 3.4,
-            Fill = Resource<Brush>("TextBrush") ?? Brushes.White,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(0, 7.4, 5.6, 0),
-        });
-        smiley.Children.Add(new System.Windows.Shapes.Path
-        {
-            Data = System.Windows.Media.Geometry.Parse("M 5.4,12.6 A 6,5.4 0 0 0 16.6,12.6"),
-            Stroke = Resource<Brush>("TextBrush") ?? Brushes.White,
-            StrokeThickness = 1.6,
-            StrokeStartLineCap = PenLineCap.Round,
-            StrokeEndLineCap = PenLineCap.Round,
-        });
-
-        var emojiButton = new Button
-        {
-            Content = smiley,
-            Width = 40,
+            Content = "Стикеры",
             Height = 40,
-            Padding = new Thickness(0),
+            Padding = new Thickness(14, 0, 14, 0),
+            FontSize = 12.5,
+            FontWeight = FontWeights.SemiBold,
             Margin = new Thickness(0, 0, 8, 0),
             Style = Resource<Style>("BaseButton"),
-            ToolTip = "Эмодзи и стикеры",
+            ToolTip = "Открыть стикеры",
         };
-        emojiButton.Click += (_, _) => ToggleEmoji();
-
         var inputRow = new Grid { Margin = new Thickness(16, 10, 16, 14) };
         inputRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         inputRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         inputRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        Grid.SetColumn(emojiButton, 0);
+        Grid.SetColumn(stickerButton, 0);
         Grid.SetColumn(_input, 1);
         Grid.SetColumn(sendButton, 2);
-        inputRow.Children.Add(emojiButton);
+        inputRow.Children.Add(stickerButton);
         inputRow.Children.Add(_input);
         inputRow.Children.Add(sendButton);
 
-        _emojiPanel = BuildEmojiPanel();
-        _emojiPanel.Visibility = Visibility.Collapsed;
+        _stickerPanel = BuildStickerPanel();
+        _stickerPanel.Visibility = Environment.GetCommandLineArgs().Any(a => a == "--demo-emoji")
+            ? Visibility.Visible
+            : Visibility.Collapsed;
 
         var root = new Grid();
         root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         Grid.SetRow(_scroll, 0);
-        Grid.SetRow(_emojiPanel, 1);
+        Grid.SetRow(_stickerPanel, 1);
         Grid.SetRow(inputRow, 2);
         root.Children.Add(_scroll);
-        root.Children.Add(_emojiPanel);
+        root.Children.Add(_stickerPanel);
         root.Children.Add(inputRow);
 
         Content = root;
@@ -253,131 +206,73 @@ public sealed class ChatTab
     private static T? Resource<T>(string key) where T : class
         => Application.Current?.TryFindResource(key) as T;
 
-    private Border BuildEmojiPanel()
+    private Border BuildStickerPanel()
     {
-        var emojiGrid = new UniformGrid { Columns = 8, HorizontalAlignment = HorizontalAlignment.Stretch };
-        foreach (var emoji in Emojis)
-        {
-            var button = new Button
-            {
-                Content = emoji,
-                Height = 34,
-                FontSize = 17,
-                Margin = new Thickness(0),
-                Background = Brushes.Transparent,
-                BorderThickness = new Thickness(0),
-                Cursor = Cursors.Hand,
-            };
-            button.Click += (_, _) =>
-            {
-                _input.Text += emoji;
-                _input.CaretIndex = _input.Text.Length;
-                _input.Focus();
-            };
-            emojiGrid.Children.Add(button);
-        }
+        var grid = new UniformGrid { Columns = 4, HorizontalAlignment = HorizontalAlignment.Stretch };
 
-        var emojiScroll = new ScrollViewer
-        {
-            Content = emojiGrid,
-            MaxHeight = 140,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-        };
-
-        var stickerGrid = new UniformGrid { Columns = 4, HorizontalAlignment = HorizontalAlignment.Stretch };
         foreach (var sticker in Stickers)
         {
-            var content = new StackPanel();
+            var content = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
             content.Children.Add(new TextBlock
             {
                 Text = sticker.Emoji,
-                FontSize = 18,
+                FontSize = 20,
                 HorizontalAlignment = HorizontalAlignment.Center,
             });
             content.Children.Add(new TextBlock
             {
                 Text = sticker.Title,
-                FontSize = 10,
+                FontSize = 10.5,
                 FontWeight = FontWeights.Bold,
                 Foreground = Brushes.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, 2, 0, 0),
+                Margin = new Thickness(0, 3, 0, 0),
             });
 
-            var button = new Button
+            // «Наклейка»: цветной фон + белый контур + мягкая тень.
+            var stickerCard = new Border
             {
-                Content = content,
-                Height = 48,
-                Margin = new Thickness(3),
+                Child = content,
+                Height = 52,
+                Margin = new Thickness(5),
+                CornerRadius = new CornerRadius(14),
                 Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(sticker.Color)),
-                BorderThickness = new Thickness(0),
+                BorderBrush = Brushes.White,
+                BorderThickness = new Thickness(2.5),
                 Cursor = Cursors.Hand,
+                Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 10,
+                    ShadowDepth = 2,
+                    Opacity = 0.45,
+                },
             };
+
             var code = sticker.Code;
-            button.Click += (_, _) => SendSticker(code);
-            stickerGrid.Children.Add(button);
+            stickerCard.MouseLeftButtonUp += (_, _) => SendSticker(code);
+            grid.Children.Add(stickerCard);
         }
 
-        var stickerScroll = new ScrollViewer
+        var scroll = new ScrollViewer
         {
-            Content = stickerGrid,
-            MaxHeight = 140,
+            Content = grid,
+            MaxHeight = 150,
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-            Visibility = Visibility.Collapsed,
         };
-
-        var tabs = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 6) };
-
-        var emojiTab = new Button
-        {
-            Content = "Эмодзи",
-            Height = 26,
-            Padding = new Thickness(12, 0, 12, 0),
-            FontSize = 11.5,
-            Style = Resource<Style>("BaseButton"),
-        };
-        var stickerTab = new Button
-        {
-            Content = "Стикеры",
-            Height = 26,
-            Padding = new Thickness(12, 0, 12, 0),
-            FontSize = 11.5,
-            Margin = new Thickness(6, 0, 0, 0),
-            Style = Resource<Style>("BaseButton"),
-        };
-
-        emojiTab.Click += (_, _) =>
-        {
-            emojiScroll.Visibility = Visibility.Visible;
-            stickerScroll.Visibility = Visibility.Collapsed;
-        };
-        stickerTab.Click += (_, _) =>
-        {
-            emojiScroll.Visibility = Visibility.Collapsed;
-            stickerScroll.Visibility = Visibility.Visible;
-        };
-
-        tabs.Children.Add(emojiTab);
-        tabs.Children.Add(stickerTab);
-
-        var stack = new StackPanel();
-        stack.Children.Add(tabs);
-        stack.Children.Add(emojiScroll);
-        stack.Children.Add(stickerScroll);
 
         return new Border
         {
-            Child = stack,
+            Child = scroll,
             Background = Resource<Brush>("BgPanelBrush"),
             Padding = new Thickness(10, 8, 10, 8),
             BorderBrush = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
             BorderThickness = new Thickness(0, 1, 0, 0),
         };
     }
-
-    private void ToggleEmoji()
+    private void ToggleStickers()
     {
-        _emojiPanel.Visibility = _emojiPanel.Visibility == Visibility.Visible
+        _stickerPanel.Visibility = _stickerPanel.Visibility == Visibility.Visible
             ? Visibility.Collapsed
             : Visibility.Visible;
     }
@@ -491,7 +386,7 @@ public sealed class ChatTab
         content.Children.Add(new TextBlock
         {
             Text = sticker.Emoji,
-            FontSize = 30,
+            FontSize = 32,
             HorizontalAlignment = HorizontalAlignment.Center,
         });
         content.Children.Add(new TextBlock
@@ -507,12 +402,21 @@ public sealed class ChatTab
         _log.Children.Add(new Border
         {
             Child = content,
-            Width = 132,
-            Height = 92,
-            CornerRadius = new CornerRadius(16),
-            Margin = new Thickness(0, 0, 0, 8),
+            Width = 140,
+            Height = 98,
+            CornerRadius = new CornerRadius(18),
+            Margin = new Thickness(0, 0, 0, 10),
             HorizontalAlignment = mine ? HorizontalAlignment.Right : HorizontalAlignment.Left,
             Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(sticker.Color)),
+            BorderBrush = Brushes.White,
+            BorderThickness = new Thickness(3),
+            Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = Colors.Black,
+                BlurRadius = 14,
+                ShadowDepth = 3,
+                Opacity = 0.5,
+            },
         });
 
         ScrollDown();
