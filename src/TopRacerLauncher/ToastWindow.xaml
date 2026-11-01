@@ -1,0 +1,46 @@
+<Window x:Class="TopRacerLauncher.ToastWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TopRacerLauncher"
+        SizeToContent="WidthAndHeight"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" ShowActivated="False"
+        Topmost="True" WindowStartupLocation="Manual"
+        FontFamily="Segoe UI">
+    <Border Width="368" CornerRadius="10" Background="#F21A1A21"
+            BorderBrush="#3AFFFFFF" BorderThickness="1" Padding="16,14">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" BlurRadius="26" ShadowDepth="5" Opacity="0.55"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="4"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border x:Name="Stripe" Grid.Column="0" CornerRadius="2"
+                    Background="{DynamicResource AccentBrush}"/>
+
+            <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="IconText" Text="&#x23F0;" FontSize="16"
+                               Foreground="White" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="TitleText" Text="Осталось 10 минут" FontSize="14.5"
+                               FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <TextBlock x:Name="BodyText"
+                           Text="Лаунчер закроет игру по таймеру. Сохраните прогресс."
+                           FontSize="12.5" Foreground="#B9B9C4" TextWrapping="Wrap"
+                           Margin="0,7,0,0" LineHeight="17"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,13,0,0">
+                    <Button x:Name="ExtendButton" Content="+5 минут" Height="32" Padding="14,0"
+                            FontSize="12.5" Style="{StaticResource PrimaryButton}" Click="Extend_Click"/>
+                    <Button Content="Скрыть" Height="32" Padding="12,0" Margin="8,0,0,0"
+                            FontSize="12.5" Style="{StaticResource BaseButton}" Click="Hide_Click"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

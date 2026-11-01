@@ -1,0 +1,220 @@
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Windows.Media;
+
+namespace TopRacerLauncher;
+
+/// <summary>Игра в библиотеке: просто ярлык с обложкой.</summary>
+public sealed class GameItem
+{
+    public string Id { get; set; } = Guid.NewGuid().ToString("N");
+    public string Title { get; set; } = "";
+
+    /// <summary>Путь к .exe/.lnk/.bat или URL вида steam://rungameid/…</summary>
+    public string ExecutablePath { get; set; } = "";
+
+    public string Arguments { get; set; } = "";
+
+    /// <summary>Steam appid, если известен: по нему подтягиваются обложка и фон.</summary>
+    public string AppId { get; set; } = "";
+
+    public string? CoverPath { get; set; }
+
+    /// <summary>Задний фон карточки игры (широкая картинка).</summary>
+    public string? BackgroundPath { get; set; }
+
+    // ---- Метаданные из Steam (заполняются по кнопке «Метаданные») ----
+
+    public string? Description { get; set; }
+    public string? Developer { get; set; }
+    public string? Publisher { get; set; }
+    public string? Genres { get; set; }
+
+    /// <summary>Год выхода (например, «2020»).</summary>
+    public string? ReleaseYear { get; set; }
+
+    public int? Metacritic { get; set; }
+
+    /// <summary>Игра заблокирована администратором — запускать нельзя.</summary>
+    public bool Locked { get; set; }
+}
+
+/// <summary>Настройки лаунчера (хранятся в %APPDATA%\TopRacerLauncher\config.json).</summary>
+public sealed class Settings
+{
+    public string PasswordSalt { get; set; } = "";
+    public string PasswordHash { get; set; } = "";
+
+    /// <summary>Версия алгоритма хэша: 2 = PBKDF2-SHA256, 0/1 = старый SHA-256.</summary>
+    public int HashVersion { get; set; }
+
+    /// <summary>Число итераций PBKDF2, с которым посчитан PasswordHash.</summary>
+    public int HashIterations { get; set; }
+
+    public int SessionMinutes { get; set; } = 60;
+
+    /// <summary>Доступ ограничен до ввода пароля.</summary>
+    public bool Locked { get; set; }
+
+    /// <summary>Последнее известное значение остатка (для UI и совместимости).</summary>
+    public int RemainingSeconds { get; set; }
+
+    /// <summary>Абсолютный дедлайн сеанса (UTC). Основной источник правды по времени.</summary>
+    public DateTime SessionEndUtc { get; set; }
+
+    /// <summary>Остаток на момент постановки на паузу.</summary>
+    public int PausedRemainingSeconds { get; set; }
+
+    /// <summary>Таймер поставлен на паузу (отсчёт остановлен).</summary>
+    public bool TimerPaused { get; set; }
+
+    public bool SessionEverStarted { get; set; }
+    public DateTime SavedAtUtc { get; set; } = DateTime.UtcNow;
+    public List<GameItem> Games { get; set; } = new();
+
+    /// <summary>Ключ текущей темы оформления (см. Themes.All).</summary>
+    public string AccentTheme { get; set; } = "blue";
+
+    /// <summary>Размер карточек (иконок) в библиотеке: ширина в пикселях (100–380).</summary>
+    public double CardWidth { get; set; }
+
+    /// <summary>Пропорции карточек игр: ключ из CardAspects.All.</summary>
+    public string CardAspect { get; set; } = "3:4";
+
+    /// <summary>Старый формат размера (S/M/L/XL) — для миграции предыдущих версий.</summary>
+    public string CardSize { get; set; } = "M";
+
+    /// <summary>Путь к фону всего приложения (картинка за библиотекой игр).</summary>
+    public string? AppBackgroundPath { get; set; }
+
+    /// <summary>Звуковые сигналы: неверный пароль, предупреждения о времени.</summary>
+    public bool SoundAlerts { get; set; } = true;
+
+    /// <summary>Подтягивать обложки из Steam автоматически при добавлении игр.</summary>
+    public bool AutoCovers { get; set; } = true;
+
+    /// <summary>Скрывать окна Steam/Rockstar/Epic, когда игра запускается через них.</summary>
+    public bool HideStoreWindows { get; set; } = true;
+
+    /// <summary>Открывать библиотеку на весь экран (без рамки Windows).</summary>
+    public bool FullScreen { get; set; } = true;
+
+    /// <summary>Ограничение по времени включено. Выключено — таймера нет и блокировки нет.</summary>
+    public bool TimerEnabled { get; set; } = true;
+
+    /// <summary>Имя пользователя в лаунчере (видно друзьям в сети).</summary>
+    public string UserName { get; set; } = "";
+
+    /// <summary>Откуда брать обновления: URL на update.json или путь к папке с ним.</summary>
+    public string UpdateUrl { get; set; } = "";
+
+    // ---- Голосовой чат ----
+
+    /// <summary>Название микрофона (пусто — системный по умолчанию).</summary>
+    public string VoiceInputDevice { get; set; } = "";
+
+    /// <summary>Название устройства вывода (пусто — системное по умолчанию).</summary>
+    public string VoiceOutputDevice { get; set; } = "";
+
+    /// <summary>Режим передачи: "ptt" — по кнопке, "open" — постоянно.</summary>
+    public string VoiceMode { get; set; } = "ptt";
+
+    /// <summary>Виртуальный код клавиши Push-to-Talk (по умолчанию V = 0x56).</summary>
+    public int VoiceKey { get; set; } = 0x56;
+
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool PasswordSet => !string.IsNullOrEmpty(PasswordHash);
+}
+
+/// <summary>Модель карточки игры для UI.</summary>
+public sealed class GameViewModel : INotifyPropertyChanged
+{
+    private bool _isRunning;
+
+    public GameItem Item { get; }
+
+    public GameViewModel(GameItem item)
+    {
+        Item = item;
+        Title = string.IsNullOrWhiteSpace(item.Title) ? "Без названия" : item.Title.Trim();
+        Initial = Title.Substring(0, 1).ToUpperInvariant();
+
+        // Уменьшенное декодирование: 50 игр с фонами 1920×1080 больше не съедают сотни мегабайт.
+        CoverImage = ImageCache.Load(item.CoverPath, 420);
+        BackgroundImage = ImageCache.Load(item.BackgroundPath, 900);
+
+        HasCover = CoverImage != null;
+        HasBackground = BackgroundImage != null;
+        ShowPlaceholder = !HasCover && !HasBackground;
+        ShowInitial = !HasCover;
+        IsHidden = item.Locked;
+        PlaceholderBrush = MakePlaceholderBrush(Title);
+    }
+
+    public string Title { get; }
+    public string Initial { get; }
+    public ImageSource? CoverImage { get; }
+    public ImageSource? BackgroundImage { get; }
+
+    /// <summary>Есть ли обложка.</summary>
+    public bool HasCover { get; }
+
+    /// <summary>Есть ли задний фон.</summary>
+    public bool HasBackground { get; }
+
+    /// <summary>Рисовать ли цветную заглушку (нет ни обложки, ни фона).</summary>
+    public bool ShowPlaceholder { get; }
+
+    /// <summary>Игра скрыта от обычного режима (видна только в админ-режиме).</summary>
+    public bool IsHidden { get; }
+
+    /// <summary>Показывать ли букву-инициал (нет обложки).</summary>
+    public bool ShowInitial { get; }
+
+    public Brush PlaceholderBrush { get; }
+
+    public bool IsRunning
+    {
+        get => _isRunning;
+        set { _isRunning = value; OnPropertyChanged(); }
+    }
+
+    private static Brush MakePlaceholderBrush(string title)
+    {
+        // Детерминированный цвет-заглушка из названия игры.
+        int hash = 0;
+        foreach (var ch in title) hash = unchecked(hash * 31 + char.ToLowerInvariant(ch));
+        hash &= 0x7FFFFFFF;   // без Math.Abs: тот падает на int.MinValue
+        var palette = new[]
+        {
+            (Color)ColorConverter.ConvertFromString("#2F4A7A")!,
+            (Color)ColorConverter.ConvertFromString("#5A3A7A")!,
+            (Color)ColorConverter.ConvertFromString("#2F6A5A")!,
+            (Color)ColorConverter.ConvertFromString("#7A4A2F")!,
+            (Color)ColorConverter.ConvertFromString("#3A5A7A")!,
+            (Color)ColorConverter.ConvertFromString("#6A2F4A")!,
+            (Color)ColorConverter.ConvertFromString("#4A6A2F")!,
+            (Color)ColorConverter.ConvertFromString("#44506B")!,
+        };
+        var c = palette[hash % palette.Length];
+        var grad = new LinearGradientBrush(c, ControlPaintDark(c), 45d);
+        grad.Freeze();
+        return grad;
+    }
+
+    private static Color ControlPaintDark(Color c) =>
+        Color.FromRgb((byte)(c.R * 0.55), (byte)(c.G * 0.55), (byte)(c.B * 0.55));
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+    private void OnPropertyChanged([CallerMemberName] string? name = null) =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+}
+
+/// <summary>Коллекция игр, безопасная для привязки.</summary>
+public sealed class Library
+{
+    public ObservableCollection<GameViewModel> Items { get; } = new();
+}
