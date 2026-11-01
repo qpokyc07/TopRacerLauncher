@@ -1,5 +1,5 @@
 {
   "version": "1.2.0",
-  "url": "TopRacerLauncher.exe",
-  "notes": "Что нового:\n• исправлена ошибка ...\n• добавлена функция ..."
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.2.0/TopRacerLauncher.exe",
+  "notes": "1.2.0 — голосовой чат (до 4 человек, PTT, громкость по ПКМ), стикеры и эмодзи в чате, скрытие игр, автоматические метаданные на русском, стандартные кнопки окна, тонкие скроллбары."
 }

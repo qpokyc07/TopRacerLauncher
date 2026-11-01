@@ -125,6 +125,9 @@ public static class ConfigStore
         if (string.IsNullOrWhiteSpace(s.AccentTheme)) s.AccentTheme = "blue";
         if (string.IsNullOrWhiteSpace(s.CardAspect)) s.CardAspect = "3:4";
 
+        if (string.IsNullOrWhiteSpace(s.UpdateUrl))
+            s.UpdateUrl = Settings.DefaultUpdateUrl;
+
         s.Games = s.Games
             .Where(g => g != null && !string.IsNullOrWhiteSpace(g.ExecutablePath))
             .ToList();

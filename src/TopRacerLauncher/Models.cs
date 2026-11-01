@@ -108,7 +108,11 @@ public sealed class Settings
     public string UserName { get; set; } = "";
 
     /// <summary>Откуда брать обновления: URL на update.json или путь к папке с ним.</summary>
-    public string UpdateUrl { get; set; } = "";
+    public string UpdateUrl { get; set; } = DefaultUpdateUrl;
+
+    /// <summary>Релизы GitHub: всегда проверяем манифест последнего релиза.</summary>
+    public const string DefaultUpdateUrl =
+        "https://github.com/qpokyc07/TopRacerLauncher/releases/latest/download/update.json";
 
     // ---- Голосовой чат ----
 
