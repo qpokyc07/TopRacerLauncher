@@ -57,15 +57,28 @@
             <StackPanel x:Name="LogPanel"/>
         </ScrollViewer>
 
-        <!-- Эмодзи -->
+        <!-- Эмодзи и стикеры -->
         <Border Grid.Row="2" x:Name="EmojiPanel" Visibility="Collapsed"
                 Background="{DynamicResource BgPanelBrush}" BorderBrush="{StaticResource GlassBorderBrush}"
-                BorderThickness="0,1,0,0" Padding="10,8">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="150">
-                <WrapPanel x:Name="EmojiWrap"/>
-            </ScrollViewer>
-        </Border>
+                BorderThickness="0,1,0,0" Padding="8,6">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                    <Button x:Name="EmojiTab" Content="Эмодзи" Height="26" Padding="12,0" FontSize="11.5"
+                            Style="{StaticResource BaseButton}" Click="EmojiTab_Click"/>
+                    <Button x:Name="StickerTab" Content="Стикеры" Height="26" Padding="12,0" FontSize="11.5"
+                            Margin="6,0,0,0" Style="{StaticResource BaseButton}" Click="StickerTab_Click"/>
+                </StackPanel>
 
+                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="140">
+                    <UniformGrid x:Name="EmojiGrid" Columns="8" HorizontalAlignment="Left"/>
+                </ScrollViewer>
+
+                <ScrollViewer x:Name="StickerScroll" VerticalScrollBarVisibility="Auto" MaxHeight="140"
+                              Visibility="Collapsed">
+                    <UniformGrid x:Name="StickerGrid" Columns="4" HorizontalAlignment="Left"/>
+                </ScrollViewer>
+            </StackPanel>
+        </Border>
         <!-- Ввод -->
         <Grid Grid.Row="3" Margin="14,10,14,14">
             <Grid.ColumnDefinitions>

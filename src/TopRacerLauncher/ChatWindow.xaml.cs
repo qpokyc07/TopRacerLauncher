@@ -35,9 +35,17 @@ public partial class ChatWindow : Window
         SubText.Text = peer.Status;
 
         BuildEmojiPanel();
+        BuildStickerPanel();
 
         if (Environment.GetCommandLineArgs().Any(a => a == "--demo-emoji"))
+        {
             EmojiPanel.Visibility = Visibility.Visible;
+            if (Environment.GetCommandLineArgs().Any(a => a == "--demo-stickers"))
+            {
+                EmojiGrid.Visibility = Visibility.Collapsed;
+                StickerScroll.Visibility = Visibility.Visible;
+            }
+        }
 
         LanPresence.MessageReceived += OnMessage;
         Closed += (_, _) => LanPresence.MessageReceived -= OnMessage;
@@ -57,6 +65,22 @@ public partial class ChatWindow : Window
         return trimmed.Length == 0 ? "?" : trimmed[..1].ToUpperInvariant();
     }
 
+    private static readonly (string Code, string Title, string Emoji, string Color)[] Stickers =
+    {
+        ("cs", "GO CS", "\U0001F3AF", "#E8542F"),
+        ("roblox", "GO ROBLOX", "\U0001F7E5", "#C0392B"),
+        ("mine", "GO MINE", "\u26CF", "#2E7D32"),
+        ("dota", "GO DOTA", "\u2694", "#B71C1C"),
+        ("fortnite", "GO FORTNITE", "\U0001F3D7", "#1565C0"),
+        ("gta", "GO GTA", "\U0001F697", "#F9A825"),
+        ("among", "GO AMONG US", "\U0001F52A", "#6A1B9A"),
+        ("gg", "GG WP", "\U0001F3C6", "#00838F"),
+        ("noob", "NOOB", "\U0001F95A", "#6D4C41"),
+        ("v1", "1V1 ME", "\U0001F94A", "#D84315"),
+        ("rip", "RIP", "\U0001F480", "#37474F"),
+        ("win", "VICTORY", "\U0001F451", "#FFB300"),
+    };
+
     private void BuildEmojiPanel()
     {
         foreach (var emoji in Emojis)
@@ -64,10 +88,10 @@ public partial class ChatWindow : Window
             var button = new Button
             {
                 Content = emoji,
-                Width = 32,
-                Height = 32,
-                FontSize = 16,
-                Margin = new Thickness(2),
+                Width = 34,
+                Height = 30,
+                FontSize = 15,
+                Margin = new Thickness(0),
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
@@ -81,8 +105,86 @@ public partial class ChatWindow : Window
                 MessageBox.Focus();
             };
 
-            EmojiWrap.Children.Add(button);
+            EmojiGrid.Children.Add(button);
         }
+    }
+
+    private void BuildStickerPanel()
+    {
+        foreach (var sticker in Stickers)
+        {
+            var content = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+            content.Children.Add(new TextBlock
+            {
+                Text = sticker.Emoji,
+                FontSize = 18,
+                HorizontalAlignment = HorizontalAlignment.Center,
+            });
+            content.Children.Add(new TextBlock
+            {
+                Text = sticker.Title,
+                FontSize = 10,
+                FontWeight = FontWeights.Bold,
+                Foreground = Brushes.White,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 2, 0, 0),
+            });
+
+            var button = new Button
+            {
+                Content = content,
+                Width = 92,
+                Height = 48,
+                Margin = new Thickness(3),
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(sticker.Color)),
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                ToolTip = "Отправить стикер",
+            };
+
+            var code = sticker.Code;
+            button.Click += (_, _) => SendSticker(code);
+
+            StickerGrid.Children.Add(button);
+        }
+    }
+
+    private void EmojiTab_Click(object sender, RoutedEventArgs e)
+    {
+        EmojiGrid.Visibility = Visibility.Visible;
+        StickerScroll.Visibility = Visibility.Collapsed;
+    }
+
+    private void StickerTab_Click(object sender, RoutedEventArgs e)
+    {
+        EmojiGrid.Visibility = Visibility.Collapsed;
+        StickerScroll.Visibility = Visibility.Visible;
+    }
+
+    private void SendSticker(string code)
+    {
+        var message = "::sticker:" + code + "::";
+
+        LanPresence.SendMessage(_peer, message);
+        ChatHistory.Append(_peer.Id, "Вы", message);
+
+        AddBubble(message, true, DateTime.Now.ToString("HH:mm"));
+    }
+
+    private static bool TryGetSticker(string text, out (string Code, string Title, string Emoji, string Color) sticker)
+    {
+        sticker = default;
+
+        if (!text.StartsWith("::sticker:", StringComparison.Ordinal) || !text.EndsWith("::", StringComparison.Ordinal))
+            return false;
+
+        var code = text["::sticker:".Length..^2];
+        foreach (var item in Stickers)
+        {
+            if (item.Code == code) { sticker = item; return true; }
+        }
+
+        return false;
     }
 
     private void Emoji_Click(object sender, RoutedEventArgs e)
@@ -146,6 +248,12 @@ public partial class ChatWindow : Window
 
     private void AddBubble(string text, bool mine, string time)
     {
+        if (TryGetSticker(text, out var sticker))
+        {
+            AddSticker(sticker, mine);
+            return;
+        }
+
         var content = new StackPanel();
 
         content.Children.Add(new TextBlock
@@ -179,6 +287,45 @@ public partial class ChatWindow : Window
         };
 
         LogPanel.Children.Add(bubble);
+        Dispatcher.BeginInvoke(new Action(() => LogScroll.ScrollToEnd()));
+    }
+
+    private void AddSticker((string Code, string Title, string Emoji, string Color) sticker, bool mine)
+    {
+        var content = new StackPanel
+        {
+            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Center,
+        };
+
+        content.Children.Add(new TextBlock
+        {
+            Text = sticker.Emoji,
+            FontSize = 30,
+            HorizontalAlignment = HorizontalAlignment.Center,
+        });
+
+        content.Children.Add(new TextBlock
+        {
+            Text = sticker.Title,
+            FontSize = 11.5,
+            FontWeight = FontWeights.Bold,
+            Foreground = Brushes.White,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 3, 0, 0),
+        });
+
+        LogPanel.Children.Add(new Border
+        {
+            Child = content,
+            Width = 132,
+            Height = 92,
+            CornerRadius = new CornerRadius(16),
+            Margin = new Thickness(0, 0, 0, 8),
+            HorizontalAlignment = mine ? HorizontalAlignment.Right : HorizontalAlignment.Left,
+            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(sticker.Color)),
+        });
+
         Dispatcher.BeginInvoke(new Action(() => LogScroll.ScrollToEnd()));
     }
 
