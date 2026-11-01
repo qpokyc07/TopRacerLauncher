@@ -14,6 +14,7 @@ public partial class ChatWindow : Window
 
     private readonly Dictionary<string, ChatTab> _tabs = new();
     private readonly Dictionary<string, Button> _tabButtons = new();
+    private string? _activePeerId;
 
     public ChatWindow()
     {
@@ -101,6 +102,7 @@ public partial class ChatWindow : Window
     {
         if (!_tabs.TryGetValue(peerId, out var tab)) return;
 
+        _activePeerId = peerId;
         TabHost.Content = tab.Content;
 
         foreach (var child in TabsPanel.Children)
@@ -141,11 +143,15 @@ public partial class ChatWindow : Window
     /// <summary>Звонок текущему собеседнику (активная вкладка).</summary>
     private void Call_Click(object sender, RoutedEventArgs e)
     {
-        var active = _tabs.FirstOrDefault(kv => kv.Value.Content == TabHost.Content);
-        var peer = active.Value?.Peer;
-        if (peer == null) return;
+        if (_activePeerId == null || !_tabs.TryGetValue(_activePeerId, out var tab))
+        {
+            // На случай, если вкладка ещё не активирована — берём первую.
+            tab = _tabs.Values.FirstOrDefault();
+        }
 
-        CallLauncher.Call(peer, this);
+        if (tab == null) return;
+
+        CallLauncher.Call(tab.Peer, this);
     }
 
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
