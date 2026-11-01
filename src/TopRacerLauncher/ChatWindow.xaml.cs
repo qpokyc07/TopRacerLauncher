@@ -88,9 +88,9 @@ public partial class ChatWindow : Window
             var button = new Button
             {
                 Content = emoji,
-                Height = 32,
+                Height = 34,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
-                FontSize = 15,
+                FontSize = 17,
                 Margin = new Thickness(0),
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),

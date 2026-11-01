@@ -416,10 +416,10 @@
                                                            VerticalAlignment="Center" Margin="5,0"/>
                                             </Border>
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                                <Button Content="&#x2709;" Width="30" Height="28" FontSize="12"
+                                                <Button Content="&#x2709;" Width="30" Height="28" Padding="0" FontSize="12"
                                                         Style="{StaticResource CaptionButton}" Click="FriendChat_Click"
                                                         ToolTip="Написать"/>
-                                                <Button Content="&#x1F4DE;" Width="30" Height="28" FontSize="12"
+                                                <Button Content="&#x1F4DE;" Width="30" Height="28" Padding="0" FontSize="12"
                                                         Margin="4,0,0,0" Style="{StaticResource CaptionButton}"
                                                         Click="FriendCall_Click" ToolTip="Позвонить"/>
                                             </StackPanel>

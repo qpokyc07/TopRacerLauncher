@@ -87,24 +87,20 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0" x:Name="EmojiButton" Width="40" Height="40"
+            <Button Grid.Column="0" x:Name="EmojiButton" Width="40" Height="40" Padding="0"
                     Margin="0,0,8,0" Style="{StaticResource BaseButton}"
                     Click="Emoji_Click" ToolTip="Эмодзи и стикеры">
-                <Viewbox Width="20" Height="20">
-                    <Canvas Width="24" Height="24">
-                        <Ellipse Canvas.Left="2" Canvas.Top="2" Width="20" Height="20"
-                                 Stroke="{StaticResource TextBrush}" StrokeThickness="1.8"/>
-                        <Ellipse Canvas.Left="8" Canvas.Top="8.5" Width="2.6" Height="2.6"
-                                 Fill="{StaticResource TextBrush}"/>
-                        <Ellipse Canvas.Left="13.4" Canvas.Top="8.5" Width="2.6" Height="2.6"
-                                 Fill="{StaticResource TextBrush}"/>
-                        <Path Data="M 7.4,13.6 A 4.6,4.6 0 0 0 16.6,13.6"
-                              Stroke="{StaticResource TextBrush}" StrokeThickness="1.8"
-                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                    </Canvas>
-                </Viewbox>
+                <Grid Width="22" Height="22">
+                    <Ellipse Stroke="{StaticResource TextBrush}" StrokeThickness="1.6"/>
+                    <Ellipse Width="3.4" Height="3.4" Fill="{StaticResource TextBrush}"
+                             HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5.6,7.4,0,0"/>
+                    <Ellipse Width="3.4" Height="3.4" Fill="{StaticResource TextBrush}"
+                             HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7.4,5.6,0"/>
+                    <Path Data="M 5.4,12.6 A 6,5.4 0 0 0 16.6,12.6"
+                          Stroke="{StaticResource TextBrush}" StrokeThickness="1.6"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                </Grid>
             </Button>
-
             <TextBox x:Name="MessageBox" Grid.Column="1" Style="{StaticResource BaseTextBox}"
                      Height="40" MaxLength="400" KeyDown="MessageBox_KeyDown"/>
 
