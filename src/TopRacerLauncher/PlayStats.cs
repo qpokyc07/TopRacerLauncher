@@ -79,6 +79,35 @@ public static class PlayStats
         catch { /* статистика не критична для работы */ }
     }
 
+    /// <summary>Все записанные сессии в порядке добавления (для достижений).</summary>
+    public static List<PlaySession> LoadAll(int max = 20000)
+    {
+        var result = new List<PlaySession>();
+
+        try
+        {
+            if (!File.Exists(FilePath)) return result;
+
+            foreach (var line in File.ReadLines(FilePath, Encoding.UTF8))
+            {
+                if (string.IsNullOrWhiteSpace(line)) continue;
+
+                try
+                {
+                    var session = JsonSerializer.Deserialize<PlaySession>(line);
+                    if (session != null && !string.IsNullOrWhiteSpace(session.Title)) result.Add(session);
+                }
+                catch { /* битая строка — пропускаем */ }
+            }
+        }
+        catch { /* нет доступа — пустая статистика */ }
+
+        if (result.Count > max)
+            result = result.Skip(result.Count - max).ToList();
+
+        return result;
+    }
+
     /// <summary>Сводка по играм за период (since == null — за всё время).</summary>
     public static List<GameStatRow> Aggregate(DateTime? since)
     {

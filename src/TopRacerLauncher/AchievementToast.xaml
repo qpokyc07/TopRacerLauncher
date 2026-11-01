@@ -1,0 +1,38 @@
+<Window x:Class="TopRacerLauncher.AchievementToast"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TopRacerLauncher"
+        SizeToContent="WidthAndHeight" WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ShowInTaskbar="False" ShowActivated="False"
+        ResizeMode="NoResize" Topmost="True" WindowStartupLocation="Manual"
+        FontFamily="Segoe UI" Cursor="Hand">
+    <Border Width="360" CornerRadius="12" Background="#F21A1A21"
+            BorderBrush="#3AFFFFFF" BorderThickness="1" Padding="14,12">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" BlurRadius="24" ShadowDepth="5" Opacity="0.55"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="44"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Width="40" Height="40" CornerRadius="20"
+                    Background="#26FFFFFF" VerticalAlignment="Center">
+                <TextBlock x:Name="IconText" Text="&#x1F3C6;" FontSize="20" FontFamily="Segoe UI Emoji"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+
+            <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                <TextBlock Text="Достижение открыто" FontSize="11.5" FontWeight="SemiBold"
+                           Foreground="{DynamicResource AccentBrush}"/>
+                <TextBlock x:Name="TitleText" Text="Первый час" FontSize="15" FontWeight="Bold"
+                           Foreground="White" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
+                <TextBlock x:Name="BodyText" Text="Наиграть один час" FontSize="12"
+                           Foreground="#B9B9C4" TextWrapping="Wrap" Margin="0,3,0,0"
+                           LineHeight="16" MaxHeight="34"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

@@ -89,6 +89,40 @@ public static class HistoryLog
         return result;
     }
 
+    /// <summary>
+    /// Все записи журнала в хронологическом порядке, включая файл после ротации.
+    /// Нужно достижениям: им важен весь период, а не последние 200 событий.
+    /// </summary>
+    public static List<HistoryEntry> ReadAll(int max = 20000)
+    {
+        var result = new List<HistoryEntry>();
+
+        foreach (var path in new[] { OldFilePath, FilePath })
+        {
+            try
+            {
+                if (!File.Exists(path)) continue;
+
+                foreach (var line in File.ReadLines(path, Encoding.UTF8))
+                {
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+                    try
+                    {
+                        var entry = JsonSerializer.Deserialize<HistoryEntry>(line, JsonOptions);
+                        if (entry != null) result.Add(entry);
+                    }
+                    catch { /* битая строка — пропускаем */ }
+                }
+            }
+            catch { /* нет доступа — пропускаем файл */ }
+        }
+
+        if (result.Count > max)
+            result = result.Skip(result.Count - max).ToList();
+
+        return result;
+    }
+
     /// <summary>Человекочитаемое описание события для списка в админ-меню.</summary>
     public static string Describe(HistoryEntry e)
     {

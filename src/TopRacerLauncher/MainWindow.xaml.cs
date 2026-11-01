@@ -27,6 +27,9 @@ public partial class MainWindow : Window
     private bool _warned1;
     private ToastWindow? _toast;
 
+    /// <summary>Открытая полка достижений (одна на всё приложение).</summary>
+    private AchievementsWindow? _achievementsWindow;
+
     private static Brush Freeze(Color color)
     {
         var brush = new SolidColorBrush(color);
@@ -58,6 +61,7 @@ public partial class MainWindow : Window
         ApplyCardSettings();
 
         _tick.Tick += OnTick;
+        Achievements.Unlocked += OnAchievementsUnlocked;
         _friendsTimer.Tick += (_, _) => RefreshFriends();
         _cardWidthSave.Tick += (_, _) =>
         {
@@ -94,6 +98,12 @@ public partial class MainWindow : Window
             _ = FillMissingMetadataAsync();
 
             _ = CheckUpdatesAsync();
+
+            // Достижения могли «дозреть», пока лаунчер был закрыт: считаем после отрисовки.
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                try { Achievements.Evaluate(); } catch { /* не критично */ }
+            }), DispatcherPriority.Background);
 
             // Поиск друзей в локальной сети.
             try { LanPresence.Start(); } catch { }
@@ -910,6 +920,74 @@ public partial class MainWindow : Window
     {
         RefreshTimerUi();
         UpdateGameStatus();
+        UpdateAchievementsButton();
+    }
+
+    /// <summary>Счётчик на кнопке: сколько достижений уже открыто.</summary>
+    private void UpdateAchievementsButton()
+    {
+        try
+        {
+            int unlocked = Achievements.UnlockedCount;
+            string text = unlocked > 0
+                ? "\U0001F3C6  " + unlocked + " / " + Achievements.TotalCount
+                : "Достижения";
+
+            if (!Equals(AchievementsButton.Content, text)) AchievementsButton.Content = text;
+        }
+        catch { /* кнопка ещё не создана — не критично */ }
+    }
+
+    private void Achievements_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            // Окно само догонит заслуженное — без лишних тостов.
+            if (_achievementsWindow != null)
+            {
+                _achievementsWindow.Activate();
+                return;
+            }
+
+            var window = new AchievementsWindow();
+            window.Closed += (_, _) =>
+            {
+                if (ReferenceEquals(_achievementsWindow, window)) _achievementsWindow = null;
+            };
+
+            _achievementsWindow = window;
+            window.Show();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, "Не удалось открыть достижения:\n\n" + ex.Message,
+                "TopRacerLauncher", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>Новое достижение: показываем тост, игру это не сворачивает.</summary>
+    private void OnAchievementsUnlocked(List<Achievement> fresh)
+    {
+        if (fresh == null || fresh.Count == 0) return;
+        if (App.SmokeMode) return;   // в самопроверке окна не мешаем
+
+        try
+        {
+            if (fresh.Count == 1)
+            {
+                var one = fresh[0];
+                new AchievementToast(one.Icon, one.Title, one.Description).Show();
+            }
+            else
+            {
+                var names = string.Join(", ", fresh.Take(3).Select(a => a.Title));
+                if (fresh.Count > 3) names += " и ещё " + (fresh.Count - 3);
+
+                new AchievementToast("\U0001F3C6",
+                    "Открыто достижений: " + fresh.Count, names).Show();
+            }
+        }
+        catch { /* тост — украшение, не повод падать */ }
     }
 
     private void RefreshTimerUi()

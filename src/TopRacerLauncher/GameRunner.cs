@@ -263,6 +263,9 @@ public sealed class GameRunner : IDisposable
         _sessionTitle = null;
 
         try { PlayStats.Add(title, duration); } catch { /* статистика не критична */ }
+
+        // Сессия записана — проверяем, не открылось ли достижение.
+        try { Achievements.Evaluate(); } catch { /* достижения не критичны */ }
     }
 
     private static IEnumerable<Process> SafeGetProcesses()

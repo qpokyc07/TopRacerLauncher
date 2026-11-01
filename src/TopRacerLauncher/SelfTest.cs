@@ -248,6 +248,34 @@ public static class SelfTest
                 return null;
             });
 
+            Check("Достижения: каталог, прогресс и файл", () =>
+            {
+                var ids = Achievements.Catalog.Select(a => a.Id).ToList();
+                if (ids.Count != 20) return "в каталоге не 20 достижений: " + ids.Count;
+                if (ids.Distinct().Count() != ids.Count) return "повторяющиеся id в каталоге";
+                if (Achievements.Catalog.Any(a => a.Target < 1)) return "цель меньше единицы";
+
+                Achievements.Load();
+                if (Achievements.UnlockedCount != 0) return "файл достижений достался не пустым";
+
+                // Час игры — первое достижение, которое должно открыться.
+                PlayStats.Add("Achievement Test", TimeSpan.FromMinutes(61));
+
+                var fresh = Achievements.Evaluate();
+                if (!fresh.Any(a => a.Id == "hour_1")) return "«Первый час» не открылся";
+
+                if (Achievements.Evaluate().Count != 0) return "повторная проверка выдала награды заново";
+
+                Achievements.Load();   // перечитываем файл с диска
+                if (Achievements.UnlockedAt("hour_1") == null) return "достижение не попало в файл";
+
+                var snapshot = Achievements.BuildSnapshot();
+                if (snapshot.TotalSeconds < 3600) return "снимок не увидел сыгранное время";
+                if (snapshot.TotalLaunches < 1) return "снимок не увидел запусков";
+
+                return null;
+            });
+
             Check("Отсев DLC и саундтреков в поиске", () =>
             {
                 if (!ImageSearchService.IsLikelyExtraName("DOOM Eternal: The Complete Cosmetic Pack"))

@@ -1,5 +1,5 @@
 {
-  "version": "1.8.2",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.8.2/TopRacerLauncher.exe",
-  "notes": "1.8.2 — тарифы на экране приветствия: 30 минут / 1 час / 2 часа по паролю администратора (запускают сессию нужной длины)."
+  "version": "1.9.0",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.0/TopRacerLauncher.exe",
+  "notes": "1.9.0 — достижения: 20 наград за часы, серии дней и коллекцию игр. Прогресс считается из уже накопленной статистики, поэтому старые сессии тоже засчитываются. Кнопка «Достижения» на нижней панели и тост при открытии награды."
 }

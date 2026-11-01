@@ -20,6 +20,9 @@ public partial class App : Application
     /// <summary>Админ уже вводил пароль в этом запуске — не спрашиваем повторно.</summary>
     public static bool AdminUnlocked { get; set; }
 
+    /// <summary>Режим самопроверки (--smoke-test): окна создаются, тосты не показываем.</summary>
+    public static bool SmokeMode { get; private set; }
+
     /// <summary>Управление запущенной игрой.</summary>
     public static GameRunner Runner { get; } = new();
 
@@ -40,9 +43,14 @@ public partial class App : Application
         };
 
         bool smoke = HasArg(e.Args, "--smoke-test");
+        SmokeMode = smoke;
+
+        // Демо-режимы (только Debug) показывают одно окно и не должны конфликтовать
+        // с уже запущенным лаунчером на этом ПК.
+        bool demoMode = e.Args.Any(a => a.StartsWith("--demo-", StringComparison.OrdinalIgnoreCase));
 
         // Один экземпляр: два лаунчера = два таймера и гонка записи конфига.
-        if (!smoke)
+        if (!smoke && !demoMode)
         {
             _instanceMutex = new Mutex(true, @"Local\TopRacerLauncher.SingleInstance", out bool createdNew);
             if (!createdNew)
@@ -107,7 +115,7 @@ public partial class App : Application
         }
 
         // Статистика запусков (общая для всех учётных записей на этом ПК).
-        if (!smoke) UsageStats.RecordLaunch();
+        if (!smoke && !demoMode) UsageStats.RecordLaunch();
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
@@ -228,6 +236,8 @@ public partial class App : Application
                 Probe("CallWindow", () => new CallWindow());
                 Probe("NoticeWindow", () => new NoticeWindow("Тест", "Текст уведомления"));
                 Probe("UpdateWindow", () => new UpdateWindow(new UpdateInfo { Version = "9.9.9", Notes = "Тест" }, ""));
+                Probe("AchievementsWindow", () => new AchievementsWindow());
+                Probe("AchievementToast", () => new AchievementToast("\U0001F3C6", "Тест", "Проверка окна"));
 
                 var report = SelfTest.Run();
                 bool ok = report.Ok && probeErrors.Count == 0;
@@ -262,7 +272,8 @@ public partial class App : Application
         bool admin = HasArg(args, "--demo-admin");
         bool call = HasArg(args, "--demo-call");
         bool chat = HasArg(args, "--demo-chat");
-        if (!scan && !cover && !main && !admin && !call && !chat) return false;
+        bool achievements = HasArg(args, "--demo-achievements");
+        if (!scan && !cover && !main && !admin && !call && !chat && !achievements) return false;
 
         ShutdownMode = ShutdownMode.OnLastWindowClose;
         Window demo = scan
@@ -275,7 +286,9 @@ public partial class App : Application
                         ? new CallWindow()
                         : chat
                             ? new ChatWindow()
-                            : new AdminWindow();
+                            : achievements
+                                ? new AchievementsWindow()
+                                : new AdminWindow();
         demo.Show();
 
         if (chat)
