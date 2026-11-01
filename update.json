@@ -1,5 +1,5 @@
 {
-  "version": "1.5.3",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.5.3/TopRacerLauncher.exe",
-  "notes": "1.5.3 — исправлено: кнопка «Стикеры» снова открывает панель (не был подключён обработчик). Пара стикеров получила более читаемые иконки."
+  "version": "1.5.4",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.5.4/TopRacerLauncher.exe",
+  "notes": "1.5.4 — стеклянный перелив на кнопках при наведении: по кнопке плавно проезжает блик."
 }

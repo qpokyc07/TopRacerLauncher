@@ -76,10 +76,22 @@
                         <Border.RenderTransform>
                             <ScaleTransform ScaleX="1" ScaleY="1"/>
                         </Border.RenderTransform>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Grid>
+                            <Border x:Name="Shine" CornerRadius="10" IsHitTestVisible="False">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#00FFFFFF" Offset="0"/>
+                                        <GradientStop x:Name="ShineStop" Color="#5CFFFFFF" Offset="-0.3"/>
+                                        <GradientStop Color="#00FFFFFF" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
+
                             <Setter TargetName="Bd" Property="Background" Value="{DynamicResource BgCardHoverBrush}"/>
                             <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             <Trigger.EnterActions>
@@ -93,6 +105,13 @@
                                                          To="1.04" Duration="0:0:0.12">
                                             <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                                <BeginStoryboard x:Name="ShineStoryBase">
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="ShineStop"
+                                                         Storyboard.TargetProperty="Offset"
+                                                         From="-0.3" To="1.3" Duration="0:0:1.3"/>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
@@ -109,6 +128,7 @@
                                         </DoubleAnimation>
                                     </Storyboard>
                                 </BeginStoryboard>
+                                <StopStoryboard BeginStoryboardName="ShineStoryBase"/>
                             </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
@@ -135,10 +155,33 @@
                             BorderThickness="1"
                             CornerRadius="10"
                             Padding="{TemplateBinding Padding}">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Grid>
+                            <Border x:Name="Shine" CornerRadius="10" IsHitTestVisible="False">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#00FFFFFF" Offset="0"/>
+                                        <GradientStop x:Name="ShineStop" Color="#7AFFFFFF" Offset="-0.3"/>
+                                        <GradientStop Color="#00FFFFFF" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard x:Name="ShineStory">
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="ShineStop"
+                                                         Storyboard.TargetProperty="Offset"
+                                                         From="-0.3" To="1.3" Duration="0:0:1.2"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <StopStoryboard BeginStoryboardName="ShineStory"/>
+                            </Trigger.ExitActions>
                             <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
                             <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
                         </Trigger>
