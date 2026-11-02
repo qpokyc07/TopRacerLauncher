@@ -60,6 +60,10 @@ public partial class AdminWindow : Window
         WelcomeAdCheck.IsChecked = s.WelcomeAdEnabled;
         WelcomeAdTitleBox.Text = s.WelcomeAdTitle;
         WelcomeAdTextBox.Text = s.WelcomeAdText;
+        AfishaEnabledCheck.IsChecked = s.AfishaEnabled;
+        AfishaTickerCheck.IsChecked = s.AfishaTickerEnabled;
+        AfishaTickerBox.Text = s.AfishaTickerText;
+        RefreshAfishaList();
         MakeSectionsCollapsible();
         UpdateUrlBox.Text = s.UpdateUrl;
         VersionLabel.Text = "Текущая версия: " + UpdateService.CurrentVersion;
@@ -980,6 +984,352 @@ public partial class AdminWindow : Window
         WelcomeAdStatusText.Foreground = error
             ? FindResource("DangerBrush") as Brush ?? Brushes.OrangeRed
             : FindResource("TextSecondaryBrush") as Brush ?? Brushes.Gray;
+    }
+
+    // ---------- Афиша клуба ----------
+
+    private string? _editingAfishaId;
+    private string? _afishaFormImagePath;
+
+    private void OpenChangelog_Click(object sender, RoutedEventArgs e)
+        => ChangelogWindow.Open(this);
+
+    private void Afisha_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_loaded) return;
+
+        App.Settings.AfishaEnabled = AfishaEnabledCheck.IsChecked == true;
+        App.SaveState();
+
+        if (Owner is MainWindow main) main.RefreshAfisha();
+    }
+
+    private void AfishaTicker_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_loaded) return;
+
+        App.Settings.AfishaTickerEnabled = AfishaTickerCheck.IsChecked == true;
+        App.SaveState();
+
+        if (Owner is MainWindow main) main.RefreshAfisha();
+    }
+
+    private void SaveAfishaTicker_Click(object sender, RoutedEventArgs e)
+    {
+        App.Settings.AfishaTickerText = AfishaTickerBox.Text.Trim();
+        App.SaveState();
+
+        if (Owner is MainWindow main) main.RefreshAfisha();
+
+        SetAfishaStatus("Анонс сохранён — он уже в верхней панели.", error: false);
+    }
+
+    private void PickAfishaImage_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Фото для афиши",
+            Filter = "Изображения (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|Все файлы (*.*)|*.*",
+        };
+        if (dlg.ShowDialog(this) != true) return;
+
+        // Копия в media: картинка не пропадёт, если исходную папку удалят.
+        _afishaFormImagePath = TryImportToMedia(dlg.FileName) ?? dlg.FileName;
+        UpdateAfishaImagePreview();
+        SetAfishaStatus("Фото добавлено. Не забудьте сохранить событие.", error: false);
+    }
+
+    private void ClearAfishaImage_Click(object sender, RoutedEventArgs e)
+    {
+        _afishaFormImagePath = null;
+        UpdateAfishaImagePreview();
+    }
+
+    private void SaveAfishaItem_Click(object sender, RoutedEventArgs e)
+    {
+        var title = AfishaTitleBox.Text.Trim();
+        var text = AfishaTextBox.Text.Trim();
+
+        if (title.Length == 0 && text.Length == 0)
+        {
+            SetAfishaStatus("Заполните заголовок или текст события.", error: true);
+            return;
+        }
+
+        var items = App.Settings.Afisha;
+        bool wasEditing = _editingAfishaId != null;
+        var existing = items.FirstOrDefault(i => i.Id == _editingAfishaId);
+
+        if (existing != null)
+        {
+            if (!string.Equals(existing.ImagePath, _afishaFormImagePath, StringComparison.OrdinalIgnoreCase))
+                ImageSearchService.DeleteIfMedia(existing.ImagePath);
+
+            existing.Title = title;
+            existing.Text = text;
+            existing.DateText = AfishaDateBox.Text.Trim();
+            existing.ImagePath = _afishaFormImagePath;
+        }
+        else
+        {
+            items.Add(new AfishaItem
+            {
+                Title = title,
+                Text = text,
+                DateText = AfishaDateBox.Text.Trim(),
+                ImagePath = _afishaFormImagePath,
+            });
+        }
+
+        App.SaveState();
+        ResetAfishaForm();
+        RefreshAfishaList();
+
+        if (Owner is MainWindow main) main.RefreshAfisha();
+
+        SetAfishaStatus(wasEditing ? "Событие обновлено." : "Событие добавлено в афишу.", error: false);
+    }
+
+    private void CancelAfishaEdit_Click(object sender, RoutedEventArgs e)
+    {
+        ResetAfishaForm();
+        SetAfishaStatus("Редактирование отменено.", error: false);
+    }
+
+    private void ResetAfishaForm()
+    {
+        _editingAfishaId = null;
+        _afishaFormImagePath = null;
+        AfishaTitleBox.Text = "";
+        AfishaDateBox.Text = "";
+        AfishaTextBox.Text = "";
+        AfishaFormTitle.Text = "Новое событие";
+        AfishaSaveButton.Content = "Добавить в афишу";
+        AfishaCancelButton.Visibility = Visibility.Collapsed;
+        UpdateAfishaImagePreview();
+    }
+
+    private void UpdateAfishaImagePreview()
+    {
+        var image = ImageCache.Load(_afishaFormImagePath, 320);
+
+        AfishaImagePreview.Source = image;
+        AfishaImagePreview.Visibility = image == null ? Visibility.Collapsed : Visibility.Visible;
+        AfishaImageHint.Visibility = image == null ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void EditAfishaItem(AfishaItem item)
+    {
+        _editingAfishaId = item.Id;
+        _afishaFormImagePath = item.ImagePath;
+
+        AfishaTitleBox.Text = item.Title;
+        AfishaDateBox.Text = item.DateText;
+        AfishaTextBox.Text = item.Text;
+
+        AfishaFormTitle.Text = "Редактирование события";
+        AfishaSaveButton.Content = "Сохранить изменения";
+        AfishaCancelButton.Visibility = Visibility.Visible;
+
+        UpdateAfishaImagePreview();
+        SetAfishaStatus("Измените поля и нажмите «Сохранить изменения».", error: false);
+        AfishaTitleBox.Focus();
+    }
+
+    private void DeleteAfishaItem(AfishaItem item)
+    {
+        ImageSearchService.DeleteIfMedia(item.ImagePath);
+        App.Settings.Afisha.Remove(item);
+        App.SaveState();
+
+        if (_editingAfishaId == item.Id) ResetAfishaForm();
+
+        RefreshAfishaList();
+        if (Owner is MainWindow main) main.RefreshAfisha();
+
+        SetAfishaStatus("Событие удалено.", error: false);
+    }
+
+    private void RefreshAfishaList()
+    {
+        AfishaListPanel.Children.Clear();
+
+        var items = App.Settings.Afisha;
+        if (items.Count == 0)
+        {
+            var empty = new TextBlock
+            {
+                Text = "Пока пусто. Добавьте событие — карточка появится на главном экране.",
+                FontSize = 12,
+                TextWrapping = TextWrapping.Wrap,
+            };
+            empty.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondaryBrush");
+            AfishaListPanel.Children.Add(empty);
+            return;
+        }
+
+        foreach (var item in items)
+        {
+            var row = new Border
+            {
+                CornerRadius = new CornerRadius(10),
+                Padding = new Thickness(10, 8, 10, 8),
+                Margin = new Thickness(0, 0, 0, 8),
+                BorderThickness = new Thickness(1),
+            };
+            row.SetResourceReference(Border.BackgroundProperty, "BgCardBrush");
+            row.SetResourceReference(Border.BorderBrushProperty, "GlassBorderBrush");
+
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var thumb = new Border
+            {
+                Width = 64,
+                Height = 40,
+                CornerRadius = new CornerRadius(6),
+                Margin = new Thickness(0, 0, 10, 0),
+                ClipToBounds = true,
+                Background = new SolidColorBrush(Color.FromRgb(0x14, 0x14, 0x19)),
+            };
+
+            var thumbImage = ImageCache.Load(item.ImagePath, 160);
+            thumb.Child = thumbImage != null
+                ? new Image { Source = thumbImage, Stretch = Stretch.UniformToFill }
+                : new TextBlock
+                {
+                    Text = "фото",
+                    FontSize = 10,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Foreground = Brushes.Gray,
+                };
+            Grid.SetColumn(thumb, 0);
+
+            var textStack = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+
+            var title = new TextBlock
+            {
+                Text = (item.Enabled ? "" : "скрыто · ") +
+                       (string.IsNullOrWhiteSpace(item.Title) ? "Без названия" : item.Title.Trim()),
+                FontSize = 13,
+                FontWeight = FontWeights.SemiBold,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+            };
+            title.SetResourceReference(TextBlock.ForegroundProperty, "TextBrush");
+            textStack.Children.Add(title);
+
+            var bits = new List<string>();
+            if (!string.IsNullOrWhiteSpace(item.DateText)) bits.Add(item.DateText.Trim());
+            if (!string.IsNullOrWhiteSpace(item.Text)) bits.Add(item.Text.Trim());
+
+            var subtitle = string.Join("  ·  ", bits);
+            if (subtitle.Length > 80) subtitle = subtitle[..79] + "…";
+
+            if (subtitle.Length > 0)
+            {
+                var subText = new TextBlock
+                {
+                    Text = subtitle,
+                    FontSize = 11.5,
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                };
+                subText.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondaryBrush");
+                textStack.Children.Add(subText);
+            }
+
+            Grid.SetColumn(textStack, 1);
+
+            var buttons = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(8, 0, 0, 0),
+            };
+
+            var captured = item;
+
+            var visibility = new Button
+            {
+                Content = item.Enabled ? "Скрыть" : "Показать",
+                Height = 28,
+                Padding = new Thickness(10, 0, 10, 0),
+                FontSize = 11.5,
+                Margin = new Thickness(0, 0, 6, 0),
+                Style = FindResource("BaseButton") as Style,
+            };
+            visibility.Click += (_, _) =>
+            {
+                captured.Enabled = !captured.Enabled;
+                App.SaveState();
+                RefreshAfishaList();
+                if (Owner is MainWindow main) main.RefreshAfisha();
+            };
+
+            var edit = new Button
+            {
+                Content = "Изменить",
+                Height = 28,
+                Padding = new Thickness(10, 0, 10, 0),
+                FontSize = 11.5,
+                Margin = new Thickness(0, 0, 6, 0),
+                Style = FindResource("BaseButton") as Style,
+            };
+            edit.Click += (_, _) => EditAfishaItem(captured);
+
+            var delete = new Button
+            {
+                Content = "Удалить",
+                Height = 28,
+                Padding = new Thickness(10, 0, 10, 0),
+                FontSize = 11.5,
+                Style = FindResource("DangerButton") as Style,
+            };
+            delete.Click += (_, _) => DeleteAfishaItem(captured);
+
+            buttons.Children.Add(visibility);
+            buttons.Children.Add(edit);
+            buttons.Children.Add(delete);
+            Grid.SetColumn(buttons, 2);
+
+            grid.Children.Add(thumb);
+            grid.Children.Add(textStack);
+            grid.Children.Add(buttons);
+            row.Child = grid;
+            AfishaListPanel.Children.Add(row);
+        }
+    }
+
+    private void SetAfishaStatus(string message, bool error)
+    {
+        AfishaStatusText.Text = message;
+        AfishaStatusText.Visibility = Visibility.Visible;
+        AfishaStatusText.Foreground = error
+            ? FindResource("DangerBrush") as Brush ?? Brushes.OrangeRed
+            : FindResource("TextSecondaryBrush") as Brush ?? Brushes.Gray;
+    }
+
+    /// <summary>Копирует выбранное фото в media (чтобы афиша не зависела от исходной папки).</summary>
+    private static string? TryImportToMedia(string source)
+    {
+        try
+        {
+            var directory = ImageSearchService.MediaDirectory;
+            Directory.CreateDirectory(directory);
+
+            var extension = Path.GetExtension(source);
+            if (string.IsNullOrWhiteSpace(extension)) extension = ".png";
+
+            var target = Path.Combine(directory, Guid.NewGuid().ToString("N") + extension);
+            File.Copy(source, target, overwrite: false);
+            return target;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private void Kiosk_Changed(object sender, RoutedEventArgs e)

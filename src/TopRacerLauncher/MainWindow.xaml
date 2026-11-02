@@ -32,6 +32,68 @@
         <Border x:Name="AppBackgroundOverlay" Grid.RowSpan="3" Background="#990A0A10"
                 Visibility="Collapsed" Panel.ZIndex="-1"/>
 
+        <!-- ===== Кинематографичный фон выбранной игры =====
+             Размытая обложка/фон игры, мягкая тонировка темой и затемнение для читаемости.
+             Два слоя картинок — чтобы переключаться кроссфейдом 250 мс. -->
+        <Grid x:Name="CinemaLayer" Grid.RowSpan="3" Panel.ZIndex="-1" IsHitTestVisible="False"
+              Opacity="0" ClipToBounds="True">
+            <Grid x:Name="CinemaParallax" RenderTransformOrigin="0.5,0.5">
+                <Grid.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="CinemaScale" ScaleX="1.12" ScaleY="1.12"/>
+                        <TranslateTransform x:Name="CinemaShift" X="0" Y="0"/>
+                    </TransformGroup>
+                </Grid.RenderTransform>
+
+                <Image x:Name="CinemaImageA" Stretch="UniformToFill" Opacity="0"
+                       RenderOptions.BitmapScalingMode="HighQuality">
+                    <Image.Effect>
+                        <BlurEffect Radius="34" KernelType="Gaussian"/>
+                    </Image.Effect>
+                </Image>
+                <Image x:Name="CinemaImageB" Stretch="UniformToFill" Opacity="0"
+                       RenderOptions.BitmapScalingMode="HighQuality">
+                    <Image.Effect>
+                        <BlurEffect Radius="34" KernelType="Gaussian"/>
+                    </Image.Effect>
+                </Image>
+            </Grid>
+
+            <!-- Цвет темы: мягкое световое пятно из акцента -->
+            <Border Background="{DynamicResource AccentBrush}" Opacity="0.16">
+                <Border.OpacityMask>
+                    <RadialGradientBrush Center="0.38,0.2" GradientOrigin="0.38,0.2"
+                                         RadiusX="1" RadiusY="1.15">
+                        <GradientStop Color="#B3FFFFFF" Offset="0"/>
+                        <GradientStop Color="#00FFFFFF" Offset="1"/>
+                    </RadialGradientBrush>
+                </Border.OpacityMask>
+            </Border>
+
+            <!-- Затемнение сверху и снизу: шапка и карточки остаются читаемыми -->
+            <Border>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#7A090A10" Offset="0"/>
+                        <GradientStop Color="#3D090A10" Offset="0.32"/>
+                        <GradientStop Color="#B8090A10" Offset="0.8"/>
+                        <GradientStop Color="#F2090A10" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <!-- Боковая виньетка: библиотека слева остаётся контрастной -->
+            <Border>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#59090A10" Offset="0"/>
+                        <GradientStop Color="#00090A10" Offset="0.45"/>
+                        <GradientStop Color="#33090A10" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+        </Grid>
+
         <!-- ================= Верхняя панель ================= -->
         <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BgPanelBrush}"
                 BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="0,0,0,1">
@@ -164,13 +226,167 @@
 
         <!-- ================= Библиотека игр ================= -->
         <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
+            <!-- Анонс турнира в верхней панели (включается в админ-меню) -->
+            <Border x:Name="TickerBar" Grid.Row="0" Grid.ColumnSpan="2" Margin="26,14,26,0"
+                    CornerRadius="12" Padding="16,9" Visibility="Collapsed"
+                    Background="{DynamicResource BgCardBrush}"
+                    BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Width="3" Height="18" CornerRadius="2" VerticalAlignment="Center"
+                            Background="{DynamicResource AccentBrush}"/>
+                    <TextBlock Grid.Column="1" Text="АНОНС ТУРНИРА" FontSize="10.5" FontWeight="Bold"
+                               Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
+                               Margin="12,0,12,0"/>
+                    <TextBlock x:Name="TickerText" Grid.Column="2" FontSize="12.5" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"/>
+                </Grid>
+            </Border>
 
-            <ScrollViewer x:Name="LibraryScroll" Grid.Column="0" VerticalScrollBarVisibility="Auto" Padding="0"
+            <!-- Афиша клуба: карточки с фото и текстом -->
+            <Border x:Name="AfishaStrip" Grid.Row="1" Grid.ColumnSpan="2" Margin="26,16,26,0"
+                    Visibility="Collapsed">
+                <ScrollViewer x:Name="AfishaScroll" HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Disabled">
+                    <ItemsControl x:Name="AfishaItems" Margin="0,0,0,6">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <DataTemplate.Resources>
+                                    <local:BoolToVisibilityConverter x:Key="AfishaVis"/>
+                                </DataTemplate.Resources>
+
+                                <Border Width="330" Height="152" Margin="0,0,16,0" CornerRadius="16"
+                                        ClipToBounds="True" BorderThickness="1"
+                                        RenderTransformOrigin="0.5,0.5" Cursor="Hand"
+                                        ToolTip="{Binding Text}">
+                                    <Border.RenderTransform>
+                                        <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                    </Border.RenderTransform>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource BgCardBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{StaticResource GlassBorderBrush}"/>
+                                            <Setter Property="Effect">
+                                                <Setter.Value>
+                                                    <DropShadowEffect Color="Black" BlurRadius="16"
+                                                                      ShadowDepth="0" Opacity="0.35"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                    <Setter Property="Effect">
+                                                        <Setter.Value>
+                                                            <DropShadowEffect Color="Black" BlurRadius="24"
+                                                                              ShadowDepth="0" Opacity="0.6"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Trigger.EnterActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                                                 To="1.025" Duration="0:0:0.16">
+                                                                    <DoubleAnimation.EasingFunction>
+                                                                        <CubicEase EasingMode="EaseOut"/>
+                                                                    </DoubleAnimation.EasingFunction>
+                                                                </DoubleAnimation>
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                                                 To="1.025" Duration="0:0:0.16">
+                                                                    <DoubleAnimation.EasingFunction>
+                                                                        <CubicEase EasingMode="EaseOut"/>
+                                                                    </DoubleAnimation.EasingFunction>
+                                                                </DoubleAnimation>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </Trigger.EnterActions>
+                                                    <Trigger.ExitActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                                                 To="1" Duration="0:0:0.16"/>
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                                                 To="1" Duration="0:0:0.16"/>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </Trigger.ExitActions>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+
+                                    <Grid>
+                                        <Image Source="{Binding Image}" Stretch="UniformToFill"
+                                               RenderOptions.BitmapScalingMode="HighQuality"
+                                               Visibility="{Binding HasImage, Converter={StaticResource AfishaVis}}"/>
+
+                                        <!-- Без фото: мягкая заливка цветом темы -->
+                                        <Grid Visibility="{Binding HasNoImage, Converter={StaticResource AfishaVis}}">
+                                            <Border Background="{DynamicResource BgCardBrush}"/>
+                                            <Border Background="{DynamicResource AccentBrush}" Opacity="0.28">
+                                                <Border.OpacityMask>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                        <GradientStop Color="#CCFFFFFF" Offset="0"/>
+                                                        <GradientStop Color="#00FFFFFF" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.OpacityMask>
+                                            </Border>
+                                        </Grid>
+
+                                        <!-- Затемнение снизу, чтобы текст читался на любом фото -->
+                                        <Border>
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                    <GradientStop Color="#00000000" Offset="0"/>
+                                                    <GradientStop Color="#B3000000" Offset="0.5"/>
+                                                    <GradientStop Color="#E6000000" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                        </Border>
+
+                                        <StackPanel VerticalAlignment="Bottom" Margin="16,0,16,12">
+                                            <Border HorizontalAlignment="Left" CornerRadius="7" Padding="8,3"
+                                                    Margin="0,0,0,7" Background="#33FFFFFF"
+                                                    Visibility="{Binding HasDate, Converter={StaticResource AfishaVis}}">
+                                                <TextBlock Text="{Binding DateText}" FontSize="10.5"
+                                                           FontWeight="Bold" Foreground="White"/>
+                                            </Border>
+                                            <TextBlock Text="{Binding Title}" FontSize="15.5" FontWeight="Bold"
+                                                       Foreground="White" TextWrapping="Wrap"
+                                                       LineHeight="19" MaxHeight="42"/>
+                                            <TextBlock Text="{Binding Text}" FontSize="11.5" Margin="0,4,0,0"
+                                                       Foreground="#D9FFFFFF" TextWrapping="Wrap"
+                                                       LineHeight="15" MaxHeight="32"
+                                                       Visibility="{Binding HasText, Converter={StaticResource AfishaVis}}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+
+            <ScrollViewer x:Name="LibraryScroll" Grid.Row="2" Grid.Column="0" VerticalScrollBarVisibility="Auto" Padding="0"
                           ScrollChanged="Library_ScrollChanged">
                 <ItemsControl x:Name="GamesItems" Margin="26,22,26,26">
                     <ItemsControl.ItemsPanel>
@@ -369,7 +585,7 @@
             </ScrollViewer>
 
             <!-- ===== Карточка выбранной игры ===== -->
-            <Grid Grid.Column="1" Width="360" Margin="0,22,26,22">
+            <Grid Grid.Row="2" Grid.Column="1" Width="360" Margin="0,22,26,22">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="12"/>

@@ -130,7 +130,11 @@ public static class SelfTest
                     WelcomeAdEnabled = false,
                     WelcomeAdTitle = "Анонс клуба",
                     WelcomeAdText = "Пост из соцсетей",
+                    AfishaEnabled = false,
+                    AfishaTickerEnabled = true,
+                    AfishaTickerText = "Турнир в субботу",
                 };
+                s.Afisha.Add(new AfishaItem { Title = "Турнир", Text = "3×3", DateText = "суббота" });
                 s.Games.Add(new GameItem { Title = "A", ExecutablePath = @"C:\a.exe" });
                 ConfigStore.SetPassword(s, "modes-pass");
                 if (!ConfigStore.Save(s)) return "не сохранилось";
@@ -143,6 +147,12 @@ public static class SelfTest
                 if (loaded.WelcomeAdEnabled) return "выключенная реклама на приветствии не сохранилась";
                 if (loaded.WelcomeAdTitle != "Анонс клуба") return "заголовок рекламы потерялся";
                 if (loaded.WelcomeAdText != "Пост из соцсетей") return "текст рекламы потерялся";
+                if (loaded.AfishaEnabled) return "выключенная афиша не сохранилась";
+                if (!loaded.AfishaTickerEnabled || loaded.AfishaTickerText != "Турнир в субботу")
+                    return "анонс турнира не сохранился";
+                if (loaded.Afisha.Count != 1 || loaded.Afisha[0].Title != "Турнир" ||
+                    loaded.Afisha[0].DateText != "суббота")
+                    return "событие афиши не сохранилось";
 
                 if (loaded.Games.Count != 1) return "игра потерялась";
 

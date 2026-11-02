@@ -23,6 +23,9 @@ public partial class UpdateWindow : Window
             : info.Notes;
     }
 
+    private void History_Click(object sender, RoutedEventArgs e)
+        => ChangelogWindow.Open(this);
+
     private async void Install_Click(object sender, RoutedEventArgs e)
     {
         InstallButton.IsEnabled = false;

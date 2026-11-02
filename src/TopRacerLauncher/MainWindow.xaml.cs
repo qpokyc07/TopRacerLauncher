@@ -60,6 +60,9 @@ public partial class MainWindow : Window
         // Размер карточек из настроек (миграция со старого формата S/M/L/XL).
         ApplyCardSettings();
 
+        // Афиша клуба и анонс турнира в верхней панели.
+        RefreshAfisha();
+
         _tick.Tick += OnTick;
         Achievements.Unlocked += OnAchievementsUnlocked;
         _friendsTimer.Tick += (_, _) => RefreshFriends();
@@ -166,6 +169,12 @@ public partial class MainWindow : Window
             }
             if (!string.IsNullOrEmpty(App.Settings.AppBackgroundPath))
                 keep.Add(App.Settings.AppBackgroundPath);
+
+            // Картинки афиши тоже не считаем мусором.
+            foreach (var item in App.Settings.Afisha)
+            {
+                if (!string.IsNullOrEmpty(item.ImagePath)) keep.Add(item.ImagePath);
+            }
 
             ImageSearchService.CleanupOrphans(keep);
         }
@@ -613,6 +622,9 @@ public partial class MainWindow : Window
                 Opacity = 0.55,
             }
             : null;
+
+        // Лёгкий параллакс кинематографичного фона: он «плывёт» медленнее карточек.
+        CinemaShift.Y = Math.Clamp(-e.VerticalOffset * 0.045, -44, 44);
     }
 
     // ---------- Экран приветствия и завершение сессии ----------
@@ -848,6 +860,9 @@ public partial class MainWindow : Window
     private void ShowDetails(GameViewModel? vm)
     {
         _detailVm = vm;
+
+        // Кинематографичный фон под выбранную игру (кроссфейд 250 мс).
+        UpdateCinemaBackground(vm);
 
         if (vm == null)
         {
@@ -1215,6 +1230,7 @@ public partial class MainWindow : Window
             },
         });
         items.Add(new PaletteItem { Title = "Проверить обновления", Subtitle = "Версия " + UpdateService.CurrentVersion, Run = () => _ = CheckUpdatesAsync() });
+        items.Add(new PaletteItem { Title = "Что нового", Subtitle = "История версий", Run = () => ChangelogWindow.Open(this) });
 
         new CommandPalette(items) { Owner = this }.ShowDialog();
     }
@@ -1242,6 +1258,7 @@ public partial class MainWindow : Window
         WindowState = App.Settings.FullScreen ? WindowState.Maximized : WindowState.Normal;
         RebuildLibrary();
         LoadAppBackground();
+        RefreshAfisha();
         RefreshUi();
         ApplyPanelSettings();
         LoadPcInfo();
@@ -1364,6 +1381,129 @@ public partial class MainWindow : Window
             AppBackgroundImage.Visibility = Visibility.Collapsed;
             AppBackgroundOverlay.Visibility = Visibility.Collapsed;
         }
+    }
+
+    // ---------- Кинематографичный фон выбранной игры ----------
+
+    /// <summary>Какая из двух картинок сейчас на переднем плане (для кроссфейда).</summary>
+    private bool _cinemaAIsFront = true;
+
+    /// <summary>Ключ текущего фона — чтобы не перерисовывать ту же игру.</summary>
+    private string? _cinemaKey;
+
+    /// <summary>
+    /// Ставит размытый фон выбранной игры: широкий фон, а если его нет — обложку.
+    /// Переключение кроссфейдом 250 мс между двумя слоями, слой плавно появляется.
+    /// </summary>
+    private void UpdateCinemaBackground(GameViewModel? vm)
+    {
+        var path = vm == null ? null : FirstExisting(vm.Item.BackgroundPath, vm.Item.CoverPath);
+
+        if (string.Equals(path, _cinemaKey, StringComparison.OrdinalIgnoreCase)) return;
+        _cinemaKey = path;
+
+        ShowCinemaImage(ImageCache.Load(path, 1100));
+    }
+
+    private static string? FirstExisting(params string?[] paths)
+    {
+        foreach (var path in paths)
+        {
+            if (!string.IsNullOrWhiteSpace(path) && File.Exists(path)) return path;
+        }
+
+        return null;
+    }
+
+    private void ShowCinemaImage(ImageSource? image)
+    {
+        if (image == null)
+        {
+            FadeCinemaLayer(0, 260);
+            return;
+        }
+
+        var incoming = _cinemaAIsFront ? CinemaImageB : CinemaImageA;
+        var outgoing = _cinemaAIsFront ? CinemaImageA : CinemaImageB;
+
+        // База: входящая картинка остаётся видимой, уходящая гаснет. Анимация — поверх.
+        incoming.Opacity = 1;
+        outgoing.Opacity = 0;
+
+        if (!ReferenceEquals(incoming.Source, image))
+            incoming.Source = image;
+
+        var ease = new System.Windows.Media.Animation.CubicEase
+        {
+            EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut,
+        };
+
+        incoming.BeginAnimation(OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(
+            0, 1, TimeSpan.FromMilliseconds(250))
+        {
+            EasingFunction = ease,
+            FillBehavior = System.Windows.Media.Animation.FillBehavior.Stop,
+        });
+
+        outgoing.BeginAnimation(OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(
+            1, 0, TimeSpan.FromMilliseconds(250))
+        {
+            EasingFunction = ease,
+            FillBehavior = System.Windows.Media.Animation.FillBehavior.Stop,
+        });
+
+        _cinemaAIsFront = !_cinemaAIsFront;
+        FadeCinemaLayer(1, 320);
+    }
+
+    /// <summary>Плавно включает/выключает весь слой (когда выбрана/снята игра).</summary>
+    private void FadeCinemaLayer(double to, int milliseconds)
+    {
+        if (Math.Abs(CinemaLayer.Opacity - to) < 0.001) return;
+
+        CinemaLayer.Opacity = to;
+        CinemaLayer.BeginAnimation(OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(
+            to > 0 ? 0 : 1, to, TimeSpan.FromMilliseconds(milliseconds))
+        {
+            EasingFunction = new System.Windows.Media.Animation.CubicEase
+            {
+                EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut,
+            },
+            FillBehavior = System.Windows.Media.Animation.FillBehavior.Stop,
+        });
+    }
+
+    // ---------- Афиша клуба и анонс турнира ----------
+
+    /// <summary>Перестраивает полосу афиши и тикер из настроек (после админ-меню и при старте).</summary>
+    public void RefreshAfisha()
+    {
+        var settings = App.Settings;
+
+        var cards = new List<AfishaCardVm>();
+        if (settings.AfishaEnabled)
+        {
+            foreach (var item in settings.Afisha.Where(i => i.Enabled))
+            {
+                cards.Add(new AfishaCardVm
+                {
+                    Title = string.IsNullOrWhiteSpace(item.Title) ? "Событие" : item.Title.Trim(),
+                    Text = item.Text?.Trim() ?? "",
+                    DateText = item.DateText?.Trim() ?? "",
+                    Image = string.IsNullOrWhiteSpace(item.ImagePath) ? null : ImageCache.Load(item.ImagePath, 640),
+                });
+            }
+        }
+
+        AfishaItems.ItemsSource = cards;
+        AfishaStrip.Visibility = cards.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        var ticker = (settings.AfishaTickerText ?? "").Trim();
+        bool showTicker = settings.AfishaTickerEnabled && ticker.Length > 0;
+
+        TickerBar.Visibility = showTicker ? Visibility.Visible : Visibility.Collapsed;
+        TickerText.Text = ticker;
+        TickerText.ToolTip = showTicker ? ticker : null;
     }
 
     // ---------- Контекстное меню игры (правая кнопка) ----------

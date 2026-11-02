@@ -241,6 +241,7 @@ public partial class App : Application
                     return chat;
                 });
                 Probe("CallWindow", () => new CallWindow());
+                Probe("ChangelogWindow", () => new ChangelogWindow());
                 Probe("NoticeWindow", () => new NoticeWindow("Тест", "Текст уведомления"));
                 Probe("UpdateWindow", () => new UpdateWindow(new UpdateInfo { Version = "9.9.9", Notes = "Тест" }, ""));
                 Probe("AchievementsWindow", () => new AchievementsWindow());
@@ -280,8 +281,8 @@ public partial class App : Application
         bool call = HasArg(args, "--demo-call");
         bool chat = HasArg(args, "--demo-chat");
         bool achievements = HasArg(args, "--demo-achievements");
-        if (!scan && !cover && !main && !admin && !call && !chat && !achievements) return false;
-
+        bool changelog = HasArg(args, "--demo-changelog");
+        if (!scan && !cover && !main && !admin && !call && !chat && !achievements && !changelog) return false;
         ShutdownMode = ShutdownMode.OnLastWindowClose;
         Window demo = scan
             ? new ScanWindow()
@@ -295,7 +296,9 @@ public partial class App : Application
                             ? new ChatWindow()
                             : achievements
                                 ? new AchievementsWindow()
-                                : new AdminWindow();
+                                : changelog
+                                    ? new ChangelogWindow()
+                                    : new AdminWindow();
         demo.Show();
 
         if (chat)
@@ -307,6 +310,7 @@ public partial class App : Application
         return true;
     }
 #endif
+
 
     private static void LogCrash(string tag, object? exception)
     {

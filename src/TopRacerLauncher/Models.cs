@@ -139,6 +139,20 @@ public sealed class Settings
         "Посты из Telegram, ВКонтакте и MAX — прямо на экране клуба: " +
         "анонсы турниров, розыгрыши минут и призов. Сканируйте QR ниже, чтобы читать первыми.";
 
+    // ---- Афиша клуба ----
+
+    /// <summary>Показывать полосу афиши на главном экране.</summary>
+    public bool AfishaEnabled { get; set; } = true;
+
+    /// <summary>Показывать анонс турнира в верхней панели (под шапкой).</summary>
+    public bool AfishaTickerEnabled { get; set; }
+
+    /// <summary>Текст анонса в верхней панели.</summary>
+    public string AfishaTickerText { get; set; } = "";
+
+    /// <summary>События афиши: фото + заголовок + текст + дата.</summary>
+    public List<AfishaItem> Afisha { get; set; } = new();
+
     /// <summary>Промокоды на дополнительные минуты.</summary>
     public List<PromoCode> PromoCodes { get; set; } = new();
 
@@ -174,9 +188,45 @@ public sealed class Settings
     public bool PasswordSet => !string.IsNullOrEmpty(PasswordHash);
 }
 
-/// <summary>Модель карточки игры для UI.</summary>
-public sealed class GameViewModel : INotifyPropertyChanged
+/// <summary>Событие в афише клуба: фото + заголовок + текст + дата.</summary>
+public sealed class AfishaItem
 {
+    public string Id { get; set; } = Guid.NewGuid().ToString("N");
+
+    public string Title { get; set; } = "";
+
+    /// <summary>Текст события (показывается на карточке афиши).</summary>
+    public string Text { get; set; } = "";
+
+    /// <summary>Картинка события (абсолютный путь; локальные копии живут в media).</summary>
+    public string? ImagePath { get; set; }
+
+    /// <summary>Дата/время свободным текстом: «12 ноября, 19:00».</summary>
+    public string DateText { get; set; } = "";
+
+    /// <summary>Скрыть событие, не удаляя его.</summary>
+    public bool Enabled { get; set; } = true;
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool HasImage => !string.IsNullOrWhiteSpace(ImagePath) && File.Exists(ImagePath);
+}
+
+/// <summary>Карточка афиши на главном экране (фото + заголовок + текст + дата).</summary>
+public sealed class AfishaCardVm
+{
+    public string Title { get; init; } = "";
+    public string Text { get; init; } = "";
+    public string DateText { get; init; } = "";
+    public ImageSource? Image { get; init; }
+
+    public bool HasImage => Image != null;
+    public bool HasNoImage => Image == null;
+    public bool HasDate => !string.IsNullOrWhiteSpace(DateText);
+    public bool HasText => !string.IsNullOrWhiteSpace(Text);
+}
+
+/// <summary>Модель карточки игры для UI.</summary>
+public sealed class GameViewModel : INotifyPropertyChanged{
     private bool _isRunning;
 
     public GameItem Item { get; }

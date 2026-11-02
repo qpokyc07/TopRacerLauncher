@@ -431,6 +431,10 @@
                             </Grid>
                             <TextBlock x:Name="VersionLabel" Text="" Style="{StaticResource SecondaryText}"
                                        Margin="0,6,0,0"/>
+                            <Button Content="История версий" Height="30" Padding="12,0" FontSize="12"
+                                    HorizontalAlignment="Left" Margin="0,8,0,0"
+                                    Style="{StaticResource BaseButton}" Click="OpenChangelog_Click"
+                                    ToolTip="Что менялось в прошлых патчах"/>
                             <Button x:Name="KillGameButton" Content="Завершить запущенную игру" Height="40"
                                     Margin="0,16,0,0" HorizontalAlignment="Left" Padding="18,0"
                                     Style="{StaticResource DangerButton}" Click="KillGame_Click"/>
@@ -515,6 +519,86 @@
                                 Padding="16,0" Margin="0,12,0,0" FontSize="12.5"
                                 Style="{StaticResource PrimaryButton}" Click="SaveWelcomeAd_Click"/>
                         <TextBlock x:Name="WelcomeAdStatusText" Text="" Style="{StaticResource SecondaryText}"
+                                   Margin="0,8,0,0" Visibility="Collapsed"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Афиша клуба: фото + текст на главном экране -->
+                <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Афиша клуба" Style="{StaticResource H1Text}"/>
+                        <TextBlock Text="Карточки с фото и текстом на главном экране: турниры, акции, новинки. Их видят все гости, пока открыт лаунчер."
+                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+
+                        <CheckBox x:Name="AfishaEnabledCheck" Content="Показывать афишу на главном экране"
+                                  Margin="0,14,0,0" Checked="Afisha_Changed" Unchecked="Afisha_Changed"/>
+                        <CheckBox x:Name="AfishaTickerCheck" Content="Анонс турнира в верхней панели"
+                                  Margin="0,10,0,0" Checked="AfishaTicker_Changed" Unchecked="AfishaTicker_Changed"
+                                  ToolTip="Узкая строка под шапкой — например, «Турнир по CS2 в субботу, приз 5000 ₽»"/>
+
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="AfishaTickerBox" Grid.Column="0" Style="{StaticResource BaseTextBox}"
+                                     Height="36" MaxLength="120"/>
+                            <Button Grid.Column="1" Content="Сохранить" Height="36" Margin="8,0,0,0"
+                                    Padding="14,0" FontSize="12.5" Style="{StaticResource BaseButton}"
+                                    Click="SaveAfishaTicker_Click"/>
+                        </Grid>
+
+                        <TextBlock Text="События" Style="{StaticResource H2Text}" Margin="0,16,0,8"/>
+                        <StackPanel x:Name="AfishaListPanel"/>
+
+                        <TextBlock x:Name="AfishaFormTitle" Text="Новое событие" Style="{StaticResource H2Text}"
+                                   Margin="0,16,0,8"/>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="150" Height="84" CornerRadius="10" Background="#141419"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                    ClipToBounds="True">
+                                <Grid>
+                                    <TextBlock x:Name="AfishaImageHint" Text="Без фото" FontSize="12"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Image x:Name="AfishaImagePreview" Stretch="UniformToFill"
+                                           Visibility="Collapsed"/>
+                                </Grid>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <Button Content="Выбрать фото…" Height="32" Padding="14,0" FontSize="12.5"
+                                        HorizontalAlignment="Left" Style="{StaticResource BaseButton}"
+                                        Click="PickAfishaImage_Click"/>
+                                <Button Content="Убрать фото" Height="32" Padding="14,0" FontSize="12.5"
+                                        Margin="0,8,0,0" HorizontalAlignment="Left"
+                                        Style="{StaticResource DangerButton}" Click="ClearAfishaImage_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <TextBlock Text="Заголовок" Style="{StaticResource SecondaryText}" Margin="0,12,0,6"/>
+                        <TextBox x:Name="AfishaTitleBox" Style="{StaticResource BaseTextBox}"
+                                 Height="36" MaxLength="60"/>
+
+                        <TextBlock Text="Дата и время (как показывать гостям)"
+                                   Style="{StaticResource SecondaryText}" Margin="0,10,0,6"/>
+                        <TextBox x:Name="AfishaDateBox" Style="{StaticResource BaseTextBox}"
+                                 Height="36" MaxLength="40"/>
+
+                        <TextBlock Text="Текст события" Style="{StaticResource SecondaryText}" Margin="0,10,0,6"/>
+                        <TextBox x:Name="AfishaTextBox" Style="{StaticResource BaseTextBox}"
+                                 Height="76" MaxLength="240" AcceptsReturn="True" TextWrapping="Wrap"
+                                 VerticalContentAlignment="Top" Padding="12,8"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <Button x:Name="AfishaSaveButton" Content="Добавить в афишу" Height="36"
+                                    Padding="16,0" FontSize="12.5" Style="{StaticResource PrimaryButton}"
+                                    Click="SaveAfishaItem_Click"/>
+                            <Button x:Name="AfishaCancelButton" Content="Отмена" Height="36" Margin="8,0,0,0"
+                                    Padding="16,0" FontSize="12.5" Style="{StaticResource BaseButton}"
+                                    Visibility="Collapsed" Click="CancelAfishaEdit_Click"/>
+                        </StackPanel>
+                        <TextBlock x:Name="AfishaStatusText" Text="" Style="{StaticResource SecondaryText}"
                                    Margin="0,8,0,0" Visibility="Collapsed"/>
                     </StackPanel>
                 </Border>

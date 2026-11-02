@@ -39,6 +39,9 @@
                        Foreground="{StaticResource TextBrush}"/>
             <TextBlock x:Name="CurrentText" Text="" FontSize="11.5"
                        Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+            <TextBlock FontSize="11.5" Margin="0,6,0,0">
+                <Hyperlink Click="History_Click" Style="{StaticResource SupportLink}">Что было в прошлых версиях</Hyperlink>
+            </TextBlock>
         </StackPanel>
 
         <Border Grid.Row="2" Margin="16,12,16,0" Background="#14FFFFFF" CornerRadius="10" Padding="12">
