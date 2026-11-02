@@ -69,7 +69,8 @@ public partial class ChatWindow : Window
         if (_instance._tabs.TryGetValue(peer.Id, out var tab)) tab.ReceiveIncoming(text);
     }
 
-    private void ShowTab(LanPeer peer)
+    /// <summary>Открывает (или активирует) вкладку собеседника в этом окне.</summary>
+    public void ShowTab(LanPeer peer)
     {
         if (_tabs.TryGetValue(peer.Id, out _))
         {
@@ -77,7 +78,7 @@ public partial class ChatWindow : Window
             return;
         }
 
-        var tab = new ChatTab(peer);
+        var tab = new ChatTab(peer, this);
         _tabs[peer.Id] = tab;
 
         var button = new Button
@@ -177,11 +178,18 @@ public sealed class ChatTab
     };
 
     private readonly LanPeer _peer;
+    private readonly Window? _owner;
     private readonly StackPanel _log = new();
     private readonly ScrollViewer _scroll;
     private readonly TextBox _input;
     private DateTime _lastTypingSent;
     private readonly Border _stickerPanel;
+
+    // Карточка-приглашение в голосовой чат над перепиской.
+    private Border? _callCard;
+    private TextBlock? _callTitle;
+    private TextBlock? _callSubtitle;
+    private Button? _callAction;
 
     public FrameworkElement Content { get; }
 
@@ -189,9 +197,10 @@ public sealed class ChatTab
 
     public LanPeer Peer => _peer;
 
-    public ChatTab(LanPeer peer)
+    public ChatTab(LanPeer peer, Window? owner = null)
     {
         _peer = peer;
+        _owner = owner;
 
         _log.Margin = new Thickness(16, 12, 16, 0);
 
@@ -269,9 +278,20 @@ public sealed class ChatTab
         Content = root;
 
         LoadHistory();
+
+        // «Ты хочешь созвониться с другом?» — карточка в самом начале переписки.
+        _callCard = BuildCallCard();
+        _log.Children.Insert(0, _callCard);
+        RefreshCallCard();
+
+        VoiceEngine.StateChanged += OnVoiceStateChanged;
     }
 
-    public void Detach() { /* подписки нет: сообщения приходят через ChatWindow.NotifyIncoming */ }
+    public void Detach()
+    {
+        // Сообщения приходят через ChatWindow.NotifyIncoming; здесь только отписка от звонка.
+        VoiceEngine.StateChanged -= OnVoiceStateChanged;
+    }
 
     public void FocusInput() => _input.Focus();
 
@@ -347,6 +367,165 @@ public sealed class ChatTab
         _stickerPanel.Visibility = _stickerPanel.Visibility == Visibility.Visible
             ? Visibility.Collapsed
             : Visibility.Visible;
+    }
+
+    // ---------- Голосовой чат ----------
+
+    /// <summary>Карточка в начале переписки: «Ты хочешь созвониться с другом?» + выход в звонок.</summary>
+    private Border BuildCallCard()
+    {
+        _callTitle = new TextBlock
+        {
+            Text = "Ты хочешь созвониться с другом?",
+            FontSize = 13.5,
+            FontWeight = FontWeights.Bold,
+            TextWrapping = TextWrapping.Wrap,
+        };
+        _callTitle.SetResourceReference(TextBlock.ForegroundProperty, "TextBrush");
+
+        _callSubtitle = new TextBlock
+        {
+            Text = "Голосовой чат до 4 человек. Друг получит приглашение в звонок.",
+            FontSize = 11,
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(0, 3, 0, 0),
+        };
+        _callSubtitle.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondaryBrush");
+
+        var texts = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+        texts.Children.Add(_callTitle);
+        texts.Children.Add(_callSubtitle);
+
+        // Значок трубки в акцентном круге (векторный — не зависит от эмодзи-шрифта).
+        var accentColor = Resource<Brush>("AccentBrush") is SolidColorBrush solid ? solid.Color : Colors.SteelBlue;
+
+        var icon = new System.Windows.Shapes.Path
+        {
+            Data = Geometry.Parse("M6.62,10.79c1.44,2.83 3.76,5.14 6.59,6.59l2.2,-2.2c0.27,-0.27 0.67,-0.36 " +
+                                   "1.02,-0.24c1.12,0.37 2.33,0.57 3.57,0.57c0.55,0 1,0.45 1,1V20c0,0.55 " +
+                                   "-0.45,1 -1,1c-9.39,0 -17,-7.61 -17,-17c0,-0.55 0.45,-1 1,-1h3.5c0.55,0 " +
+                                   "1,0.45 1,1c0,1.25 0.2,2.45 0.57,3.57c0.11,0.35 0.03,0.74 -0.25,1.02l-2.2,2.2z"),
+            Stretch = Stretch.Uniform,
+            Width = 17,
+            Height = 17,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        icon.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "AccentBrush");
+
+        var badge = new Border
+        {
+            Width = 38,
+            Height = 38,
+            CornerRadius = new CornerRadius(19),
+            Margin = new Thickness(0, 0, 12, 0),
+            VerticalAlignment = VerticalAlignment.Center,
+            Background = new SolidColorBrush(Color.FromArgb(0x2E, accentColor.R, accentColor.G, accentColor.B)),
+            Child = icon,
+        };
+
+        var header = new StackPanel { Orientation = Orientation.Horizontal };
+        header.Children.Add(badge);
+        header.Children.Add(texts);
+
+        _callAction = new Button
+        {
+            Content = "Позвонить",
+            Height = 34,
+            Padding = new Thickness(18, 0, 18, 0),
+            FontSize = 12.5,
+            Style = Resource<Style>("PrimaryButton"),
+        };
+        _callAction.Click += CallCard_Click;
+
+        var later = new Button
+        {
+            Content = "Позже",
+            Height = 34,
+            Padding = new Thickness(16, 0, 16, 0),
+            FontSize = 12.5,
+            Margin = new Thickness(8, 0, 0, 0),
+            Style = Resource<Style>("BaseButton"),
+        };
+        later.Click += (_, _) =>
+        {
+            if (_callCard != null) _callCard.Visibility = Visibility.Collapsed;
+        };
+
+        var actions = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Margin = new Thickness(50, 10, 0, 0),
+        };
+        actions.Children.Add(_callAction);
+        actions.Children.Add(later);
+
+        var body = new StackPanel();
+        body.Children.Add(header);
+        body.Children.Add(actions);
+
+        var card = new Border
+        {
+            Child = body,
+            Padding = new Thickness(14, 12, 14, 12),
+            Margin = new Thickness(0, 2, 0, 12),
+            CornerRadius = new CornerRadius(14),
+            BorderThickness = new Thickness(1),
+        };
+
+        card.SetResourceReference(Border.BackgroundProperty, "BgCardBrush");
+        card.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+
+        if (Resource<Brush>("AccentBrush") is SolidColorBrush accent)
+        {
+            card.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = accent.Color,
+                BlurRadius = 16,
+                ShadowDepth = 0,
+                Opacity = 0.35,
+            };
+        }
+
+        return card;
+    }
+
+    /// <summary>Карточка меняется, когда звонок уже идёт: вместо «Позвонить» — «Открыть звонок».</summary>
+    private void RefreshCallCard()
+    {
+        if (_callCard == null || _callTitle == null || _callSubtitle == null || _callAction == null) return;
+
+        bool inCall = VoiceEngine.InCall;
+
+        _callTitle.Text = inCall ? "Вы в голосовом звонке" : "Ты хочешь созвониться с другом?";
+        _callSubtitle.Text = inCall
+            ? "Откройте окно звонка: там выбор микрофона и приглашение друзей."
+            : "Голосовой чат до 4 человек. Друг получит приглашение в звонок.";
+        _callAction.Content = inCall ? "Открыть звонок" : "Позвонить";
+    }
+
+    private void OnVoiceStateChanged()
+        => Application.Current?.Dispatcher.BeginInvoke(new Action(RefreshCallCard));
+
+    private void CallCard_Click(object sender, RoutedEventArgs e)
+    {
+        var owner = _owner ?? Window.GetWindow(Content) ?? Application.Current?.MainWindow;
+        if (owner == null) return;
+
+        if (VoiceEngine.InCall)
+        {
+            CallLauncher.ShowWindow(owner);
+            RefreshCallCard();
+            return;
+        }
+
+        CallLauncher.Call(_peer, owner);
+
+        // Если микрофон или порт недоступны, CallLauncher уже показал ошибку.
+        if (!VoiceEngine.InCall) return;
+
+        AddSystem("Вы начали звонок с " + _peer.Name + ".");
+        RefreshCallCard();
     }
 
     private void LoadHistory()

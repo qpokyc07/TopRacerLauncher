@@ -233,6 +233,13 @@ public partial class App : Application
                 Probe("CoverSearchWindow", () => new CoverSearchWindow(ImageKind.Cover, ""));
                 Probe("ToastWindow", () => new ToastWindow(5, critical: true));
                 Probe("LaunchOverlayWindow", () => new LaunchOverlayWindow("Test"));
+                Probe("ChatWindow", () =>
+                {
+                    // Заодно проверяем карточку «Ты хочешь созвониться с другом?» на вкладке чата.
+                    var chat = new ChatWindow();
+                    chat.ShowTab(new LanPeer { Id = "smoke-chat", Name = "Тест" });
+                    return chat;
+                });
                 Probe("CallWindow", () => new CallWindow());
                 Probe("NoticeWindow", () => new NoticeWindow("Тест", "Текст уведомления"));
                 Probe("UpdateWindow", () => new UpdateWindow(new UpdateInfo { Version = "9.9.9", Notes = "Тест" }, ""));
