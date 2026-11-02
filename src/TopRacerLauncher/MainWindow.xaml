@@ -17,25 +17,44 @@
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="56"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="86"/>
         </Grid.RowDefinitions>
 
+        <!-- Анонс турнира: тонкая строка в начале трея (включается в админ-меню) -->
+        <Border x:Name="TickerBar" Grid.Row="0" Height="30" Visibility="Collapsed"
+                BorderBrush="#26FFFFFF" BorderThickness="0,0,0,1">
+            <Grid>
+                <Border Background="{DynamicResource AccentBrush}" Opacity="0.14"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="24,0">
+                    <Border Width="6" Height="6" CornerRadius="3" VerticalAlignment="Center"
+                            Background="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
+                    <TextBlock Text="АНОНС ТУРНИРА" FontSize="10.5" FontWeight="Bold"
+                               Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
+                               Margin="0,0,12,0"/>
+                    <TextBlock x:Name="TickerText" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- Фон всего окна: размытый, чтобы панели смотрелись стеклянными -->
-        <Image x:Name="AppBackgroundImage" Grid.RowSpan="3" Stretch="UniformToFill" Opacity="0.55"
+        <Image x:Name="AppBackgroundImage" Grid.RowSpan="4" Stretch="UniformToFill" Opacity="0.55"
                Visibility="Collapsed" Panel.ZIndex="-2">
             <Image.Effect>
                 <BlurEffect Radius="26" KernelType="Gaussian"/>
             </Image.Effect>
         </Image>
-        <Border x:Name="AppBackgroundOverlay" Grid.RowSpan="3" Background="#990A0A10"
+        <Border x:Name="AppBackgroundOverlay" Grid.RowSpan="4" Background="#990A0A10"
                 Visibility="Collapsed" Panel.ZIndex="-1"/>
 
         <!-- ===== Кинематографичный фон выбранной игры =====
              Размытая обложка/фон игры, мягкая тонировка темой и затемнение для читаемости.
              Два слоя картинок — чтобы переключаться кроссфейдом 250 мс. -->
-        <Grid x:Name="CinemaLayer" Grid.RowSpan="3" Panel.ZIndex="-1" IsHitTestVisible="False"
+        <Grid x:Name="CinemaLayer" Grid.RowSpan="4" Panel.ZIndex="-1" IsHitTestVisible="False"
               Opacity="0" ClipToBounds="True">
             <Grid x:Name="CinemaParallax" RenderTransformOrigin="0.5,0.5">
                 <Grid.RenderTransform>
@@ -95,7 +114,7 @@
         </Grid>
 
         <!-- ================= Верхняя панель ================= -->
-        <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BgPanelBrush}"
+        <Border x:Name="HeaderBar" Grid.Row="1" Background="{DynamicResource BgPanelBrush}"
                 BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="0,0,0,1">
             <Grid>
                 <!-- Логотип -->
@@ -108,6 +127,7 @@
                                VerticalAlignment="Center" Margin="10,0,0,0"/>
                     <TextBlock Text="Launcher" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource AccentBrush}"
                                VerticalAlignment="Center" Margin="4,0,0,0"/>
+
                     <Border Width="1" Height="18" Background="{StaticResource BorderBrush}" Margin="16,0"/>
                     <TextBlock Text="Библиотека" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"
                                VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -219,15 +239,14 @@
                             ToolTip="Развернуть / восстановить"/>
                     <Button Content="&#x2715;" Style="{StaticResource CaptionCloseButton}"
                             Click="CloseApp_Click" WindowChrome.IsHitTestVisibleInChrome="True"
-                            ToolTip="Закрыть (нужен пароль)"/>
+                            ToolTip="Закрыть лаунчер"/>
                 </StackPanel>
             </Grid>
         </Border>
 
         <!-- ================= Библиотека игр ================= -->
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
@@ -236,30 +255,8 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Анонс турнира в верхней панели (включается в админ-меню) -->
-            <Border x:Name="TickerBar" Grid.Row="0" Grid.ColumnSpan="2" Margin="26,14,26,0"
-                    CornerRadius="12" Padding="16,9" Visibility="Collapsed"
-                    Background="{DynamicResource BgCardBrush}"
-                    BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Width="3" Height="18" CornerRadius="2" VerticalAlignment="Center"
-                            Background="{DynamicResource AccentBrush}"/>
-                    <TextBlock Grid.Column="1" Text="АНОНС ТУРНИРА" FontSize="10.5" FontWeight="Bold"
-                               Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
-                               Margin="12,0,12,0"/>
-                    <TextBlock x:Name="TickerText" Grid.Column="2" FontSize="12.5" FontWeight="SemiBold"
-                               Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis"/>
-                </Grid>
-            </Border>
-
             <!-- Афиша клуба: карточки с фото и текстом -->
-            <Border x:Name="AfishaStrip" Grid.Row="1" Grid.ColumnSpan="2" Margin="26,16,26,0"
+            <Border x:Name="AfishaStrip" Grid.Row="0" Grid.ColumnSpan="2" Margin="26,16,26,0"
                     Visibility="Collapsed">
                 <ScrollViewer x:Name="AfishaScroll" HorizontalScrollBarVisibility="Auto"
                               VerticalScrollBarVisibility="Disabled">
@@ -275,7 +272,7 @@
                                     <local:BoolToVisibilityConverter x:Key="AfishaVis"/>
                                 </DataTemplate.Resources>
 
-                                <Border Width="330" Height="152" Margin="0,0,16,0" CornerRadius="16"
+                                <Border Width="310" Height="130" Margin="0,0,16,0" CornerRadius="16"
                                         ClipToBounds="True" BorderThickness="1"
                                         RenderTransformOrigin="0.5,0.5" Cursor="Hand"
                                         ToolTip="{Binding Text}">
@@ -386,7 +383,7 @@
                 </ScrollViewer>
             </Border>
 
-            <ScrollViewer x:Name="LibraryScroll" Grid.Row="2" Grid.Column="0" VerticalScrollBarVisibility="Auto" Padding="0"
+            <ScrollViewer x:Name="LibraryScroll" Grid.Row="1" Grid.Column="0" VerticalScrollBarVisibility="Auto" Padding="0"
                           ScrollChanged="Library_ScrollChanged">
                 <ItemsControl x:Name="GamesItems" Margin="26,22,26,26">
                     <ItemsControl.ItemsPanel>
@@ -585,11 +582,11 @@
             </ScrollViewer>
 
             <!-- ===== Карточка выбранной игры ===== -->
-            <Grid Grid.Row="2" Grid.Column="1" Width="360" Margin="0,22,26,22">
+            <Grid Grid.Row="1" Grid.Column="1" Width="360" Margin="0,22,26,22">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="1.4*"/>
                     <RowDefinition Height="12"/>
-                    <RowDefinition Height="0.85*"/>
+                    <RowDefinition Height="0.65*"/>
                 </Grid.RowDefinitions>
 
             <Border x:Name="DetailsPanel" Grid.Row="0"
@@ -624,7 +621,7 @@
 
                     <ScrollViewer x:Name="DetailsBody" Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <Border x:Name="DetailCoverBlock" CornerRadius="12" Height="212" ClipToBounds="True" Background="#26FFFFFF">
+                        <Border x:Name="DetailCoverBlock" CornerRadius="12" Height="100" ClipToBounds="True" Background="#26FFFFFF">
                             <Grid>
                                 <Image x:Name="DetailCover" Stretch="UniformToFill"/>
                                 <TextBlock x:Name="DetailCoverLetter" Text="" FontSize="64" FontWeight="Bold"
@@ -632,16 +629,16 @@
                             </Grid>
                         </Border>
 
-                        <TextBlock x:Name="DetailTitle" Text="Выберите игру" FontSize="19" FontWeight="Bold"
-                                   Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" Margin="2,14,2,0"/>
+                        <TextBlock x:Name="DetailTitle" Text="Выберите игру" FontSize="18.5" FontWeight="Bold"
+                                   Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" Margin="2,12,2,0"/>
                         <TextBlock x:Name="DetailSubtitle" Text="" FontSize="12.5"
                                    Foreground="{StaticResource TextSecondaryBrush}"
                                    TextWrapping="Wrap" Margin="2,4,2,0"/>
                         <TextBlock x:Name="DetailGenres" Text="" FontSize="12"
                                    Foreground="{DynamicResource AccentBrush}"
                                    TextWrapping="Wrap" Margin="2,8,2,0"/>
-                        <TextBlock x:Name="DetailDescription" Text="" FontSize="12.5" Foreground="#C6C6D2"
-                                   TextWrapping="Wrap" LineHeight="18" Margin="2,10,2,0"/>
+                        <TextBlock x:Name="DetailDescription" Text="" FontSize="13.5" Foreground="#DCDCE6"
+                                   TextWrapping="Wrap" LineHeight="20" Margin="2,12,2,0"/>
 
                         <Button x:Name="DetailPlayButton" Content="Играть" Height="42" Margin="0,16,0,0"
                                 Style="{StaticResource PrimaryButton}" Click="DetailPlay_Click"/>
@@ -780,7 +777,7 @@
         </Grid>
 
         <!-- ================= Нижняя панель ================= -->
-        <Border x:Name="BottomBar" Grid.Row="2" Background="{DynamicResource BgPanelBrush}"
+        <Border x:Name="BottomBar" Grid.Row="3" Background="{DynamicResource BgPanelBrush}"
                 BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="0,1,0,0">
             <Grid Margin="18,0">
                 <Grid.ColumnDefinitions>
@@ -811,6 +808,17 @@
                     <Button Content="Steam" Height="36" Padding="18,0" FontSize="13" FontWeight="SemiBold"
                             Style="{StaticResource PrimaryButton}" Click="OpenSteam_Click"
                             ToolTip="Открыть Steam (в закрытом режиме — по паролю)"/>
+                    <Button Height="36" Padding="14,0" Margin="8,0,0,0"
+                            Style="{StaticResource BaseButton}" Click="SteamFriends_Click"
+                            ToolTip="Список друзей Steam">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+                                  Fill="{DynamicResource AccentBrush}" Width="16" Height="16" Stretch="Uniform"
+                                  VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="Друзья Steam" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
 
                 <!-- Справка по центру -->

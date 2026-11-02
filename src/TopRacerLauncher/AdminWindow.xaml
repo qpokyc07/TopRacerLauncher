@@ -360,16 +360,11 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ===== Система и безопасность ===== -->
-                <Grid Margin="0,16,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                <!-- ===== Безопасность и система ===== -->
+                <StackPanel Margin="0,16,0,0">
 
                     <!-- Безопасность -->
-                    <Border Grid.Column="0" Style="{StaticResource PanelCard}">
+                    <Border Style="{StaticResource PanelCard}">
                         <StackPanel>
                             <TextBlock Text="Безопасность" Style="{StaticResource H1Text}"/>
                             <TextBlock Text="Пароль закрытой системы: вход в лаунчер и админ-меню (Ctrl+1)."
@@ -380,8 +375,40 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- Микрофон и звонки -->
+                    <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Микрофон и звонки" Style="{StaticResource H1Text}"/>
+                            <TextBlock Text="Что использует голосовой чат: микрофон, наушники, режим передачи и громкость своего микрофона."
+                                       Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+
+                            <TextBlock Text="Микрофон" Style="{StaticResource SecondaryText}" Margin="0,14,0,6"/>
+                            <Button x:Name="MicDeviceButton" Content="Микрофон: по умолчанию  ▾"
+                                    Height="36" HorizontalAlignment="Stretch" FontSize="12.5"
+                                    Style="{StaticResource BaseButton}" Click="MicDevice_Click"/>
+
+                            <TextBlock Text="Наушники" Style="{StaticResource SecondaryText}" Margin="0,10,0,6"/>
+                            <Button x:Name="SpkDeviceButton" Content="Наушники: по умолчанию  ▾"
+                                    Height="36" HorizontalAlignment="Stretch" FontSize="12.5"
+                                    Style="{StaticResource BaseButton}" Click="SpkDevice_Click"/>
+
+                            <CheckBox x:Name="OpenMicCheck" Content="Передавать постоянно (без кнопки)"
+                                      Margin="0,14,0,0" Checked="MicMode_Changed" Unchecked="MicMode_Changed"
+                                      ToolTip="Выключено — режим «по кнопке» (Push-to-Talk)"/>
+
+                            <TextBlock x:Name="MicGainLabel" Text="Громкость микрофона: 100%"
+                                       Style="{StaticResource SecondaryText}" Margin="0,14,0,4"/>
+                            <Slider x:Name="MicGainSlider" Minimum="0" Maximum="200" TickFrequency="10"
+                                    IsSnapToTickEnabled="True" Style="{StaticResource BaseSlider}"
+                                    ValueChanged="MicGain_Changed"/>
+
+                            <TextBlock Text="Клавиша Push-to-Talk меняется в окне звонка — кнопка «Клавиша»."
+                                       Style="{StaticResource SecondaryText}" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
                     <!-- Система -->
-                    <Border Grid.Column="2" Style="{StaticResource PanelCard}">
+                    <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
                         <StackPanel>
                             <TextBlock Text="Система" Style="{StaticResource H1Text}"/>
                             <TextBlock Text="Запускать лаунчер автоматически при включении ПК."
@@ -440,7 +467,7 @@
                                     Style="{StaticResource DangerButton}" Click="KillGame_Click"/>
                         </StackPanel>
                     </Border>
-                </Grid>
+                </StackPanel>
 
                 <!-- Оформление: тема и фон приложения -->
                 <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">

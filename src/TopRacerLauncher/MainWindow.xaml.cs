@@ -60,6 +60,12 @@ public partial class MainWindow : Window
         // Размер карточек из настроек (миграция со старого формата S/M/L/XL).
         ApplyCardSettings();
 
+        // Характеристики ПК по умолчанию свёрнуты: описание игры читается без прокрутки.
+        _pcInfoCollapsed = true;
+        PcInfoBody.Visibility = Visibility.Collapsed;
+        PcInfoChevron.RenderTransform = new RotateTransform(-90);
+        PcInfoChevron.RenderTransformOrigin = new Point(0.5, 0.5);
+
         // Афиша клуба и анонс турнира в верхней панели.
         RefreshAfisha();
 
@@ -561,36 +567,21 @@ public partial class MainWindow : Window
         _callWindow.Show();
     }
 
-    /// <summary>Друг позвал в звонок.</summary>
+    /// <summary>Друг позвал в звонок: окно в стиле лаунчера, со звуком до ответа.</summary>
     private void OnCallInvited(Guid room, string fromName)
     {
         Dispatcher.BeginInvoke(new Action(() =>
         {
             if (VoiceEngine.InCall && VoiceEngine.RoomId != room) return;
 
-            // Звонок: рингтон, пока не ответили (до ~15 секунд).
-            int rings = 0;
-            var ring = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1.5) };
-            ring.Tick += (_, _) =>
+            var prompt = new IncomingCallWindow(fromName)
             {
-                if (++rings > 10) { ring.Stop(); return; }
-                SoundAlert.Warn();
+                Owner = IsVisible ? this : null,
+                Topmost = true,
             };
-            ring.Start();
 
-            MessageBoxResult answer;
-            try
-            {
-                answer = MessageBox.Show(this,
-                    $"«{fromName}» приглашает в голосовой звонок.\n\nПрисоединиться?",
-                    "Звонок", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            }
-            finally
-            {
-                ring.Stop();
-            }
-
-            if (answer != MessageBoxResult.Yes) return;
+            bool accepted = prompt.ShowDialog() == true && prompt.Accepted;
+            if (!accepted) return;
 
             if (!VoiceEngine.InCall && !StartCall(room)) return;
             ShowCallWindow();
@@ -803,6 +794,20 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             MessageBox.Show(this, "Не удалось открыть Steam:\n\n" + ex.Message,
+                "TopRacerLauncher", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>Друзья Steam: открываем список друзей в клиенте Steam.</summary>
+    private void SteamFriends_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo("steam://open/friends") { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, "Не удалось открыть друзей Steam:\n\n" + ex.Message,
                 "TopRacerLauncher", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
@@ -1667,7 +1672,14 @@ public partial class MainWindow : Window
 
     private void CloseApp_Click(object sender, RoutedEventArgs e)
     {
-        // Закрыть лаунчер может только администратор — пароль спросит OnClosing.
+        // Разблокировано администратором — закрываем сразу, без пароля.
+        if (App.AdminUnlocked)
+        {
+            ShutdownApp();
+            return;
+        }
+
+        // Иначе пароль спросит OnClosing.
         Close();
     }
 
@@ -1695,11 +1707,19 @@ public partial class MainWindow : Window
             return;
         }
 
+        // Замок открыт администратором — закрываемся без пароля.
+        if (App.AdminUnlocked)
+        {
+            e.Cancel = true;
+            Dispatcher.BeginInvoke(new Action(ShutdownApp));
+            return;
+        }
+
         // Закрытие разрешено только администратору: запрашиваем пароль.
         e.Cancel = true;
         Dispatcher.BeginInvoke(new Action(() =>
         {
-            var prompt = new LoginWindow(GateMode.AdminPrompt) { Owner = this };
+            var prompt = new LoginWindow(GateMode.AdminPrompt) { Owner = this, Topmost = Topmost };
             if (prompt.ShowDialog() == true)
             {
                 // Именно Shutdown: ShutdownMode = OnExplicitShutdown, иначе процесс

@@ -242,6 +242,7 @@ public partial class App : Application
                 });
                 Probe("CallWindow", () => new CallWindow());
                 Probe("ChangelogWindow", () => new ChangelogWindow());
+                Probe("IncomingCallWindow", () => new IncomingCallWindow("Тест"));
                 Probe("NoticeWindow", () => new NoticeWindow("Тест", "Текст уведомления"));
                 Probe("UpdateWindow", () => new UpdateWindow(new UpdateInfo { Version = "9.9.9", Notes = "Тест" }, ""));
                 Probe("AchievementsWindow", () => new AchievementsWindow());
@@ -310,7 +311,6 @@ public partial class App : Application
         return true;
     }
 #endif
-
 
     private static void LogCrash(string tag, object? exception)
     {

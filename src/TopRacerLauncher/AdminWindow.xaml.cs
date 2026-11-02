@@ -12,6 +12,7 @@ public partial class AdminWindow : Window
 {
     private readonly DispatcherTimer _uiTimer = new() { Interval = TimeSpan.FromSeconds(1) };
     private readonly DispatcherTimer _artStatusTimer = new() { Interval = TimeSpan.FromSeconds(6) };
+    private readonly DispatcherTimer _micChangeTimer = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private bool _loaded;
     private bool _artBusy;
     private CancellationTokenSource? _artCts;
@@ -31,10 +32,16 @@ public partial class AdminWindow : Window
             _artStatusTimer.Stop();
             ArtStatusLabel.Text = "";
         };
+        _micChangeTimer.Tick += (_, _) =>
+        {
+            _micChangeTimer.Stop();
+            App.SaveState();
+        };
         Closing += (_, _) =>
         {
             _uiTimer.Stop();
             _artStatusTimer.Stop();
+            _micChangeTimer.Stop();
             _artCts?.Cancel();   // не докачиваем обложки в закрытое окно
         };
 
@@ -64,6 +71,12 @@ public partial class AdminWindow : Window
         AfishaTickerCheck.IsChecked = s.AfishaTickerEnabled;
         AfishaTickerBox.Text = s.AfishaTickerText;
         RefreshAfishaList();
+
+        _micDevices = VoiceEngine.GetInputDevices();
+        _spkDevices = VoiceEngine.GetOutputDevices();
+        MicGainSlider.Value = Math.Clamp(s.VoiceInputGain, 0, 200);
+        OpenMicCheck.IsChecked = s.VoiceMode == "open";
+        RefreshMicLabels();
         MakeSectionsCollapsible();
         UpdateUrlBox.Text = s.UpdateUrl;
         VersionLabel.Text = "Текущая версия: " + UpdateService.CurrentVersion;
@@ -984,6 +997,136 @@ public partial class AdminWindow : Window
         WelcomeAdStatusText.Foreground = error
             ? FindResource("DangerBrush") as Brush ?? Brushes.OrangeRed
             : FindResource("TextSecondaryBrush") as Brush ?? Brushes.Gray;
+    }
+
+    // ---------- Микрофон и звонки ----------
+
+    private List<string> _micDevices = new();
+    private List<string> _spkDevices = new();
+
+    private void RefreshMicLabels()
+    {
+        MicDeviceButton.Content = DeviceText("Микрофон", App.Settings.VoiceInputDevice);
+        SpkDeviceButton.Content = DeviceText("Наушники", App.Settings.VoiceOutputDevice);
+        MicGainLabel.Text = "Громкость микрофона: " + App.Settings.VoiceInputGain + "%";
+    }
+
+    private static TextBlock DeviceText(string label, string device) => new()
+    {
+        Text = label + ": " + (string.IsNullOrWhiteSpace(device) ? "по умолчанию" : device) + "  ▾",
+        TextTrimming = TextTrimming.CharacterEllipsis,
+        HorizontalAlignment = HorizontalAlignment.Left,
+        VerticalAlignment = VerticalAlignment.Center,
+        FontSize = 12.5,
+    };
+
+    private void MicDevice_Click(object sender, RoutedEventArgs e)
+    {
+        var menu = new ContextMenu
+        {
+            PlacementTarget = MicDeviceButton,
+            Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom,
+        };
+
+        AddDeviceMenuItem(menu, "Системный по умолчанию", "", App.Settings.VoiceInputDevice, value =>
+        {
+            App.Settings.VoiceInputDevice = value;
+            VoiceEngine.InputDeviceName = value;
+        });
+
+        foreach (var name in _micDevices)
+        {
+            var device = name;
+            AddDeviceMenuItem(menu, device, device, App.Settings.VoiceInputDevice, value =>
+            {
+                App.Settings.VoiceInputDevice = value;
+                VoiceEngine.InputDeviceName = value;
+            });
+        }
+
+        menu.IsOpen = true;
+    }
+
+    private void SpkDevice_Click(object sender, RoutedEventArgs e)
+    {
+        var menu = new ContextMenu
+        {
+            PlacementTarget = SpkDeviceButton,
+            Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom,
+        };
+
+        AddDeviceMenuItem(menu, "Системное по умолчанию", "", App.Settings.VoiceOutputDevice, value =>
+        {
+            App.Settings.VoiceOutputDevice = value;
+            VoiceEngine.OutputDeviceName = value;
+        });
+
+        foreach (var name in _spkDevices)
+        {
+            var device = name;
+            AddDeviceMenuItem(menu, device, device, App.Settings.VoiceOutputDevice, value =>
+            {
+                App.Settings.VoiceOutputDevice = value;
+                VoiceEngine.OutputDeviceName = value;
+            });
+        }
+
+        menu.IsOpen = true;
+    }
+
+    private void AddDeviceMenuItem(ContextMenu menu, string header, string value,
+        string currentValue, Action<string> apply)
+    {
+        var item = new MenuItem
+        {
+            Header = header,
+            IsCheckable = true,
+            IsChecked = string.Equals(currentValue, value, StringComparison.OrdinalIgnoreCase),
+        };
+
+        item.Click += (_, _) =>
+        {
+            apply(value);
+            App.SaveState();
+            RefreshMicLabels();
+            RestartVoiceIfInCall();
+        };
+
+        menu.Items.Add(item);
+    }
+
+    /// <summary>Смена устройства на ходу: перезапускаем звонок, чтобы звук пошёл через новое устройство.</summary>
+    private static void RestartVoiceIfInCall()
+    {
+        if (!VoiceEngine.InCall) return;
+
+        var room = VoiceEngine.RoomId;
+        VoiceEngine.LeaveCall();
+        VoiceEngine.StartCall(room);
+    }
+
+    private void MicMode_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_loaded) return;
+
+        bool open = OpenMicCheck.IsChecked == true;
+        App.Settings.VoiceMode = open ? "open" : "ptt";
+        VoiceEngine.OpenMic = open;
+        App.SaveState();
+    }
+
+    private void MicGain_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (!_loaded) return;
+
+        int gain = (int)Math.Round(MicGainSlider.Value);
+        App.Settings.VoiceInputGain = gain;
+        VoiceEngine.InputGain = gain;
+        MicGainLabel.Text = "Громкость микрофона: " + gain + "%";
+
+        // Пишем конфиг после того, как пользователь отпустил ползунок.
+        _micChangeTimer.Stop();
+        _micChangeTimer.Start();
     }
 
     // ---------- Афиша клуба ----------
