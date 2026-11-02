@@ -17,44 +17,25 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="56"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="86"/>
         </Grid.RowDefinitions>
 
-        <!-- Анонс турнира: тонкая строка в начале трея (включается в админ-меню) -->
-        <Border x:Name="TickerBar" Grid.Row="0" Height="30" Visibility="Collapsed"
-                BorderBrush="#26FFFFFF" BorderThickness="0,0,0,1">
-            <Grid>
-                <Border Background="{DynamicResource AccentBrush}" Opacity="0.14"/>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="24,0">
-                    <Border Width="6" Height="6" CornerRadius="3" VerticalAlignment="Center"
-                            Background="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
-                    <TextBlock Text="АНОНС ТУРНИРА" FontSize="10.5" FontWeight="Bold"
-                               Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
-                               Margin="0,0,12,0"/>
-                    <TextBlock x:Name="TickerText" FontSize="12" FontWeight="SemiBold"
-                               Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-
         <!-- Фон всего окна: размытый, чтобы панели смотрелись стеклянными -->
-        <Image x:Name="AppBackgroundImage" Grid.RowSpan="4" Stretch="UniformToFill" Opacity="0.55"
+        <Image x:Name="AppBackgroundImage" Grid.RowSpan="3" Stretch="UniformToFill" Opacity="0.55"
                Visibility="Collapsed" Panel.ZIndex="-2">
             <Image.Effect>
                 <BlurEffect Radius="26" KernelType="Gaussian"/>
             </Image.Effect>
         </Image>
-        <Border x:Name="AppBackgroundOverlay" Grid.RowSpan="4" Background="#990A0A10"
+        <Border x:Name="AppBackgroundOverlay" Grid.RowSpan="3" Background="#990A0A10"
                 Visibility="Collapsed" Panel.ZIndex="-1"/>
 
         <!-- ===== Кинематографичный фон выбранной игры =====
              Размытая обложка/фон игры, мягкая тонировка темой и затемнение для читаемости.
              Два слоя картинок — чтобы переключаться кроссфейдом 250 мс. -->
-        <Grid x:Name="CinemaLayer" Grid.RowSpan="4" Panel.ZIndex="-1" IsHitTestVisible="False"
+        <Grid x:Name="CinemaLayer" Grid.RowSpan="3" Panel.ZIndex="-1" IsHitTestVisible="False"
               Opacity="0" ClipToBounds="True">
             <Grid x:Name="CinemaParallax" RenderTransformOrigin="0.5,0.5">
                 <Grid.RenderTransform>
@@ -114,19 +95,28 @@
         </Grid>
 
         <!-- ================= Верхняя панель ================= -->
-        <Border x:Name="HeaderBar" Grid.Row="1" Background="{DynamicResource BgPanelBrush}"
+        <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BgPanelBrush}"
                 BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="0,0,0,1">
             <Grid>
-                <!-- Логотип -->
-                <StackPanel x:Name="LogoArea" Orientation="Horizontal" HorizontalAlignment="Left"
-                            VerticalAlignment="Center" Margin="16,0,0,0" Cursor="Hand"
-                            ToolTip="Открыть админ-меню" MouseLeftButtonUp="Logo_Click"
-                            WindowChrome.IsHitTestVisibleInChrome="True">
-                    <Image Source="/Assets/logo.png" Width="44" Height="44" Stretch="Uniform"/>
-                    <TextBlock Text="TopRacer" FontWeight="Bold" FontSize="16" Foreground="{StaticResource TextBrush}"
-                               VerticalAlignment="Center" Margin="10,0,0,0"/>
-                    <TextBlock Text="Launcher" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource AccentBrush}"
-                               VerticalAlignment="Center" Margin="4,0,0,0"/>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Логотип: админ-меню открывается только по клику на логотип или название -->
+                <StackPanel x:Name="LogoArea" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left"
+                            VerticalAlignment="Center" Margin="16,0,0,0">
+                    <StackPanel Orientation="Horizontal" Cursor="Hand" VerticalAlignment="Center"
+                                ToolTip="Открыть админ-меню (Ctrl+1)"
+                                MouseLeftButtonUp="Logo_Click"
+                                WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Image Source="/Assets/logo.png" Width="44" Height="44" Stretch="Uniform"/>
+                        <TextBlock Text="TopRacer" FontWeight="Bold" FontSize="16" Foreground="{StaticResource TextBrush}"
+                                   VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        <TextBlock Text="Launcher" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource AccentBrush}"
+                                   VerticalAlignment="Center" Margin="4,0,0,0"/>
+                    </StackPanel>
 
                     <Border Width="1" Height="18" Background="{StaticResource BorderBrush}" Margin="16,0"/>
                     <TextBlock Text="Библиотека" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"
@@ -157,8 +147,36 @@
                                Margin="8,0,0,0" MinWidth="30"/>
                 </StackPanel>
 
+                <!-- Анонс турнира: в трее по центру, ничего не сдвигает; длинный текст прокручивается -->
+                <Border x:Name="TickerBar" Grid.Column="1" Margin="16,0,10,0" VerticalAlignment="Center"
+                        HorizontalAlignment="Stretch" CornerRadius="9" Padding="10,5"
+                        Visibility="Collapsed" Background="#1FFFFFFF"
+                        BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
+                        ClipToBounds="True"
+                        WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Width="6" Height="6" CornerRadius="3" VerticalAlignment="Center"
+                                Background="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
+
+                        <Grid x:Name="TickerViewport" Grid.Column="1" ClipToBounds="True">
+                            <TextBlock x:Name="TickerText" FontSize="11.5" FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"
+                                       TextWrapping="NoWrap">
+                                <TextBlock.RenderTransform>
+                                    <TranslateTransform x:Name="TickerShift" X="0"/>
+                                </TextBlock.RenderTransform>
+                            </TextBlock>
+                        </Grid>
+                    </Grid>
+                </Border>
+
                 <!-- Справа: замок, статус игры, таймер, выход -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0">
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0">
                     <!-- Замок: открыт (зелёный) / закрыт (красный), Ctrl+2 -->
                     <Border x:Name="LockBadge" CornerRadius="8" Padding="10,5" Margin="0,0,10,0"
                             VerticalAlignment="Center" Background="#D64545" Cursor="Hand"
@@ -245,7 +263,7 @@
         </Border>
 
         <!-- ================= Библиотека игр ================= -->
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -777,7 +795,7 @@
         </Grid>
 
         <!-- ================= Нижняя панель ================= -->
-        <Border x:Name="BottomBar" Grid.Row="3" Background="{DynamicResource BgPanelBrush}"
+        <Border x:Name="BottomBar" Grid.Row="2" Background="{DynamicResource BgPanelBrush}"
                 BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="0,1,0,0">
             <Grid Margin="18,0">
                 <Grid.ColumnDefinitions>
@@ -831,9 +849,10 @@
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"
                             VerticalAlignment="Center">
                     <Button x:Name="AchievementsButton" Content="Достижения" Height="30" Padding="14,0"
-                            FontSize="11.5" FontWeight="SemiBold" Margin="0,0,8,0"
+                            FontSize="11.5" FontWeight="SemiBold" Margin="0,0,8,0" Visibility="Collapsed"
                             Style="{StaticResource BaseButton}" Click="Achievements_Click"
                             ToolTip="Полка достижений: часы, серии дней, рекорды"/>
+                    <!-- Кнопка «Достижения» временно убрана из меню: достижения открываются из тоста -->
                     <Button Content="Промокод" Height="30" Padding="14,0" FontSize="11.5"
                             FontWeight="SemiBold" Margin="0,0,8,0"
                             Style="{StaticResource BaseButton}" Click="PromoCode_Click"
@@ -851,7 +870,7 @@
         </Border>
 
         <!-- ===== Экран приветствия (киоск/клуб) ===== -->
-        <Grid x:Name="WelcomeOverlay" Grid.RowSpan="4" Panel.ZIndex="50" Visibility="Collapsed"
+        <Grid x:Name="WelcomeOverlay" Grid.RowSpan="3" Panel.ZIndex="50" Visibility="Collapsed"
               Background="#C7080A0E">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="&#x1F44B;" FontSize="46" HorizontalAlignment="Center"/>

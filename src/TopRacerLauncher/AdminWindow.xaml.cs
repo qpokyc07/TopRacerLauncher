@@ -1009,6 +1009,49 @@ public partial class AdminWindow : Window
         MicDeviceButton.Content = DeviceText("Микрофон", App.Settings.VoiceInputDevice);
         SpkDeviceButton.Content = DeviceText("Наушники", App.Settings.VoiceOutputDevice);
         MicGainLabel.Text = "Громкость микрофона: " + App.Settings.VoiceInputGain + "%";
+
+        var key = System.Windows.Input.KeyInterop.KeyFromVirtualKey(App.Settings.VoiceKey);
+        PttKeyButton.Content = "Клавиша: " + (key == Key.None ? "V" : key.ToString());
+    }
+
+    private bool _capturingPtt;
+
+    private void PttKey_Click(object sender, RoutedEventArgs e)
+    {
+        _capturingPtt = true;
+        PttKeyButton.Content = "Нажмите клавишу…";
+        PttKeyButton.Focus();
+        Focus();
+    }
+
+    protected override void OnPreviewKeyDown(KeyEventArgs e)
+    {
+        if (!_capturingPtt)
+        {
+            base.OnPreviewKeyDown(e);
+            return;
+        }
+
+        e.Handled = true;
+
+        if (e.Key == Key.Escape)
+        {
+            _capturingPtt = false;
+            RefreshMicLabels();
+            return;
+        }
+
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        int virtualKey = System.Windows.Input.KeyInterop.VirtualKeyFromKey(key);
+        if (virtualKey <= 0) return;
+
+        App.Settings.VoiceKey = virtualKey;
+        VoiceEngine.VoiceKey = virtualKey;
+        PttHook.Key = virtualKey;
+        App.SaveState();
+
+        _capturingPtt = false;
+        RefreshMicLabels();
     }
 
     private static TextBlock DeviceText(string label, string device) => new()

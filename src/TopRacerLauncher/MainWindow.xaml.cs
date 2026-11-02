@@ -68,6 +68,7 @@ public partial class MainWindow : Window
 
         // Афиша клуба и анонс турнира в верхней панели.
         RefreshAfisha();
+        TickerViewport.SizeChanged += (_, _) => StartTickerMarquee();
 
         _tick.Tick += OnTick;
         Achievements.Unlocked += OnAchievementsUnlocked;
@@ -615,7 +616,7 @@ public partial class MainWindow : Window
             : null;
 
         // Лёгкий параллакс кинематографичного фона: он «плывёт» медленнее карточек.
-        CinemaShift.Y = Math.Clamp(-e.VerticalOffset * 0.045, -44, 44);
+        CinemaShift.Y = Math.Clamp(-e.VerticalOffset * 0.032, -36, 36);
     }
 
     // ---------- Экран приветствия и завершение сессии ----------
@@ -1424,7 +1425,7 @@ public partial class MainWindow : Window
     {
         if (image == null)
         {
-            FadeCinemaLayer(0, 260);
+            FadeCinemaLayer(0, 460);
             return;
         }
 
@@ -1444,21 +1445,21 @@ public partial class MainWindow : Window
         };
 
         incoming.BeginAnimation(OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(
-            0, 1, TimeSpan.FromMilliseconds(250))
+            0, 1, TimeSpan.FromMilliseconds(430))
         {
             EasingFunction = ease,
             FillBehavior = System.Windows.Media.Animation.FillBehavior.Stop,
         });
 
         outgoing.BeginAnimation(OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(
-            1, 0, TimeSpan.FromMilliseconds(250))
+            1, 0, TimeSpan.FromMilliseconds(430))
         {
             EasingFunction = ease,
             FillBehavior = System.Windows.Media.Animation.FillBehavior.Stop,
         });
 
         _cinemaAIsFront = !_cinemaAIsFront;
-        FadeCinemaLayer(1, 320);
+        FadeCinemaLayer(1, 560);
     }
 
     /// <summary>Плавно включает/выключает весь слой (когда выбрана/снята игра).</summary>
@@ -1508,7 +1509,47 @@ public partial class MainWindow : Window
 
         TickerBar.Visibility = showTicker ? Visibility.Visible : Visibility.Collapsed;
         TickerText.Text = ticker;
-        TickerText.ToolTip = showTicker ? ticker : null;
+        TickerBar.ToolTip = showTicker ? ticker : null;
+
+        // Длинный анонс не влезает в трей — включаем медленную бегущую строку.
+        Dispatcher.BeginInvoke(new Action(StartTickerMarquee),
+            System.Windows.Threading.DispatcherPriority.Loaded);
+    }
+
+    /// <summary>Бегущая строка анонса: если текст не влезает — плавно прокручиваем его.</summary>
+    private void StartTickerMarquee()
+    {
+        TickerShift.BeginAnimation(TranslateTransform.XProperty, null);
+        TickerShift.X = 0;
+
+        if (TickerBar.Visibility != Visibility.Visible || TickerText.Text.Length == 0) return;
+
+        double viewport = TickerViewport.ActualWidth;
+        if (viewport <= 1) return;
+
+        TickerText.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        double textWidth = TickerText.DesiredSize.Width;
+        if (textWidth <= viewport) return;
+
+        // Скорость ~34 px/с: медленно и читаемо, с паузой в начале и в конце.
+        double distance = textWidth - viewport + 12;
+        double scrollSeconds = distance / 34.0;
+
+        var animation = new System.Windows.Media.Animation.DoubleAnimationUsingKeyFrames
+        {
+            RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever,
+        };
+
+        animation.KeyFrames.Add(new System.Windows.Media.Animation.LinearDoubleKeyFrame(
+            0, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.Zero)));
+        animation.KeyFrames.Add(new System.Windows.Media.Animation.LinearDoubleKeyFrame(
+            0, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.FromSeconds(2.5))));
+        animation.KeyFrames.Add(new System.Windows.Media.Animation.LinearDoubleKeyFrame(
+            -distance, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.FromSeconds(2.5 + scrollSeconds))));
+        animation.KeyFrames.Add(new System.Windows.Media.Animation.LinearDoubleKeyFrame(
+            -distance, System.Windows.Media.Animation.KeyTime.FromTimeSpan(TimeSpan.FromSeconds(4 + scrollSeconds))));
+
+        TickerShift.BeginAnimation(TranslateTransform.XProperty, animation);
     }
 
     // ---------- Контекстное меню игры (правая кнопка) ----------
