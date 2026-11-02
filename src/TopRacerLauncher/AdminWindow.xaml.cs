@@ -56,6 +56,10 @@ public partial class AdminWindow : Window
         RefreshPromoList();
         TransparentPanelsCheck.IsChecked = s.TransparentPanels;
         AccentTitlesCheck.IsChecked = s.AccentTitles;
+        PcSpecsCheck.IsChecked = s.ShowPcSpecs;
+        WelcomeAdCheck.IsChecked = s.WelcomeAdEnabled;
+        WelcomeAdTitleBox.Text = s.WelcomeAdTitle;
+        WelcomeAdTextBox.Text = s.WelcomeAdText;
         MakeSectionsCollapsible();
         UpdateUrlBox.Text = s.UpdateUrl;
         VersionLabel.Text = "Текущая версия: " + UpdateService.CurrentVersion;
@@ -926,6 +930,56 @@ public partial class AdminWindow : Window
     {
         App.Settings.AccentTitles = AccentTitlesCheck.IsChecked == true;
         App.SaveState();
+    }
+
+    /// <summary>Скрыть/показать блок «Характеристики ПК» на главном экране.</summary>
+    private void PcSpecs_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_loaded) return;
+
+        App.Settings.ShowPcSpecs = PcSpecsCheck.IsChecked == true;
+        App.SaveState();
+    }
+
+    // ---------- Реклама на экране приветствия ----------
+
+    private void WelcomeAd_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_loaded) return;
+
+        App.Settings.WelcomeAdEnabled = WelcomeAdCheck.IsChecked == true;
+        App.SaveState();
+
+        if (Owner is MainWindow main) main.RefreshWelcomeAd();
+    }
+
+    private void SaveWelcomeAd_Click(object sender, RoutedEventArgs e)
+    {
+        var title = WelcomeAdTitleBox.Text.Trim();
+        var text = WelcomeAdTextBox.Text.Trim();
+
+        if (title.Length == 0 && text.Length == 0)
+        {
+            SetWelcomeAdStatus("Заполните заголовок или текст поста.", error: true);
+            return;
+        }
+
+        App.Settings.WelcomeAdTitle = title;
+        App.Settings.WelcomeAdText = text;
+        App.SaveState();
+
+        if (Owner is MainWindow main) main.RefreshWelcomeAd();
+
+        SetWelcomeAdStatus("Сохранено — текст уже на экране приветствия.", error: false);
+    }
+
+    private void SetWelcomeAdStatus(string message, bool error)
+    {
+        WelcomeAdStatusText.Text = message;
+        WelcomeAdStatusText.Visibility = Visibility.Visible;
+        WelcomeAdStatusText.Foreground = error
+            ? FindResource("DangerBrush") as Brush ?? Brushes.OrangeRed
+            : FindResource("TextSecondaryBrush") as Brush ?? Brushes.Gray;
     }
 
     private void Kiosk_Changed(object sender, RoutedEventArgs e)

@@ -123,6 +123,22 @@ public sealed class Settings
     public double ChatWidth { get; set; }
     public double ChatHeight { get; set; }
 
+    /// <summary>Блок «Характеристики ПК» в правой панели главного экрана.</summary>
+    public bool ShowPcSpecs { get; set; } = true;
+
+    // ---- Реклама на экране приветствия ----
+
+    /// <summary>Показывать блок рекламы (посты из соцсетей) на экране приветствия.</summary>
+    public bool WelcomeAdEnabled { get; set; } = true;
+
+    /// <summary>Заголовок рекламного блока на экране приветствия.</summary>
+    public string WelcomeAdTitle { get; set; } = "Реклама постов из соцсетей";
+
+    /// <summary>Текст рекламного блока: пост или анонс из соцсетей клуба.</summary>
+    public string WelcomeAdText { get; set; } =
+        "Посты из Telegram, ВКонтакте и MAX — прямо на экране клуба: " +
+        "анонсы турниров, розыгрыши минут и призов. Сканируйте QR ниже, чтобы читать первыми.";
+
     /// <summary>Промокоды на дополнительные минуты.</summary>
     public List<PromoCode> PromoCodes { get; set; } = new();
 

@@ -455,6 +455,9 @@
                                   Margin="0,12,0,0" Checked="Panels_Changed" Unchecked="Panels_Changed"/>
                         <CheckBox x:Name="AccentTitlesCheck" Content="Названия игр цветом акцента"
                                   Margin="0,8,0,0" Checked="Titles_Changed" Unchecked="Titles_Changed"/>
+                        <CheckBox x:Name="PcSpecsCheck" Content="Блок «Характеристики ПК» на главном экране"
+                                  Margin="0,8,0,0" Checked="PcSpecs_Changed" Unchecked="PcSpecs_Changed"
+                                  ToolTip="Снимите галочку, чтобы скрыть характеристики компьютера от гостей"/>
 
                         <!-- Пропорции карточек -->
                         <TextBlock Text="Пропорции карточек" Style="{StaticResource H2Text}" Margin="0,10,0,8"/>
@@ -487,6 +490,32 @@
                                         Click="ClearAppBackground_Click"/>
                             </StackPanel>
                         </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Экран приветствия: реклама постов из соцсетей -->
+                <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Экран приветствия" Style="{StaticResource H1Text}"/>
+                        <TextBlock Text="Блок рекламы видят гости клуба до старта сессии. Вставьте пост или анонс из Телеграма, ВКонтакте или MAX — он появится на экране приветствия."
+                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                        <CheckBox x:Name="WelcomeAdCheck" Content="Показывать блок рекламы постов"
+                                  Margin="0,14,0,0" Checked="WelcomeAd_Changed" Unchecked="WelcomeAd_Changed"/>
+
+                        <TextBlock Text="Заголовок" Style="{StaticResource SecondaryText}" Margin="0,14,0,6"/>
+                        <TextBox x:Name="WelcomeAdTitleBox" Style="{StaticResource BaseTextBox}"
+                                 Height="36" MaxLength="60"/>
+
+                        <TextBlock Text="Текст поста" Style="{StaticResource SecondaryText}" Margin="0,10,0,6"/>
+                        <TextBox x:Name="WelcomeAdTextBox" Style="{StaticResource BaseTextBox}"
+                                 Height="86" MaxLength="400" AcceptsReturn="True" TextWrapping="Wrap"
+                                 VerticalContentAlignment="Top" Padding="12,8"/>
+
+                        <Button Content="Сохранить рекламу" Height="36" HorizontalAlignment="Left"
+                                Padding="16,0" Margin="0,12,0,0" FontSize="12.5"
+                                Style="{StaticResource PrimaryButton}" Click="SaveWelcomeAd_Click"/>
+                        <TextBlock x:Name="WelcomeAdStatusText" Text="" Style="{StaticResource SecondaryText}"
+                                   Margin="0,8,0,0" Visibility="Collapsed"/>
                     </StackPanel>
                 </Border>
 

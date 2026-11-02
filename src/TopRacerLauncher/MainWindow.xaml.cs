@@ -620,7 +620,28 @@ public partial class MainWindow : Window
     private void ShowWelcome()
     {
         LoadQrCodes();
+        LoadWelcomeAd();
         WelcomeOverlay.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>Обновляет блок рекламы на уже открытом экране приветствия (из админ-меню).</summary>
+    public void RefreshWelcomeAd() => LoadWelcomeAd();
+
+    /// <summary>Блок рекламы постов из соцсетей: текст задаётся в админ-меню.</summary>
+    private void LoadWelcomeAd()
+    {
+        var s = App.Settings;
+
+        WelcomeAdTitleText.Text = string.IsNullOrWhiteSpace(s.WelcomeAdTitle)
+            ? "Реклама постов из соцсетей"
+            : s.WelcomeAdTitle.Trim();
+
+        WelcomeAdTextText.Text = s.WelcomeAdText?.Trim() ?? "";
+        WelcomeAdTextText.Visibility = WelcomeAdTextText.Text.Length == 0
+            ? Visibility.Collapsed
+            : Visibility.Visible;
+
+        WelcomeAdCard.Visibility = s.WelcomeAdEnabled ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void LoadQrCodes()
@@ -797,6 +818,14 @@ public partial class MainWindow : Window
         PcInfoBody.Visibility = _pcInfoCollapsed ? Visibility.Collapsed : Visibility.Visible;
         PcInfoChevron.RenderTransform = new System.Windows.Media.RotateTransform(_pcInfoCollapsed ? -90 : 0);
         PcInfoChevron.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+    }
+
+    /// <summary>ПКМ по блоку характеристик — скрыть его (вернуть можно в админ-меню или в Ctrl+K).</summary>
+    private void HidePcSpecs_Click(object sender, RoutedEventArgs e)
+    {
+        App.Settings.ShowPcSpecs = false;
+        App.SaveState();
+        ApplyPanelSettings();
     }
 
     private void ToggleDetails_Click(object sender, RoutedEventArgs e)
@@ -1079,6 +1108,9 @@ public partial class MainWindow : Window
 
         FriendsPanel.Opacity = transparent ? 0.72 : 1.0;
         DetailsPanel.Opacity = transparent ? 0.72 : 1.0;
+
+        // Характеристики ПК можно выключить в админ-меню.
+        PcInfoBlock.Visibility = App.Settings.ShowPcSpecs ? Visibility.Visible : Visibility.Collapsed;
     }
     private void UpdateGameStatus()
     {
@@ -1171,6 +1203,17 @@ public partial class MainWindow : Window
         items.Add(new PaletteItem { Title = "Экран приветствия", Subtitle = "Показать", Run = ShowWelcome });
         items.Add(new PaletteItem { Title = "Открыть Steam", Subtitle = "Клиент", Run = () => OpenSteam_Click(this, new RoutedEventArgs()) });
         items.Add(new PaletteItem { Title = "Открыть браузер", Subtitle = "Интернет", Run = () => OpenBrowser_Click(this, new RoutedEventArgs()) });
+        items.Add(new PaletteItem
+        {
+            Title = App.Settings.ShowPcSpecs ? "Скрыть характеристики ПК" : "Показать характеристики ПК",
+            Subtitle = "Главный экран",
+            Run = () =>
+            {
+                App.Settings.ShowPcSpecs = !App.Settings.ShowPcSpecs;
+                App.SaveState();
+                ApplyPanelSettings();
+            },
+        });
         items.Add(new PaletteItem { Title = "Проверить обновления", Subtitle = "Версия " + UpdateService.CurrentVersion, Run = () => _ = CheckUpdatesAsync() });
 
         new CommandPalette(items) { Owner = this }.ShowDialog();

@@ -126,7 +126,10 @@ public static class SelfTest
                     CardAspect = "16:9",
                     FullScreen = false,
                     TimerEnabled = false,
-
+                    ShowPcSpecs = false,
+                    WelcomeAdEnabled = false,
+                    WelcomeAdTitle = "Анонс клуба",
+                    WelcomeAdText = "Пост из соцсетей",
                 };
                 s.Games.Add(new GameItem { Title = "A", ExecutablePath = @"C:\a.exe" });
                 ConfigStore.SetPassword(s, "modes-pass");
@@ -136,6 +139,10 @@ public static class SelfTest
                 if (loaded.CardAspect != "16:9") return "пропорции потерялись: " + loaded.CardAspect;
                 if (loaded.FullScreen) return "полный экран не сохранился";
                 if (loaded.TimerEnabled) return "выключенный таймер не сохранился";
+                if (loaded.ShowPcSpecs) return "скрытые характеристики ПК не сохранились";
+                if (loaded.WelcomeAdEnabled) return "выключенная реклама на приветствии не сохранилась";
+                if (loaded.WelcomeAdTitle != "Анонс клуба") return "заголовок рекламы потерялся";
+                if (loaded.WelcomeAdText != "Пост из соцсетей") return "текст рекламы потерялся";
 
                 if (loaded.Games.Count != 1) return "игра потерялась";
 
