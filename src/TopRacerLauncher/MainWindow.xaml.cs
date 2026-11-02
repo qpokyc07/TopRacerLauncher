@@ -82,6 +82,7 @@ public partial class MainWindow : Window
             CleanupOrphanMedia();
             RefreshUi();
         ApplyPanelSettings();
+        LoadPcInfo();
             _tick.Start();
 
             // Клуб: киоск-режим и экран приветствия.
@@ -120,6 +121,7 @@ public partial class MainWindow : Window
 
         RefreshUi();
         ApplyPanelSettings();
+        LoadPcInfo();
     }
 
     // ---------- Библиотека ----------
@@ -271,6 +273,7 @@ public partial class MainWindow : Window
         _warned5 = _warned1 = false;
         RefreshUi();
         ApplyPanelSettings();
+        LoadPcInfo();
 
         var s = App.Settings;
         if (!s.Locked && !_tick.IsEnabled) _tick.Start();
@@ -298,6 +301,7 @@ public partial class MainWindow : Window
         App.SaveState();
         RefreshUi();
         ApplyPanelSettings();
+        LoadPcInfo();
 
         RequestUnlockOrExit();
     }
@@ -309,6 +313,7 @@ public partial class MainWindow : Window
         {
             RefreshUi();
         ApplyPanelSettings();
+        LoadPcInfo();
             _tick.Start();
 
             // Клуб: киоск-режим и экран приветствия.
@@ -774,6 +779,26 @@ public partial class MainWindow : Window
     private bool _detailsCollapsed;
 
     /// <summary>Сворачивает/разворачивает описание игры в одну строку.</summary>
+    private bool _pcInfoCollapsed;
+
+    /// <summary>Характеристики компьютера заполняются один раз при старте.</summary>
+    private void LoadPcInfo()
+    {
+        PcCpuText.Text = "Процессор: " + SystemInfo.CpuName;
+        PcRamText.Text = "Память: " + SystemInfo.RamText;
+        PcGpuText.Text = "Видео: " + SystemInfo.GpuName;
+        PcOsText.Text = SystemInfo.OsText + "  •  " + SystemInfo.ScreenText;
+    }
+
+    private void TogglePcInfo_Click(object sender, RoutedEventArgs e)
+    {
+        _pcInfoCollapsed = !_pcInfoCollapsed;
+
+        PcInfoBody.Visibility = _pcInfoCollapsed ? Visibility.Collapsed : Visibility.Visible;
+        PcInfoChevron.RenderTransform = new System.Windows.Media.RotateTransform(_pcInfoCollapsed ? -90 : 0);
+        PcInfoChevron.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+    }
+
     private void ToggleDetails_Click(object sender, RoutedEventArgs e)
     {
         _detailsCollapsed = !_detailsCollapsed;
@@ -896,6 +921,7 @@ public partial class MainWindow : Window
         {
             RefreshUi();
         ApplyPanelSettings();
+        LoadPcInfo();
             _tick.Start();
 
             // Клуб: киоск-режим и экран приветствия.
@@ -1169,11 +1195,13 @@ public partial class MainWindow : Window
         // В админ-меню могли добавить игры, изменить время, тему, пропорции или фон.
         ApplyCardSettings();
         ApplyPanelSettings();
+        LoadPcInfo();
         WindowState = App.Settings.FullScreen ? WindowState.Maximized : WindowState.Normal;
         RebuildLibrary();
         LoadAppBackground();
         RefreshUi();
         ApplyPanelSettings();
+        LoadPcInfo();
 
         if (App.Settings.Locked)
         {

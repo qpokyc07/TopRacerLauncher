@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -278,6 +279,29 @@ public sealed class GameRunner : IDisposable
     private readonly record struct LaunchTarget(string Path, string Args, string WorkDir, bool IsDirect);
 
     /// <summary>Разрешает путь игры: .exe запускаем напрямую, остальное — через shell.</summary>
+    /// <summary>Ищет steam.exe в реестре и стандартных папках.</summary>
+    private static string? FindSteamExe()
+    {
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam");
+            if (key?.GetValue("SteamExe") is string path && !string.IsNullOrWhiteSpace(path) && File.Exists(path))
+                return path;
+        }
+        catch { /* нет доступа к реестру */ }
+
+        foreach (var candidate in new[]
+                 {
+                     @"C:\Program Files (x86)\Steam\steam.exe",
+                     @"C:\Program Files\Steam\steam.exe",
+                 })
+        {
+            if (File.Exists(candidate)) return candidate;
+        }
+
+        return null;
+    }
+
     private static LaunchTarget Resolve(GameItem game)
     {
         var raw = game.ExecutablePath.Trim().Trim('"');
@@ -285,8 +309,20 @@ public sealed class GameRunner : IDisposable
         string workDir = "";
 
         // URL-схемы (steam://, goggalaxy://, …) — только shell.
+        // Steam-игры надёжнее запускать через steam.exe -applaunch: URL-ассоциация
+        // иногда приводит к проверкам сертификатов и отказу запуска.
         if (raw.Contains("://", StringComparison.Ordinal))
+        {
+            var steamId = Regex.Match(raw, @"steam://rungameid/(\d+)", RegexOptions.IgnoreCase);
+            var foundSteam = FindSteamExe();
+            if (steamId.Success && foundSteam != null)
+            {
+                return new LaunchTarget(foundSteam, "-applaunch " + steamId.Groups[1].Value,
+                    Path.GetDirectoryName(foundSteam) ?? "", IsDirect: false);
+            }
+
             return new LaunchTarget(raw, args, "", IsDirect: false);
+        }
 
         if (string.Equals(Path.GetExtension(raw), ".lnk", StringComparison.OrdinalIgnoreCase))
         {

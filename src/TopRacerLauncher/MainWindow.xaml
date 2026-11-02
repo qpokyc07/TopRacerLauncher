@@ -384,6 +384,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <Button x:Name="DetailsToggle" Grid.Row="0" Margin="0,0,0,6"
@@ -430,6 +431,39 @@
                                 Style="{StaticResource PrimaryButton}" Click="DetailPlay_Click"/>
                     </StackPanel>
                 </ScrollViewer>
+
+                    <!-- Характеристики ПК (сворачиваемые) -->
+                    <Border Grid.Row="2" Margin="0,10,0,0" Padding="0,8,0,0"
+                            BorderBrush="#26FFFFFF" BorderThickness="0,1,0,0">
+                        <StackPanel>
+                            <Button x:Name="PcInfoToggle" Style="{StaticResource SectionHeaderButton}"
+                                    Click="TogglePcInfo_Click" ToolTip="Свернуть / развернуть характеристики">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Path x:Name="PcInfoChevron" Data="M 0,0 L 10,0 L 5,6 Z"
+                                          Fill="{StaticResource TextSecondaryBrush}" Width="10" Height="6"
+                                          VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Grid.Column="1" Text="Характеристики ПК" FontSize="12.5"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </Grid>
+                            </Button>
+
+                            <StackPanel x:Name="PcInfoBody" Margin="18,8,0,0">
+                                <TextBlock x:Name="PcCpuText" FontSize="11.5" TextWrapping="Wrap"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock x:Name="PcRamText" FontSize="11.5" Margin="0,3,0,0"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock x:Name="PcGpuText" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock x:Name="PcOsText" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </Border>
 

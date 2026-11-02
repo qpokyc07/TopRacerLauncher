@@ -64,12 +64,12 @@ public partial class LoginWindow : Window
                 break;
 
             default:
-                // Обычный вход: закрыть можно только с паролем (требование закрытой системы).
+                // Обычный вход: крестик доступен, чтобы можно было закрыть приложение без пароля.
                 TitleText.Text = "Вход в TopRacerLauncher";
                 SubtitleText.Text = "Введите пароль администратора";
-                SubmitButton.Content = "Войти";
                 CancelButton.Visibility = Visibility.Collapsed;
-                CloseButton.Visibility = Visibility.Collapsed;
+                CloseButton.Visibility = Visibility.Visible;
+                SubmitButton.Content = "Войти";
                 break;
         }
     }
