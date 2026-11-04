@@ -90,6 +90,9 @@ public partial class AdminWindow : Window
         OpenMicCheck.IsChecked = s.VoiceMode == "open";
         VoiceOverlayCheck.IsChecked = s.VoiceOverlay;
         ControlsOverlayCheck.IsChecked = s.ControlsOverlay;
+        BgTopBox.Text = s.BgTopColor;
+        BgBottomBox.Text = s.BgBottomColor;
+        UpdateBgSwatches();
         AutoAddSteamCheck.IsChecked = s.AutoAddSteamGames;
         AutoScanCheck.IsChecked = s.AutoScanGames;
         RefreshMicLabels();
@@ -310,7 +313,7 @@ public partial class AdminWindow : Window
             // Верхняя световая кромка.
             preview.Children.Add(new Border
             {
-                Height = 14,
+                Height = 8,
                 VerticalAlignment = VerticalAlignment.Top,
                 Background = new LinearGradientBrush(
                     Color.FromArgb(0x26, 0xFF, 0xFF, 0xFF), Color.FromArgb(0x00, 0xFF, 0xFF, 0xFF),
@@ -320,7 +323,7 @@ public partial class AdminWindow : Window
             // Акцентная полоса — цвет темы (крупно, чтобы темы не путались).
             preview.Children.Add(new Border
             {
-                Height = 26,
+                Height = 15,
                 VerticalAlignment = VerticalAlignment.Bottom,
                 Background = accentBrush,
             });
@@ -328,7 +331,7 @@ public partial class AdminWindow : Window
             // Мягкий блик на акцентной полосе.
             preview.Children.Add(new Border
             {
-                Height = 26,
+                Height = 15,
                 VerticalAlignment = VerticalAlignment.Bottom,
                 Background = new LinearGradientBrush(
                     Color.FromArgb(0x33, 0xFF, 0xFF, 0xFF), Color.FromArgb(0x00, 0xFF, 0xFF, 0xFF),
@@ -338,22 +341,22 @@ public partial class AdminWindow : Window
             // Точка акцента в углу.
             preview.Children.Add(new Border
             {
-                Width = 10,
-                Height = 10,
-                CornerRadius = new CornerRadius(5),
+                Width = 7,
+                Height = 7,
+                CornerRadius = new CornerRadius(4),
                 Background = accentBrush,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(8, 7, 0, 0),
+                Margin = new Thickness(5, 4, 0, 0),
             });
 
             var chip = new Border
             {
                 Tag = theme.Key,
-                Width = 88,
-                Height = 64,
-                Margin = new Thickness(0, 0, 10, 10),
-                CornerRadius = new CornerRadius(12),
+                Width = 52,
+                Height = 38,
+                Margin = new Thickness(0, 0, 7, 7),
+                CornerRadius = new CornerRadius(8),
                 ClipToBounds = true,
                 Background = new SolidColorBrush(Color.FromArgb(0x40, accentColor.R, accentColor.G, accentColor.B)),
                 BorderThickness = new Thickness(2),
@@ -1261,6 +1264,64 @@ public partial class AdminWindow : Window
         }
 
         AdminScroll?.ScrollToTop();
+    }
+    // ---------- Свой фон: два цвета и узор ----------
+
+    private void BgColor_Changed(object sender, TextChangedEventArgs e)
+    {
+        if (!_loaded) return;
+
+        App.Settings.BgTopColor = BgTopBox.Text.Trim();
+        App.Settings.BgBottomColor = BgBottomBox.Text.Trim();
+        App.SaveState();
+
+        UpdateBgSwatches();
+        Themes.Apply(App.Settings.AccentTheme);
+    }
+
+    private void UpdateBgSwatches()
+    {
+        BgTopSwatch.Background = ColorOf(BgTopBox.Text);
+        BgBottomSwatch.Background = ColorOf(BgBottomBox.Text);
+    }
+
+    /// <summary>Цвет из текста; при ошибке — прозрачный квадрат.</summary>
+    private static Brush ColorOf(string text)
+    {
+        try
+        {
+            var value = text.Trim();
+            if (value.Length == 0) return new SolidColorBrush(Color.FromArgb(0x22, 0xFF, 0xFF, 0xFF));
+            if (!value.StartsWith('#')) value = "#" + value;
+            return new SolidColorBrush((Color)ColorConverter.ConvertFromString(value)!);
+        }
+        catch
+        {
+            return new SolidColorBrush(Color.FromArgb(0x22, 0xFF, 0x80, 0x80));
+        }
+    }
+
+    private void BgPattern_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement fe || fe.Tag is not string tag) return;
+
+        App.Settings.BgPattern = tag == "none" ? "none" : tag;
+        App.SaveState();
+        Themes.Apply(App.Settings.AccentTheme);
+    }
+
+    private void BgReset_Click(object sender, RoutedEventArgs e)
+    {
+        BgTopBox.Text = "";
+        BgBottomBox.Text = "";
+
+        App.Settings.BgTopColor = "";
+        App.Settings.BgBottomColor = "";
+        App.Settings.BgPattern = "";
+        App.SaveState();
+
+        UpdateBgSwatches();
+        Themes.Apply(App.Settings.AccentTheme);
     }
     // ---------- Переключатели разделов ----------
 

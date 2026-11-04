@@ -362,6 +362,20 @@ public partial class App : Application
         var originalFullScreen = Settings.FullScreen;
         if (mainArg != null) Settings.FullScreen = false;
 
+        // --shot-bg=#14141A,#2B1030,diag: свой фон для скриншота (не сохраняется).
+        var bgArg = Arg("--shot-bg");
+        if (bgArg != null)
+        {
+            var value = bgArg.Contains('=') ? bgArg[(bgArg.IndexOf('=') + 1)..] : "";
+            var parts = value.Split(',');
+            if (parts.Length >= 2)
+            {
+                Settings.BgTopColor = parts[0].Trim();
+                Settings.BgBottomColor = parts[1].Trim();
+                Settings.BgPattern = parts.Length > 2 ? parts[2].Trim() : "";
+            }
+        }
+
         // --shot-theme=limecoal: посмотреть тему на скриншоте (не сохраняется).
         var themeArg = Arg("--shot-theme");
         if (themeArg != null)

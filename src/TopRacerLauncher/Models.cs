@@ -195,6 +195,15 @@ public sealed class Settings
     /// <summary>Показывать поверх игры клавиатуру с нужными клавишами.</summary>
     public bool ControlsOverlay { get; set; } = true;
 
+    /// <summary>Свой фон: цвет верха окна (#RRGGBB). Пусто — берётся из темы.</summary>
+    public string BgTopColor { get; set; } = "";
+
+    /// <summary>Свой фон: цвет низа окна (#RRGGBB). Пусто — берётся из темы.</summary>
+    public string BgBottomColor { get; set; } = "";
+
+    /// <summary>Свой узор поверх фона: none, stripes, diag, dots, grid, rings. Пусто — из темы.</summary>
+    public string BgPattern { get; set; } = "";
+
     /// <summary>Appid, которые админ удалил из библиотеки: заново не добавляем.</summary>
     public List<string> RemovedSteamIds { get; set; } = new();
 

@@ -202,6 +202,54 @@ public static class Themes
             null, null, "grid", "#FF8A76"),
     };
 
+    /// <summary>
+    /// Свой фон окна: два цвета и плавный переход между ними.
+    /// Если цвета не заданы — остаётся фон темы.
+    /// </summary>
+    public static void ApplyCustomBackground(Application app, string? topHex, string? bottomHex)
+    {
+        if (string.IsNullOrWhiteSpace(topHex) || string.IsNullOrWhiteSpace(bottomHex)) return;
+
+        if (ColorConverter.ConvertFromString(topHex) is not Color top) return;
+        if (ColorConverter.ConvertFromString(bottomHex) is not Color bottom) return;
+
+        var gradient = new LinearGradientBrush
+        {
+            StartPoint = new System.Windows.Point(0, 0),
+            EndPoint = new System.Windows.Point(0, 1),
+        };
+
+        gradient.GradientStops.Add(new GradientStop(top, 0));
+        gradient.GradientStops.Add(new GradientStop(bottom, 1));
+        gradient.Freeze();
+
+        app.Resources["BgWindowBrush"] = gradient;
+    }
+
+    /// <summary>Узор по имени: none, stripes, diag, dots, grid, rings.</summary>
+    public static Brush? CreatePatternByName(string? name, string? colorHex)
+    {
+        var color = ColorConverter.ConvertFromString(colorHex ?? "#FFFFFF") is Color c
+            ? c
+            : Colors.White;
+
+        var soft = Color.FromArgb(0x22, color.R, color.G, color.B);
+        var faint = Color.FromArgb(0x00, color.R, color.G, color.B);
+
+        Brush? brush = (name ?? "").ToLowerInvariant() switch
+        {
+            "stripes" => Stripes(soft, faint, 26, 90),
+            "diag" => Stripes(soft, faint, 26, 45),
+            "dots" => Dots(color),
+            "grid" => Grid(color),
+            "rings" => Rings(color),
+            _ => null,
+        };
+
+        brush?.Freeze();
+        return brush;
+    }
+
     /// <summary>Узор темы: полосы, точки, сетка или кольца. null — без узора.</summary>
     public static Brush? CreatePattern(ThemeInfo theme)
     {
@@ -338,8 +386,17 @@ public static class Themes
             luminance > 0.62 ? Color.FromRgb(0x14, 0x14, 0x18) : Colors.White);
 
         // Узор фона: у двухцветных тем поверх — полосы, точки, сетка или кольца.
-        var pattern = CreatePattern(t);
+        var settings = App.Settings;
+        var customPattern = settings.BgPattern;
+
+        var pattern = !string.IsNullOrWhiteSpace(customPattern)
+            ? CreatePatternByName(customPattern, t.Accent)
+            : CreatePattern(t);
+
         app.Resources["PatternBrush"] = pattern ?? new SolidColorBrush(Colors.Transparent);
+
+        // Свой фон: верх и низ разными цветами, между ними — плавный градиент.
+        ApplyCustomBackground(app, settings.BgTopColor, settings.BgBottomColor);
     }
 
     /// <summary>Фон окна: сплошной цвет или плавный градиент (если задан второй цвет).</summary>
