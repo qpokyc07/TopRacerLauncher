@@ -157,6 +157,10 @@
                                   Content="Сам добавлять новые игры из Steam (обложка подтянется)"
                                   Margin="0,14,0,0" Checked="AutoAddSteam_Changed" Unchecked="AutoAddSteam_Changed"
                                   ToolTip="Фоновый наблюдатель: установили игру в Steam — карточка появилась в лаунчере"/>
+                        <CheckBox x:Name="AutoScanCheck"
+                                  Content="Искать новые игры при запуске (Steam, Epic, GOG, ярлыки)"
+                                  Margin="0,8,0,0" Checked="AutoScan_Changed" Unchecked="AutoScan_Changed"
+                                  ToolTip="При старте лаунчер сам проверяет ПК и добавляет игры, которых нет в библиотеке"/>
 
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                             <Button Content="Обложка…" Height="40" Padding="14,0"

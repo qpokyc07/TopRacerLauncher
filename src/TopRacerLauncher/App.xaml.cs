@@ -130,6 +130,11 @@ public partial class App : Application
         if (!smoke && !demoMode)
         {
             try { SteamLibraryWatcher.Start(); } catch { /* наблюдение не критично */ }
+            if (Settings.AutoScanGames)
+            {
+                // Игры могли установить, пока лаунчер был выключен: полный поиск в фоне.
+                _ = Task.Run(() => SteamLibraryWatcher.ScanAllAsync());
+            }
         }
 
 #if DEBUG

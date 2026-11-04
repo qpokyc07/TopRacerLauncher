@@ -189,6 +189,9 @@ public sealed class Settings
     /// <summary>Сам добавлять новые игры из Steam в библиотеку (фоновый watcher appmanifest).</summary>
     public bool AutoAddSteamGames { get; set; } = true;
 
+    /// <summary>Искать новые игры при запуске: Steam, Epic, GOG и ярлыки на рабочем столе.</summary>
+    public bool AutoScanGames { get; set; }
+
     /// <summary>Appid, которые админ удалил из библиотеки: заново не добавляем.</summary>
     public List<string> RemovedSteamIds { get; set; } = new();
 

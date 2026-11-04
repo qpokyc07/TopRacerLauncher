@@ -78,6 +78,7 @@ public partial class AdminWindow : Window
         OpenMicCheck.IsChecked = s.VoiceMode == "open";
         VoiceOverlayCheck.IsChecked = s.VoiceOverlay;
         AutoAddSteamCheck.IsChecked = s.AutoAddSteamGames;
+        AutoScanCheck.IsChecked = s.AutoScanGames;
         RefreshMicLabels();
         MakeSectionsCollapsible();
         UpdateUrlBox.Text = s.UpdateUrl;
@@ -1213,6 +1214,25 @@ public partial class AdminWindow : Window
         var room = VoiceEngine.RoomId;
         VoiceEngine.LeaveCall();
         VoiceEngine.StartCall(room);
+    }
+
+    private void AutoScan_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_loaded) return;
+
+        App.Settings.AutoScanGames = AutoScanCheck.IsChecked == true;
+        App.SaveState();
+
+        if (App.Settings.AutoScanGames)
+        {
+            SetArtStatus("Ищу новые игры…", autoHide: false);
+            _ = SteamLibraryWatcher.ScanAllAsync().ContinueWith(_ =>
+                Dispatcher.BeginInvoke(new Action(() => SetArtStatus("Поиск игр завершён.", autoHide: true))));
+        }
+        else
+        {
+            SetArtStatus("Автопоиск игр при запуске выключен.", autoHide: true);
+        }
     }
 
     private void AutoAddSteam_Changed(object sender, RoutedEventArgs e)

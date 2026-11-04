@@ -92,13 +92,31 @@ public static class SteamLibraryWatcher
     public static async Task<int> ScanAsync()
     {
         if (!App.Settings.AutoAddSteamGames) return 0;
+
+        var found = GameScanner.ScanSteam();
+        return await AddFoundAsync(found);
+    }
+
+    /// <summary>
+    /// Полный поиск игр (Steam, Epic, GOG, ярлыки) — для галочки «искать новые игры при запуске».
+    /// Возвращает количество добавленных.
+    /// </summary>
+    public static async Task<int> ScanAllAsync()
+    {
+        if (!App.Settings.AutoScanGames) return 0;
+
+        var found = GameScanner.Scan(null);
+        return await AddFoundAsync(found);
+    }
+
+    /// <summary>Добавляет в библиотеку то, чего в ней ещё нет, и подтягивает обложки.</summary>
+    public static async Task<int> AddFoundAsync(List<ScanResult> found)
+    {
+        if (found.Count == 0) return 0;
         if (Interlocked.Exchange(ref _busy, 1) == 1) return 0;
 
         try
         {
-            var found = GameScanner.ScanSteam();
-            if (found.Count == 0) return 0;
-
             var added = new List<GameItem>();
 
             // Настройки трогаем только в UI-потоке: там же их читает окно.
