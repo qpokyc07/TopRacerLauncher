@@ -27,7 +27,7 @@ public partial class AdminWindow : Window
 
         // Лёгкое «всплытие» содержимого окна — дороже, чем просто появиться.
         // Самому Window RenderTransform задавать нельзя, только его содержимому.
-        var scale = new ScaleTransform(0.985, 0.985);
+        var scale = new ScaleTransform(0.96, 0.96);
         if (Content is FrameworkElement root)
         {
             root.RenderTransform = scale;
@@ -39,8 +39,8 @@ public partial class AdminWindow : Window
             EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut,
         };
 
-        scale.BeginAnimation(ScaleTransform.ScaleXProperty, new System.Windows.Media.Animation.DoubleAnimation(0.985, 1, TimeSpan.FromMilliseconds(220)) { EasingFunction = ease });
-        scale.BeginAnimation(ScaleTransform.ScaleYProperty, new System.Windows.Media.Animation.DoubleAnimation(0.985, 1, TimeSpan.FromMilliseconds(220)) { EasingFunction = ease });
+        scale.BeginAnimation(ScaleTransform.ScaleXProperty, new System.Windows.Media.Animation.DoubleAnimation(0.96, 1, TimeSpan.FromMilliseconds(260)) { EasingFunction = ease });
+        scale.BeginAnimation(ScaleTransform.ScaleYProperty, new System.Windows.Media.Animation.DoubleAnimation(0.96, 1, TimeSpan.FromMilliseconds(260)) { EasingFunction = ease });
         Loaded += OnLoaded;
         _uiTimer.Tick += (_, _) => UpdateRemainingLabel();
         _uiTimer.Start();
