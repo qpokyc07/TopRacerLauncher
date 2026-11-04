@@ -363,7 +363,8 @@ public partial class App : Application
         var scrollArg = Arg("--shot-scroll");
         var overlayArg = Arg("--shot-overlay");
         var controlsArg = Arg("--shot-controls");
-        if (mainArg == null && adminArg == null && overlayArg == null && controlsArg == null) return false;
+        var dialogArg = Arg("--shot-dialog");
+        if (mainArg == null && adminArg == null && overlayArg == null && controlsArg == null && dialogArg == null) return false;
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
@@ -405,7 +406,9 @@ public partial class App : Application
 
         if (controlsArg != null) ControlsOverlayWindow.SuppressAutoPlace = true;
 
-        Window window = controlsArg != null
+        Window window = dialogArg != null
+            ? new AddGameWindow()
+            : controlsArg != null
             ? new ControlsOverlayWindow(controlsTitle, GameControls.UsedKeys(controlsTitle),
                 GameControls.For(controlsTitle).Note)
             : overlayArg != null
@@ -470,7 +473,8 @@ public partial class App : Application
                     var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
                     encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
 
-                    var file = controlsArg != null ? Path.Combine(Path.GetTempPath(), "shot-controls.png")
+                    var file = dialogArg != null ? Path.Combine(Path.GetTempPath(), "shot-dialog.png")
+                        : controlsArg != null ? Path.Combine(Path.GetTempPath(), "shot-controls.png")
                         : overlayArg != null ? PathOf(overlayArg)
                         : mainArg != null ? PathOf(mainArg)
                         : PathOf(adminArg!);
