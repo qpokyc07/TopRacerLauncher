@@ -88,6 +88,12 @@ public partial class AdminWindow : Window
         RefreshGamesList();
         BuildThemeButtons();
         BuildAspectButtons();
+
+        double cardWidth = s.CardWidth;
+        if (cardWidth < 100 || cardWidth > 380) cardWidth = 178;
+        CardWidthSlider.Value = cardWidth;
+        CardWidthLabel.Text = ((int)cardWidth).ToString();
+
         UpdateAppBackgroundPreview();
         UpdateRemainingLabel();
         UpdateKillButton();
@@ -539,8 +545,7 @@ public partial class AdminWindow : Window
     // ---------- Пропорции карточек ----------
 
     private void BuildAspectButtons()
-    {
-        AspectPanel.Children.Clear();
+    {        AspectPanel.Children.Clear();
 
         foreach (var aspect in CardAspects.All)
         {
@@ -582,6 +587,24 @@ public partial class AdminWindow : Window
         App.Settings.CardAspect = key;
         App.SaveState();
         HighlightAspect();
+    }
+
+    // ---------- Размер карточек ----------
+
+    private void CardWidth_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (!_loaded) return;
+
+        int width = (int)Math.Round(CardWidthSlider.Value);
+        CardWidthLabel.Text = width.ToString();
+        App.Settings.CardWidth = width;
+    }
+
+    /// <summary>Пишем конфиг, когда ползунок отпустили (а не на каждый пиксель).</summary>
+    private void CardWidth_Commit(object sender, RoutedEventArgs e)
+    {
+        if (!_loaded) return;
+        App.SaveState();
     }
 
     // ---------- Автоматические обложки ----------

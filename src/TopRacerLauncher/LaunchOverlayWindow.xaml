@@ -6,17 +6,41 @@
         ShowInTaskbar="False" ShowActivated="False" Topmost="True"
         SizeToContent="WidthAndHeight" WindowStartupLocation="Manual"
         FontFamily="Segoe UI" Cursor="Hand" MouseLeftButtonUp="Close_Click">
-    <Border CornerRadius="16" Background="#F2121218" BorderBrush="#40FFFFFF" BorderThickness="1"
-            Padding="34,24">
+    <Border CornerRadius="22" Background="#F2121218" BorderBrush="#40FFFFFF" BorderThickness="1"
+            Padding="54,38">
         <Border.Effect>
-            <DropShadowEffect Color="Black" BlurRadius="30" ShadowDepth="6" Opacity="0.6"/>
+            <DropShadowEffect Color="Black" BlurRadius="42" ShadowDepth="8" Opacity="0.65"/>
         </Border.Effect>
+
         <StackPanel HorizontalAlignment="Center">
-            <TextBlock Text="&#x1F3AE;" FontSize="30" HorizontalAlignment="Center"/>
-            <TextBlock x:Name="TitleText" Text="Игра запускается" FontSize="17" FontWeight="Bold"
-                       Foreground="White" HorizontalAlignment="Center" Margin="0,10,0,0"/>
-            <TextBlock x:Name="HintText" Text="ждите…" FontSize="12.5" Foreground="#B9B9C4"
-                       HorizontalAlignment="Center" Margin="0,6,0,0"/>
+            <!-- Кольцо загрузки: дуга вращается по кругу -->
+            <Grid Width="72" Height="72" HorizontalAlignment="Center">
+                <Ellipse Stroke="#2EFFFFFF" StrokeThickness="5"/>
+                <Path Data="M 36,3 A 33,33 0 0 1 69,36"
+                      Stroke="{DynamicResource AccentBrush}" StrokeThickness="5"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                      RenderTransformOrigin="0.5,0.5">
+                    <Path.RenderTransform>
+                        <RotateTransform x:Name="SpinnerRotate" Angle="0"/>
+                    </Path.RenderTransform>
+                    <Path.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                                <Storyboard RepeatBehavior="Forever">
+                                    <DoubleAnimation Storyboard.TargetName="SpinnerRotate"
+                                                     Storyboard.TargetProperty="Angle"
+                                                     From="0" To="360" Duration="0:0:0.9"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Path.Triggers>
+                </Path>
+            </Grid>
+
+            <TextBlock x:Name="TitleText" Text="Игра запускается" FontSize="26" FontWeight="Bold"
+                       Foreground="White" HorizontalAlignment="Center" Margin="0,18,0,0"/>
+            <TextBlock x:Name="HintText" Text="ждите…" FontSize="18" Foreground="#B9B9C4"
+                       HorizontalAlignment="Center" Margin="0,9,0,0"/>
         </StackPanel>
     </Border>
 </Window>

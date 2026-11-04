@@ -493,6 +493,23 @@
                         <TextBlock Text="Пропорции карточек" Style="{StaticResource H2Text}" Margin="0,10,0,8"/>
                         <WrapPanel x:Name="AspectPanel" Margin="0,0,0,4"/>
 
+                        <!-- Размер карточек: ползунок в шапке виден только админу -->
+                        <TextBlock Text="Размер карточек" Style="{StaticResource H2Text}" Margin="0,12,0,6"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider x:Name="CardWidthSlider" Minimum="100" Maximum="380"
+                                    VerticalAlignment="Center" Style="{StaticResource BaseSlider}"
+                                    ValueChanged="CardWidth_Changed"
+                                    PreviewMouseLeftButtonUp="CardWidth_Commit"
+                                    PreviewKeyUp="CardWidth_Commit"/>
+                            <TextBlock x:Name="CardWidthLabel" Grid.Column="1" Text="178" FontSize="12.5"
+                                       FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"
+                                       VerticalAlignment="Center" Margin="12,0,0,0" MinWidth="34"/>
+                        </Grid>
+
                         <!-- Фон всего приложения -->
                         <TextBlock Text="Фон приложения" Style="{StaticResource H2Text}" Margin="0,10,0,8"/>
                         <TextBlock Text="Картинка позади библиотеки игр. Подойдёт любое изображение."

@@ -1666,6 +1666,9 @@ public partial class MainWindow : Window
         LockBadge.ToolTip = unlocked
             ? "Ctrl+2 — заблокировать окно (сворачивание и настройки потребуют пароль)"
             : "Ctrl+2 — разблокировать (потребуется пароль)";
+
+        // Ползунок размера карточек — только для администратора.
+        IconSizePanel.Visibility = unlocked ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>Запрос пароля администратора. Второй раз за запуск не спрашиваем.</summary>
