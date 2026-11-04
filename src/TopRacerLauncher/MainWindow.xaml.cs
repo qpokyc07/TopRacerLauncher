@@ -139,11 +139,37 @@ public partial class MainWindow : Window
     private void RebuildLibrary()
     {
         App.Library.Items.Clear();
-        foreach (var game in App.Settings.Games)
+
+        // Наигранное время: по нему же сортируем — популярные игры поднимаются наверх.
+        var playSeconds = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        try
         {
+            foreach (var row in PlayStats.Aggregate(null))
+                playSeconds[row.Title] = row.Seconds;
+        }
+        catch { /* статистика не критична */ }
+
+        var games = new List<(GameItem Game, int Index, int Seconds)>();
+        for (int i = 0; i < App.Settings.Games.Count; i++)
+        {
+            var game = App.Settings.Games[i];
+
             // Скрытые игры видны только в админ-режиме (зелёный замок).
             if (game.Locked && !App.AdminUnlocked) continue;
-            App.Library.Items.Add(new GameViewModel(game));
+
+            int seconds = game.Title != null && playSeconds.TryGetValue(game.Title.Trim(), out int value)
+                ? value
+                : 0;
+
+            games.Add((game, i, seconds));
+        }
+
+        foreach (var entry in games
+                     .OrderByDescending(g => g.Seconds > 0)
+                     .ThenByDescending(g => g.Seconds)
+                     .ThenBy(g => g.Index))
+        {
+            App.Library.Items.Add(new GameViewModel(entry.Game, entry.Seconds));
         }
 
         GamesItems.ItemsSource = App.Library.Items;

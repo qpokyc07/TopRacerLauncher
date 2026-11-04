@@ -261,20 +261,17 @@
                             <StackPanel Orientation="Horizontal" Margin="0,0,14,8">
                                 <TextBlock Text="Минуты" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
                                            VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBox x:Name="PromoMinutesBox" Style="{StaticResource BaseTextBox}" Width="64"
-                                         Height="32" Text="30"/>
+                                <TextBox x:Name="PromoMinutesBox" Style="{StaticResource NumberTextBox}" Width="66" Text="30"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,14,8">
                                 <TextBlock Text="Использований" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
                                            VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBox x:Name="PromoUsesBox" Style="{StaticResource BaseTextBox}" Width="64"
-                                         Height="32" Text="10"/>
+                                <TextBox x:Name="PromoUsesBox" Style="{StaticResource NumberTextBox}" Width="66" Text="10"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,14,8">
                                 <TextBlock Text="Дней" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
                                            VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBox x:Name="PromoDaysBox" Style="{StaticResource BaseTextBox}" Width="64"
-                                         Height="32" Text="30"/>
+                                <TextBox x:Name="PromoDaysBox" Style="{StaticResource NumberTextBox}" Width="66" Text="30"/>
                             </StackPanel>
                             <Button Content="Создать код" Height="32" Padding="14,0" FontSize="12.5"
                                     Margin="0,0,0,8" VerticalAlignment="Center"

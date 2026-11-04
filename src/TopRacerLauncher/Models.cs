@@ -226,12 +226,13 @@ public sealed class AfishaCardVm
 }
 
 /// <summary>Модель карточки игры для UI.</summary>
-public sealed class GameViewModel : INotifyPropertyChanged{
+public sealed class GameViewModel : INotifyPropertyChanged
+{
     private bool _isRunning;
 
     public GameItem Item { get; }
 
-    public GameViewModel(GameItem item)
+    public GameViewModel(GameItem item, int playSeconds = 0)
     {
         Item = item;
         Title = string.IsNullOrWhiteSpace(item.Title) ? "Без названия" : item.Title.Trim();
@@ -247,6 +248,27 @@ public sealed class GameViewModel : INotifyPropertyChanged{
         ShowInitial = !HasCover;
         IsHidden = item.Locked;
         PlaceholderBrush = MakePlaceholderBrush(Title);
+
+        PlaySeconds = Math.Max(0, playSeconds);
+        PlayTimeText = FormatPlayTime(PlaySeconds);
+    }
+
+    /// <summary>Сколько наиграно, секунды (0 — ещё не играли).</summary>
+    public int PlaySeconds { get; }
+
+    /// <summary>Подпись под названием: «12 ч 34 мин».</summary>
+    public string PlayTimeText { get; }
+
+    public bool HasPlayTime => PlaySeconds > 0;
+
+    private static string FormatPlayTime(int seconds)
+    {
+        if (seconds <= 0) return "";
+
+        var time = TimeSpan.FromSeconds(seconds);
+        if (time.TotalHours >= 1) return $"{(int)time.TotalHours} ч {time.Minutes:D2} мин";
+
+        return Math.Max(1, (int)time.TotalMinutes) + " мин";
     }
 
     public string Title { get; }
