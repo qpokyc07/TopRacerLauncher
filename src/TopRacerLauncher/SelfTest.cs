@@ -63,6 +63,33 @@ public static class SelfTest
             return null;
         });
 
+        Check("Промокод: свой код, срок и защита от дублей", () =>
+        {
+            // Свой код в нижнем регистре должен сохраниться в верхнем.
+            if (!PromoService.TryCreate("  summer-25 ", 60, 2, 7, out var custom, out string error))
+                return "свой код не создался: " + error;
+            if (custom!.Code != "SUMMER-25") return "код не нормализовался: " + custom.Code;
+            if (custom.Minutes != 60) return "минуты не сохранились";
+            if (!custom.ExpiresUtc.HasValue) return "срок действия не задан";
+            if (custom.ExpiresUtc.Value < DateTime.UtcNow.AddDays(6)) return "срок меньше заданного";
+
+            // Дубль не должен создаваться.
+            if (PromoService.TryCreate("summer-25", 10, 1, 1, out _, out _))
+                return "дубль кода создался";
+
+            // Слишком короткий код — отказ.
+            if (PromoService.TryCreate("ab", 10, 1, 1, out _, out _))
+                return "слишком короткий код принят";
+
+            // Срок 0 — бессрочный.
+            if (!PromoService.TryCreate("FOREVER", 30, 1, 0, out var forever, out _))
+                return "бессрочный код не создался";
+            if (forever!.ExpiresUtc.HasValue) return "0 дней не стал бессрочным";
+
+            App.Settings.PromoCodes.RemoveAll(p => p.Code == "SUMMER-25" || p.Code == "FOREVER");
+            return null;
+        });
+
         Check("PBKDF2: верный пароль принимается", () =>
             {
                 var s = new Settings();

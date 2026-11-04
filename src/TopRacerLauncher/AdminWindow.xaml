@@ -354,10 +354,17 @@
                         <Grid Margin="0,14,0,0">
                             <StackPanel x:Name="ClubPagePromo" Visibility="Visible">
                     <StackPanel>
-                        <TextBlock Text="Код добавляет игроку указанное количество минут. Один код срабатывает один раз на компьютере."
+                        <TextBlock Text="Код даёт указанное количество минут. Придумайте свой код или оставьте поле пустым — сгенерируем. Один код срабатывает один раз на компьютере."
                                    Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
 
                         <WrapPanel Margin="0,12,0,0">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,14,8">
+                                <TextBlock Text="Код" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBox x:Name="PromoCodeBox" Style="{StaticResource BaseTextBox}" Width="150"
+                                         MaxLength="24" FontSize="13" FontWeight="SemiBold" CharacterCasing="Upper"
+                                         ToolTip="3–24 символа: буквы, цифры, «-» и «_». Пусто — сгенерируем автоматически."/>
+                            </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,14,8">
                                 <TextBlock Text="Минуты" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
                                            VerticalAlignment="Center" Margin="0,0,6,0"/>
@@ -369,9 +376,10 @@
                                 <TextBox x:Name="PromoUsesBox" Style="{StaticResource NumberTextBox}" Width="66" Text="10"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,14,8">
-                                <TextBlock Text="Дней" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                <TextBlock Text="Действует, дней" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
                                            VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBox x:Name="PromoDaysBox" Style="{StaticResource NumberTextBox}" Width="66" Text="30"/>
+                                <TextBox x:Name="PromoDaysBox" Style="{StaticResource NumberTextBox}" Width="66" Text="30"
+                                         ToolTip="Срок действия в днях. 0 — бессрочно."/>
                             </StackPanel>
                             <Button Content="Создать код" Height="32" Padding="14,0" FontSize="12.5"
                                     Margin="0,0,0,8" VerticalAlignment="Center"

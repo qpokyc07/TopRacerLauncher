@@ -967,9 +967,22 @@ public partial class AdminWindow : Window
         int uses = int.TryParse(PromoUsesBox.Text.Trim(), out int u) ? u : 1;
         int days = int.TryParse(PromoDaysBox.Text.Trim(), out int d) ? d : 30;
 
-        var promo = PromoService.Create(minutes, uses, days);
+        if (!PromoService.TryCreate(PromoCodeBox.Text, minutes, uses, days, out var promo, out string error))
+        {
+            NewPromoText.Text = error;
+            NewPromoText.Foreground = FindResource("DangerBrush") as Brush ?? Brushes.OrangeRed;
+            NewPromoText.Visibility = Visibility.Visible;
+            return;
+        }
 
-        NewPromoText.Text = "Код: " + promo.Code + "  •  " + promo.Minutes + " мин";
+        PromoCodeBox.Clear();
+
+        var until = promo!.ExpiresUtc.HasValue
+            ? "  •  действует до " + promo.ExpiresUtc.Value.ToLocalTime().ToString("dd.MM.yyyy")
+            : "  •  без срока";
+
+        NewPromoText.Text = "Код: " + promo.Code + "  •  " + promo.Minutes + " мин" + until;
+        NewPromoText.Foreground = FindResource("AccentBrush") as Brush ?? Brushes.White;
         NewPromoText.Visibility = Visibility.Visible;
 
         RefreshPromoList();

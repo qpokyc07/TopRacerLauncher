@@ -71,7 +71,55 @@ public static class PromoService
     /// <summary>Создаёт новый код и сохраняет его.</summary>
     public static PromoCode Create(int minutes, int uses, int daysValid)
     {
-        var code = GenerateCode();
+        TryCreate(null, minutes, uses, daysValid, out var promo, out _);
+        return promo ?? new PromoCode();
+    }
+
+    /// <summary>
+    /// Создаёт промокод. Свой код можно задать вручную (customCode), пусто — сгенерируем.
+    /// daysValid: срок действия в днях, 0 — бессрочно.
+    /// </summary>
+    public static bool TryCreate(string? customCode, int minutes, int uses, int daysValid,
+        out PromoCode? created, out string error)
+    {
+        created = null;
+        error = "";
+
+        var wanted = (customCode ?? "").Trim().ToUpperInvariant();
+        string code;
+
+        if (wanted.Length == 0)
+        {
+            code = GenerateCode();
+        }
+        else
+        {
+            if (wanted.Length < 3)
+            {
+                error = "Код слишком короткий — минимум 3 символа.";
+                return false;
+            }
+
+            if (wanted.Length > 24)
+            {
+                error = "Код слишком длинный — максимум 24 символа.";
+                return false;
+            }
+
+            if (!wanted.All(ch => char.IsLetterOrDigit(ch) || ch == '-' || ch == '_'))
+            {
+                error = "В коде можно использовать буквы, цифры, «-» и «_».";
+                return false;
+            }
+
+            if (App.Settings.PromoCodes.Any(p => string.Equals(p.Code, wanted, StringComparison.OrdinalIgnoreCase)))
+            {
+                error = "Такой код уже есть — придумайте другой.";
+                return false;
+            }
+
+            code = wanted;
+        }
 
         var promo = new PromoCode
         {
@@ -84,7 +132,8 @@ public static class PromoService
         App.Settings.PromoCodes.Add(promo);
         App.SaveState();
 
-        return promo;
+        created = promo;
+        return true;
     }
 
     private static string GenerateCode()
