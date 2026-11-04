@@ -218,12 +218,11 @@ public partial class MainWindow : Window
 
     private void OnTick(object? sender, EventArgs e)
     {
-        // Игра, запущенная напрямую, закрылась сама — фиксируем длительность.
-        // Для запусков через Steam/Epic процесс-оболочка завершается сразу, поэтому их
-        // время пишется при завершении сеанса (KillCurrent).
+        // Игра закрылась сама — фиксируем длительность. Для Steam-игр смотрим
+        // процесс самой игры: оболочка steam.exe завершается сразу после запуска.
         try
         {
-            if (App.Runner.HasDirectProcess && !App.Runner.IsRunning) App.Runner.CompleteSession();
+            if (App.Runner.HasSessionEnded()) App.Runner.CompleteSession();
         }
         catch { }
 
@@ -923,8 +922,8 @@ public partial class MainWindow : Window
         DetailGenres.Text = game.Genres ?? "";
         // Описание показываем сокращённо, чтобы панель не приходилось прокручивать.
         var description = game.Description ?? "";
-        if (description.Length > 260)
-            description = description[..257].TrimEnd() + "…";
+        if (description.Length > 420)
+            description = description[..417].TrimEnd() + "…";
 
         DetailDescription.Text = string.IsNullOrWhiteSpace(description)
             ? "Метаданные не загружены. Ctrl+1 → выберите игру → «Метаданные»."

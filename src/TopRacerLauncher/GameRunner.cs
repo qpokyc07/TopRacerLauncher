@@ -35,13 +35,66 @@ public sealed class GameRunner : IDisposable
     /// <summary>Игра запущена напрямую (exe), а не через оболочку магазина.</summary>
     public bool HasDirectProcess => _process != null;
 
+    /// <summary>Сколько ждём появления процесса игры после запуска (Steam/лаунчеры стартуют не сразу).</summary>
+    private static readonly TimeSpan LaunchGrace = TimeSpan.FromSeconds(60);
+
+    private DateTime _startedUtc;
+    private bool _seenRunning;
+
     public bool IsRunning
     {
         get
         {
-            try { return _process is { HasExited: false }; }
-            catch { return false; }
+            try
+            {
+                if (_process is { HasExited: false }) return true;
+            }
+            catch { /* процесс мог завершиться */ }
+
+            // Игру, запущенную через Steam, видно только по её собственному exe.
+            return IsProcessPathRunning(_exePath);
         }
+    }
+
+    /// <summary>Сессия закончилась: игра больше не работает (с запасом на долгий старт).</summary>
+    public bool HasSessionEnded()
+    {
+        if (_sessionStart == null) return false;
+
+        if (IsRunning)
+        {
+            _seenRunning = true;
+            return false;
+        }
+
+        if (_seenRunning) return true;
+
+        // Игру ещё ни разу не видели — даём время на запуск через Steam/лаунчер.
+        return DateTime.UtcNow - _startedUtc > LaunchGrace;
+    }
+
+    /// <summary>Есть ли процесс ровно по этому пути (сравнение по полному пути, не по имени).</summary>
+    private static bool IsProcessPathRunning(string? exePath)
+    {
+        if (string.IsNullOrWhiteSpace(exePath)) return false;
+
+        try
+        {
+            var name = Path.GetFileNameWithoutExtension(exePath);
+            foreach (var process in Process.GetProcessesByName(name))
+            {
+                try
+                {
+                    if (string.Equals(process.MainModule?.FileName, exePath, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+                catch { /* нет доступа к модулю — пропускаем */ }
+                finally { process.Dispose(); }
+            }
+        }
+        catch { /* нет доступа к списку процессов */ }
+
+        return false;
     }
 
     /// <summary>Запускает игру. Бросает исключение с понятным сообщением при ошибке.</summary>
@@ -105,13 +158,16 @@ public sealed class GameRunner : IDisposable
             proc = StartViaShell(target);
         }
 
-        _exePath = direct ? target.Path : null;
+        // Для Steam-игр exe самой игры запоминаем отдельно — по нему закрываем сессию.
+        _exePath = target.GameExe;
         _process = proc;
-        CurrentExePath = target.Path;
+        CurrentExePath = target.GameExe ?? target.Path;
         CurrentTitle = game.Title;
 
         _sessionStart = DateTime.UtcNow;
         _sessionTitle = game.Title;
+        _startedUtc = DateTime.UtcNow;
+        _seenRunning = false;
 
         HistoryLog.Add("game_start", title: game.Title, detail: target.Path);
 
@@ -276,11 +332,63 @@ public sealed class GameRunner : IDisposable
     }
 
     /// <summary>Что и как запускать.</summary>
-    private readonly record struct LaunchTarget(string Path, string Args, string WorkDir, bool IsDirect);
+    /// <param name="Path">Что запускаем (игра или steam.exe).</param>
+    /// <param name="Args">Аргументы.</param>
+    /// <param name="WorkDir">Рабочая папка.</param>
+    /// <param name="IsDirect">Прямой запуск exe (можно привязать к Job Object).</param>
+    /// <param name="GameExe">exe самой игры — по нему завершаем сессию, даже если стартовали через Steam.</param>
+    internal readonly record struct LaunchTarget(string Path, string Args, string WorkDir, bool IsDirect, string? GameExe = null);
+
+    /// <summary>
+    /// Steam-игру нельзя запускать напрямую: без Steam-контекста VAC считает файлы «без подписи»
+    /// и не пускает на защищённые серверы. Возвращает appid, если игра лежит в steamapps.
+    /// </summary>
+    private static bool TryGetSteamAppId(GameItem game, string exePath, out string appId)
+    {
+        appId = "";
+
+        const string marker = @"\steamapps\common\";
+        int index = exePath.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+        if (index < 0) return false;
+
+        // 1) appid уже есть в карточке игры (так его сохраняет сканер Steam).
+        var known = game.AppId?.Trim() ?? "";
+        if (known.Length > 0 && known.All(char.IsDigit))
+        {
+            appId = known;
+            return true;
+        }
+
+        // 2) иначе ищем манифест по папке установки: steamapps\appmanifest_<id>.acf.
+        try
+        {
+            var steamApps = exePath[..(index + @"\steamapps".Length)];
+            var tail = exePath[(index + marker.Length)..];
+            var installDir = tail.Split('\\')[0];
+
+            foreach (var acf in Directory.GetFiles(steamApps, "appmanifest_*.acf"))
+            {
+                var content = File.ReadAllText(acf);
+                var dir = Regex.Match(content, "\"installdir\"\\s*\"([^\"]+)\"").Groups[1].Value;
+
+                if (!string.Equals(dir, installDir, StringComparison.OrdinalIgnoreCase)) continue;
+
+                var id = Regex.Match(content, "\"appid\"\\s*\"(\\d+)\"").Groups[1].Value;
+                if (id.Length > 0)
+                {
+                    appId = id;
+                    return true;
+                }
+            }
+        }
+        catch { /* нет доступа к манифестам — запустим напрямую */ }
+
+        return false;
+    }
 
     /// <summary>Разрешает путь игры: .exe запускаем напрямую, остальное — через shell.</summary>
     /// <summary>Ищет steam.exe в реестре и стандартных папках.</summary>
-    private static string? FindSteamExe()
+    internal static string? FindSteamExe()
     {
         try
         {
@@ -302,7 +410,7 @@ public sealed class GameRunner : IDisposable
         return null;
     }
 
-    private static LaunchTarget Resolve(GameItem game)
+    internal static LaunchTarget Resolve(GameItem game)
     {
         var raw = game.ExecutablePath.Trim().Trim('"');
         string args = game.Arguments?.Trim() ?? "";
@@ -362,7 +470,16 @@ public sealed class GameRunner : IDisposable
         {
             if (string.IsNullOrEmpty(workDir))
                 workDir = Path.GetDirectoryName(raw) ?? "";
-            return new LaunchTarget(raw, args, workDir, IsDirect: true);
+
+            // Steam-игру запускаем через steam.exe -applaunch: иначе VAC не видит подписей файлов.
+            var steamExe = FindSteamExe();
+            if (steamExe != null && TryGetSteamAppId(game, raw, out var steamAppId))
+            {
+                return new LaunchTarget(steamExe, "-applaunch " + steamAppId,
+                    Path.GetDirectoryName(steamExe) ?? "", IsDirect: false, GameExe: raw);
+            }
+
+            return new LaunchTarget(raw, args, workDir, IsDirect: true, GameExe: raw);
         }
 
         if (string.IsNullOrEmpty(workDir) && Path.IsPathRooted(raw))

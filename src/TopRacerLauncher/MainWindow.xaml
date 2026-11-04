@@ -274,7 +274,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Афиша клуба: карточки с фото и текстом -->
-            <Border x:Name="AfishaStrip" Grid.Row="0" Grid.ColumnSpan="2" Margin="26,16,26,0"
+            <Border x:Name="AfishaStrip" Grid.Row="0" Grid.Column="0" Margin="26,16,26,0"
                     Visibility="Collapsed">
                 <ScrollViewer x:Name="AfishaScroll" HorizontalScrollBarVisibility="Auto"
                               VerticalScrollBarVisibility="Disabled">
@@ -606,11 +606,12 @@
             </ScrollViewer>
 
             <!-- ===== Карточка выбранной игры ===== -->
-            <Grid Grid.Row="1" Grid.Column="1" Width="360" Margin="0,22,26,22">
+            <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Width="360" Margin="0,22,26,22">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="1.4*"/>
+                    <!-- Описание занимает всё свободное место, у друзей — полоса снизу -->
+                    <RowDefinition Height="*"/>
                     <RowDefinition Height="12"/>
-                    <RowDefinition Height="0.65*"/>
+                    <RowDefinition Height="Auto" MinHeight="215" MaxHeight="300"/>
                 </Grid.RowDefinitions>
 
             <Border x:Name="DetailsPanel" Grid.Row="0"

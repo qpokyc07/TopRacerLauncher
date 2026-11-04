@@ -247,6 +247,30 @@ public static class SelfTest
                 return null;
             });
 
+            Check("Steam-игра запускается через steam.exe -applaunch", () =>
+            {
+                // Без Steam проверка не применима — на клубных ПК Steam стоит.
+                if (GameRunner.FindSteamExe() == null) return null;
+
+                var game = new GameItem
+                {
+                    Title = "Counter-Strike 2",
+                    AppId = "730",
+                    ExecutablePath = @"C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive\game\bin\win64\cs2.exe",
+                };
+
+                var target = GameRunner.Resolve(game);
+
+                // Напрямую cs2.exe запускать нельзя: VAC считает файлы неподписанными.
+                if (target.IsDirect) return "Steam-игра пошла напрямую мимо Steam";
+                if (!target.Args.Contains("-applaunch 730", StringComparison.Ordinal))
+                    return "неверные аргументы запуска: " + target.Args;
+                if (!target.Path.EndsWith("steam.exe", StringComparison.OrdinalIgnoreCase))
+                    return "запускается не steam.exe: " + target.Path;
+
+                return null;
+            });
+
             Check("Журнал событий: запись и чтение", () =>
             {
                 HistoryLog.Add("unlock_fail", detail: "попытка 1");

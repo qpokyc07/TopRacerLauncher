@@ -492,6 +492,7 @@
                             CornerRadius="10">
                         <ScrollViewer x:Name="PART_ContentHost"
                                       Focusable="False"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                       HorizontalScrollBarVisibility="Hidden"
                                       VerticalScrollBarVisibility="Hidden"
                                       Padding="{TemplateBinding Padding}"/>
@@ -529,6 +530,7 @@
                             CornerRadius="10">
                         <ScrollViewer x:Name="PART_ContentHost"
                                       Focusable="False"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                       HorizontalScrollBarVisibility="Hidden"
                                       VerticalScrollBarVisibility="Hidden"
                                       Padding="{TemplateBinding Padding}"/>
