@@ -1,3 +1,4 @@
+using System.Windows;
 using System.Windows.Media;
 
 namespace TopRacerLauncher;
@@ -14,7 +15,9 @@ public sealed record ThemeInfo(
     string BgCard,
     string BgCardHover,
     string? BgWindow2 = null,
-    string? BgWindow3 = null);
+    string? BgWindow3 = null,
+    string? Pattern = null,
+    string? PatternColor = null);
 
 /// <summary>Палитра тем приложения.</summary>
 public static class Themes
@@ -156,7 +159,159 @@ public static class Themes
         new("corail", "Коралл",
             "#FF6F61", "#FF8F84", "#D95A4E",
             "#FF170F10", "#E6211819", "#CC281E1F", "#E6322728"),
+
+        // --- двухцветные темы с узорами ---
+        new("limecoal", "Лайм + уголь (косые полосы)",
+            "#C3F53C", "#D6FF6B", "#9BCB1E",
+            "#FF14161A", "#E61D2024", "#CC23272C", "#E62B3036",
+            null, null, "diag", "#C3F53C"),
+
+        new("magmasnow", "Магма + тёплый снег (точки)",
+            "#FF5A2B", "#FF7E52", "#D94514",
+            "#FF170D0B", "#E6201512", "#CC261A16", "#E62F221D",
+            null, null, "dots", "#F5E6D3"),
+
+        new("mintgraph", "Мята + графит (сетка)",
+            "#43E0B0", "#6BF0C7", "#2AB88E",
+            "#FF101513", "#E619201D", "#CC1F2724", "#E627302C",
+            null, null, "grid", "#43E0B0"),
+
+        new("amethyst", "Аметист + шампань (кольца)",
+            "#B36BFF", "#C88DFF", "#9450DB",
+            "#FF120E1A", "#E61B1626", "#CC211C2D", "#E6292337",
+            null, null, "rings", "#F0DDB4"),
+
+        new("sapphire", "Сапфир + медь (диагональ)",
+            "#2F6BFF", "#5A8CFF", "#2354D9",
+            "#FF0A101F", "#E6131A2B", "#CC192133", "#E6202A3F",
+            null, null, "diag", "#C97B45"),
+
+        new("neonrose", "Неон-роза + чёрный (полосы)",
+            "#FF2E88", "#FF5AA4", "#D91C6E",
+            "#FF120910", "#E61C0F19", "#CC23141F", "#E62B1A27",
+            null, null, "stripes", "#FF2E88"),
+
+        new("emeraldgold", "Изумруд + золото (полосы)",
+            "#12C98B", "#38E3A8", "#0AA470",
+            "#FF0B1512", "#E6141F1B", "#CC1A2622", "#E6212F2A",
+            null, null, "stripes", "#E8C657"),
+
+        new("cobaltcor", "Кобальт + коралл (клетка)",
+            "#3E7BFA", "#6B9DFF", "#2C61D9",
+            "#FF0C1120", "#E6161B2B", "#CC1C2233", "#E6242B3F",
+            null, null, "grid", "#FF8A76"),
     };
+
+    /// <summary>Узор темы: полосы, точки, сетка или кольца. null — без узора.</summary>
+    public static Brush? CreatePattern(ThemeInfo theme)
+    {
+        if (string.IsNullOrWhiteSpace(theme.Pattern)) return null;
+
+        var color = ColorConverter.ConvertFromString(theme.PatternColor ?? theme.Accent) is Color c
+            ? c
+            : Color.FromRgb(0xFF, 0xFF, 0xFF);
+
+        var soft = Color.FromArgb(0x22, color.R, color.G, color.B);
+        var faint = Color.FromArgb(0x00, color.R, color.G, color.B);
+
+        Brush? brush = theme.Pattern switch
+        {
+            "diag" => Stripes(soft, faint, 26, 45),
+            "stripes" => Stripes(soft, faint, 26, 90),
+            "dots" => Dots(color),
+            "grid" => Grid(color),
+            "rings" => Rings(color),
+            _ => null,
+        };
+
+        brush?.Freeze();
+        return brush;
+    }
+
+    /// <summary>Повторяющиеся полосы заданной толщины и наклона.</summary>
+    private static Brush Stripes(Color soft, Color faint, double tile, double angle)
+    {
+        var brush = new LinearGradientBrush
+        {
+            MappingMode = BrushMappingMode.Absolute,
+            StartPoint = new System.Windows.Point(0, 0),
+            EndPoint = new System.Windows.Point(0, tile),
+            SpreadMethod = GradientSpreadMethod.Repeat,
+        };
+
+        brush.GradientStops.Add(new GradientStop(soft, 0));
+        brush.GradientStops.Add(new GradientStop(soft, 0.34));
+        brush.GradientStops.Add(new GradientStop(faint, 0.34));
+        brush.GradientStops.Add(new GradientStop(faint, 1));
+
+        if (angle != 0)
+        {
+            brush.RelativeTransform = new RotateTransform(angle, 0.5, 0.5);
+        }
+
+        return brush;
+    }
+
+    /// <summary>Точки по фону.</summary>
+    private static Brush Dots(Color color)
+    {
+        var dot = new GeometryDrawing(
+            new SolidColorBrush(Color.FromArgb(0x45, color.R, color.G, color.B)),
+            null,
+            new EllipseGeometry(new System.Windows.Point(9, 9), 2.4, 2.4));
+
+        var drawing = new DrawingGroup();
+        drawing.Children.Add(dot);
+
+        return new DrawingBrush(drawing)
+        {
+            TileMode = TileMode.Tile,
+            Viewport = new System.Windows.Rect(0, 0, 18, 18),
+            ViewportUnits = BrushMappingMode.Absolute,
+            Stretch = Stretch.None,
+        };
+    }
+
+    /// <summary>Клетка (сетка) по фону.</summary>
+    private static Brush Grid(Color color)
+    {
+        var pen = new Pen(new SolidColorBrush(Color.FromArgb(0x33, color.R, color.G, color.B)), 1);
+
+        var group = new DrawingGroup();
+
+        var line1 = new GeometryDrawing(null, pen, new LineGeometry(new System.Windows.Point(0, 0.5), new System.Windows.Point(44, 0.5)));
+        var line2 = new GeometryDrawing(null, pen, new LineGeometry(new System.Windows.Point(0.5, 0), new System.Windows.Point(0.5, 44)));
+
+        group.Children.Add(line1);
+        group.Children.Add(line2);
+
+        return new DrawingBrush(group)
+        {
+            TileMode = TileMode.Tile,
+            Viewport = new System.Windows.Rect(0, 0, 44, 44),
+            ViewportUnits = BrushMappingMode.Absolute,
+            Stretch = Stretch.None,
+        };
+    }
+
+    /// <summary>Концентрические кольца.</summary>
+    private static Brush Rings(Color color)
+    {
+        var pen = new Pen(new SolidColorBrush(Color.FromArgb(0x2A, color.R, color.G, color.B)), 1.2);
+
+        var group = new DrawingGroup();
+        group.Children.Add(new GeometryDrawing(null, pen, new EllipseGeometry(new System.Windows.Point(30, 30), 10, 10)));
+        group.Children.Add(new GeometryDrawing(null, pen, new EllipseGeometry(new System.Windows.Point(30, 30), 20, 20)));
+        group.Children.Add(new GeometryDrawing(null, pen, new EllipseGeometry(new System.Windows.Point(30, 30), 29, 29)));
+
+        return new DrawingBrush(group)
+        {
+            TileMode = TileMode.Tile,
+            Viewport = new System.Windows.Rect(0, 0, 60, 60),
+            ViewportUnits = BrushMappingMode.Absolute,
+            Stretch = Stretch.None,
+        };
+    }
 
     public static ThemeInfo Find(string? key) =>
         All.FirstOrDefault(t => string.Equals(t.Key, key, StringComparison.OrdinalIgnoreCase)) ?? All[0];
@@ -175,6 +330,16 @@ public static class Themes
         SetBrush(app, "BgPanelBrush", t.BgPanel);
         SetBrush(app, "BgCardBrush", t.BgCard);
         SetBrush(app, "BgCardHoverBrush", t.BgCardHover);
+
+        // На светлых акцентах (лайм, лёд, золото) белый текст не читается — делаем тёмный.
+        var accentColor = ColorConverter.ConvertFromString(t.Accent) is Color ac ? ac : Colors.White;
+        double luminance = (0.299 * accentColor.R + 0.587 * accentColor.G + 0.114 * accentColor.B) / 255.0;
+        app.Resources["AccentTextBrush"] = new SolidColorBrush(
+            luminance > 0.62 ? Color.FromRgb(0x14, 0x14, 0x18) : Colors.White);
+
+        // Узор фона: у двухцветных тем поверх — полосы, точки, сетка или кольца.
+        var pattern = CreatePattern(t);
+        app.Resources["PatternBrush"] = pattern ?? new SolidColorBrush(Colors.Transparent);
     }
 
     /// <summary>Фон окна: сплошной цвет или плавный градиент (если задан второй цвет).</summary>

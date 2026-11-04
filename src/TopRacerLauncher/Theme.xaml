@@ -21,6 +21,10 @@
     <SolidColorBrush x:Key="BgCardHoverBrush" Color="{StaticResource BgCardHoverColor}"/>
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
     <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+    <!-- Узор фона: у тем с двумя цветами поверх фона идут полосы/точки/сетка -->
+    <SolidColorBrush x:Key="PatternBrush" Color="Transparent"/>
+    <!-- Цвет текста на акцентной заливке: на светлых акцентах буквы делает тёмными -->
+    <SolidColorBrush x:Key="AccentTextBrush" Color="#FFFFFFFF"/>
     <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}"/>
     <SolidColorBrush x:Key="AccentPressedBrush" Color="{StaticResource AccentPressedColor}"/>
     <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}"/>
@@ -171,7 +175,8 @@
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          TextBlock.Foreground="{DynamicResource AccentTextBrush}"/>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>

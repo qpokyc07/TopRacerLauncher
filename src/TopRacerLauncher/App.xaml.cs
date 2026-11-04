@@ -359,6 +359,15 @@ public partial class App : Application
         var originalFullScreen = Settings.FullScreen;
         if (mainArg != null) Settings.FullScreen = false;
 
+        // --shot-theme=limecoal: посмотреть тему на скриншоте (не сохраняется).
+        var themeArg = Arg("--shot-theme");
+        if (themeArg != null)
+        {
+            var key = themeArg.Contains('=') ? themeArg[(themeArg.IndexOf('=') + 1)..] : "limecoal";
+            Settings.AccentTheme = key;
+            Themes.Apply(key);
+        }
+
         var overlayTitle = overlayArg == null
             ? ""
             : overlayArg.Contains('=') ? overlayArg[(overlayArg.IndexOf('=') + 1)..] : "Counter-Strike 2";

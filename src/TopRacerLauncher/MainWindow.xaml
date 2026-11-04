@@ -175,6 +175,10 @@
                 </Border.Triggers>
             </Border>
         </Grid>
+        <!-- Узор фона (полосы/точки/сетка) — только у тем с двумя цветами -->
+        <Border x:Name="PatternLayer" Grid.RowSpan="3" Panel.ZIndex="-1" IsHitTestVisible="False"
+                Background="{DynamicResource PatternBrush}"/>
+
         <!-- ================= Верхняя панель ================= -->
         <Border x:Name="HeaderBar" Grid.Row="0" Background="{DynamicResource BgPanelBrush}"
                 BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="0,0,0,1">

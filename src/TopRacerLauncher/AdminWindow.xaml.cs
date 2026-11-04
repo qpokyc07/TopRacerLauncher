@@ -302,6 +302,10 @@ public partial class AdminWindow : Window
             // Фон «окна» — как у самой темы.
             preview.Children.Add(new Border { Background = MakeWindowPreview(theme) });
 
+            // Узор темы (полосы, точки, сетка) — сразу видно, что тема двухцветная.
+            if (Themes.CreatePattern(theme) is { } themePattern)
+                preview.Children.Add(new Border { Background = themePattern });
+
             // Верхняя световая кромка.
             preview.Children.Add(new Border
             {
