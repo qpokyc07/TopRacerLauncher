@@ -570,6 +570,10 @@
                                   Content="Клавиатура с нужными клавишами поверх игры"
                                   Margin="0,8,0,0" Checked="ControlsOverlay_Changed" Unchecked="ControlsOverlay_Changed"
                                   ToolTip="Пока идёт игра, внизу экрана видна клавиатура: подсвечены клавиши этой игры и мышь"/>
+                        <Button Content="Проверить оверлей на 6 секунд" Height="30" Padding="12,0" Margin="0,8,0,0"
+                            HorizontalAlignment="Left" Style="{StaticResource BaseButton}"
+                            Click="TestControlsOverlay_Click"
+                            ToolTip="Показать клавиатуру прямо сейчас — видно, как она выглядит поверх окон"/>
                         <CheckBox x:Name="VoiceOverlayCheck" Content="Оверлей звонка поверх игры (кто говорит)"
                                       Margin="0,8,0,0" Checked="VoiceOverlay_Changed" Unchecked="VoiceOverlay_Changed"
                                       ToolTip="Полупрозрачный список участников в углу экрана во время игры"/>

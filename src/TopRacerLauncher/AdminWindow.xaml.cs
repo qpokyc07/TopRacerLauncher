@@ -1562,6 +1562,20 @@ public partial class AdminWindow : Window
         else SteamLibraryWatcher.Stop();
     }
 
+    private void TestControlsOverlay_Click(object sender, RoutedEventArgs e)
+    {
+        var sample = (GamesList.SelectedItem as GameItem)?.Title;
+        ControlsOverlayWindow.Show(sample ?? "Counter-Strike 2");
+
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(6) };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            ControlsOverlayWindow.Hide();
+        };
+        timer.Start();
+    }
+
     private void ControlsOverlay_Changed(object sender, RoutedEventArgs e)
     {
         if (!_loaded) return;

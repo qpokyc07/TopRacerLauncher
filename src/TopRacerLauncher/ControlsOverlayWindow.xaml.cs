@@ -1,8 +1,10 @@
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace TopRacerLauncher;
 
@@ -13,6 +15,22 @@ namespace TopRacerLauncher;
 public partial class ControlsOverlayWindow : Window
 {
     private static ControlsOverlayWindow? _instance;
+
+    // Держим окно поверх: некоторые игры и оверлеи сбивают Topmost.
+    private readonly DispatcherTimer _keepTop = new() { Interval = TimeSpan.FromSeconds(2) };
+
+    /// <summary>Простой журнал показа/скрытия — по нему видно, почему оверлея нет.</summary>
+    private static void Log(string message)
+    {
+        try
+        {
+            var dir = ConfigStore.ConfigDirectory;
+            Directory.CreateDirectory(dir);
+            File.AppendAllText(Path.Combine(dir, "overlay.log"),
+                DateTime.Now.ToString("HH:mm:ss") + "  " + message + Environment.NewLine);
+        }
+        catch { /* журнал не критичен */ }
+    }
 
     /// <summary>Отладочный снимок: окно остаётся за экраном и не позиционируется.</summary>
     internal static bool SuppressAutoPlace;
@@ -65,7 +83,11 @@ public partial class ControlsOverlayWindow : Window
         {
             MakeClickThrough();
             if (!SuppressAutoPlace) PlaceAtBottom();
+
+            _keepTop.Tick += (_, _) => KeepOnTop();
+            _keepTop.Start();
         };
+        Closed += (_, _) => _keepTop.Stop();
     }
 
     /// <summary>Показать оверлей управления для игры (или обновить, если уже открыт).</summary>
@@ -83,6 +105,8 @@ public partial class ControlsOverlayWindow : Window
         _instance = new ControlsOverlayWindow(gameTitle, used, hint.Note);
         _instance.Closed += (_, _) => _instance = null;
         _instance.Show();
+
+        Log("показан: " + gameTitle + " (" + used.Count + " клавиш)");
     }
 
     /// <summary>Спрятать оверлей (игра закрылась или настройку отключили).</summary>
@@ -90,6 +114,7 @@ public partial class ControlsOverlayWindow : Window
     {
         if (_instance == null) return;
 
+        Log("скрыт");
         _instance.Close();
         _instance = null;
     }
@@ -223,6 +248,21 @@ public partial class ControlsOverlayWindow : Window
         SetWindowLong(handle, GwlExStyle, styles | WsExTransparent | WsExNoActivate | WsExToolWindow);
     }
 
+    /// <summary>Раз в 2 секунды возвращаем окно наверх и «прозрачность» для кликов.</summary>
+    private void KeepOnTop()
+    {
+        try
+        {
+            Topmost = true;
+
+            var handle = new WindowInteropHelper(this).Handle;
+            if (handle == IntPtr.Zero) return;
+
+            SetWindowPos(handle, HwndTopmost, 0, 0, 0, 0, SwpNoMove | SwpNoSize | SwpNoActivate);
+        }
+        catch { /* не критично */ }
+    }
+
     // ---- Win32: клики сквозь окно ----
 
     private const int GwlExStyle = -20;
@@ -235,4 +275,13 @@ public partial class ControlsOverlayWindow : Window
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+    private static readonly IntPtr HwndTopmost = new(-1);
+    private const uint SwpNoSize = 0x0001;
+    private const uint SwpNoMove = 0x0002;
+    private const uint SwpNoActivate = 0x0010;
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter,
+        int x, int y, int cx, int cy, uint flags);
 }
