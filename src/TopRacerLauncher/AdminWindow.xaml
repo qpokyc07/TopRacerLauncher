@@ -647,10 +647,7 @@
                         <TextBlock Text="Оформление" Style="{StaticResource H1Text}"/>
                         <TextBlock Text="Цвета акцентов и фонов лаунчера применяются сразу."
                                    Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
-                                      Margin="0,14,0,0">
-                            <StackPanel x:Name="ThemeButtonsPanel" Orientation="Horizontal"/>
-                        </ScrollViewer>
+                        <WrapPanel x:Name="ThemeButtonsPanel" Margin="0,14,0,0"/>
                         <TextBlock x:Name="ThemeNameText" Text="" FontSize="12.5" FontWeight="SemiBold"
                                    Foreground="{DynamicResource AccentBrush}" Margin="0,8,0,0"/>
 

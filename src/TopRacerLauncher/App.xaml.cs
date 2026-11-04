@@ -377,6 +377,16 @@ public partial class App : Application
                 if (vm != null) showDetails?.Invoke(main, new object?[] { vm });
             }
 
+            // --shot-tab=system: переключить раздел админки перед снимком.
+            var tabArg = args.FirstOrDefault(a => a.StartsWith("--shot-tab", StringComparison.OrdinalIgnoreCase));
+            if (window is AdminWindow adminWindow && tabArg != null)
+            {
+                var key = tabArg.Contains('=') ? tabArg[(tabArg.IndexOf('=') + 1)..] : "system";
+                typeof(AdminWindow).GetMethod("SelectAdminTab",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                    ?.Invoke(adminWindow, new object?[] { key });
+            }
+
             if (scrollArg != null && int.TryParse(scrollArg.Split('=').Last(), out int offset))
             {
                 try { FindScroller(window)?.ScrollToVerticalOffset(offset); } catch { }

@@ -284,33 +284,142 @@ public partial class AdminWindow : Window
         }
     }
 
+    /// <summary>
+    /// Плитки тем: каждая — мини-окно лаунчера (фон темы + акцентная полоса),
+    /// поэтому темы видно сразу и не нужно ничего прокручивать.
+    /// </summary>
     private void BuildThemeButtons()
     {
         ThemeButtonsPanel.Children.Clear();
 
         foreach (var theme in Themes.All)
         {
-            var accent = MakeBrush(theme.Accent, theme.BgWindow2);
+            var accentBrush = MakeBrush(theme.Accent, theme.AccentHover);
+            var accentColor = (Color)ColorConverter.ConvertFromString(theme.Accent)!;
+
+            var preview = new Grid();
+
+            // Фон «окна» — как у самой темы.
+            preview.Children.Add(new Border { Background = MakeWindowPreview(theme) });
+
+            // Верхняя световая кромка.
+            preview.Children.Add(new Border
+            {
+                Height = 14,
+                VerticalAlignment = VerticalAlignment.Top,
+                Background = new LinearGradientBrush(
+                    Color.FromArgb(0x26, 0xFF, 0xFF, 0xFF), Color.FromArgb(0x00, 0xFF, 0xFF, 0xFF),
+                    new System.Windows.Point(0, 0), new System.Windows.Point(0, 1)),
+            });
+
+            // Акцентная полоса — цвет темы (крупно, чтобы темы не путались).
+            preview.Children.Add(new Border
+            {
+                Height = 26,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Background = accentBrush,
+            });
+
+            // Мягкий блик на акцентной полосе.
+            preview.Children.Add(new Border
+            {
+                Height = 26,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Background = new LinearGradientBrush(
+                    Color.FromArgb(0x33, 0xFF, 0xFF, 0xFF), Color.FromArgb(0x00, 0xFF, 0xFF, 0xFF),
+                    new System.Windows.Point(0, 0), new System.Windows.Point(0, 1)),
+            });
+
+            // Точка акцента в углу.
+            preview.Children.Add(new Border
+            {
+                Width = 10,
+                Height = 10,
+                CornerRadius = new CornerRadius(5),
+                Background = accentBrush,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(8, 7, 0, 0),
+            });
 
             var chip = new Border
             {
                 Tag = theme.Key,
-                Width = 54,
-                Height = 40,
-                Margin = new Thickness(0, 0, 8, 0),
-                CornerRadius = new CornerRadius(9),
-                Background = accent,
+                Width = 88,
+                Height = 64,
+                Margin = new Thickness(0, 0, 10, 10),
+                CornerRadius = new CornerRadius(12),
+                ClipToBounds = true,
+                Background = new SolidColorBrush(Color.FromArgb(0x40, accentColor.R, accentColor.G, accentColor.B)),
                 BorderThickness = new Thickness(2),
                 BorderBrush = Brushes.Transparent,
                 Cursor = System.Windows.Input.Cursors.Hand,
                 ToolTip = theme.Name,
+                Child = preview,
             };
 
+            // Плавный подъём при наведении.
+            chip.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+            chip.RenderTransform = new ScaleTransform(1, 1);
+            chip.MouseEnter += (_, _) => AnimateChip(chip, 1.05);
+            chip.MouseLeave += (_, _) => AnimateChip(chip, 1.0);
             chip.MouseLeftButtonUp += ThemeChip_Click;
+
             ThemeButtonsPanel.Children.Add(chip);
+
+            // Подпись под плиткой не нужна: название в подсказке и под полем.
+            chip.ToolTip = theme.Name + " — нажмите, чтобы применить";
         }
 
         HighlightActiveTheme();
+    }
+
+    private static void AnimateChip(Border chip, double scale)
+    {
+        if (chip.RenderTransform is not ScaleTransform transform) return;
+
+        var ease = new System.Windows.Media.Animation.CubicEase
+        {
+            EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut,
+        };
+
+        transform.BeginAnimation(ScaleTransform.ScaleXProperty,
+            new System.Windows.Media.Animation.DoubleAnimation(scale, TimeSpan.FromMilliseconds(140)) { EasingFunction = ease });
+        transform.BeginAnimation(ScaleTransform.ScaleYProperty,
+            new System.Windows.Media.Animation.DoubleAnimation(scale, TimeSpan.FromMilliseconds(140)) { EasingFunction = ease });
+    }
+
+    /// <summary>Фон мини-окна: тёмный цвет темы, у градиентных — переход к насыщенному.</summary>
+    private static Brush MakeWindowPreview(ThemeInfo theme)
+    {
+        if (ColorConverter.ConvertFromString(theme.BgWindow) is not Color from)
+            return new SolidColorBrush(Color.FromRgb(0x1A, 0x1A, 0x22));
+
+        if (!string.IsNullOrWhiteSpace(theme.BgWindow2) &&
+            ColorConverter.ConvertFromString(theme.BgWindow2) is Color mid)
+        {
+            var gradient = new LinearGradientBrush
+            {
+                StartPoint = new System.Windows.Point(0, 0),
+                EndPoint = new System.Windows.Point(1, 1),
+            };
+
+            gradient.GradientStops.Add(new GradientStop(from, 0));
+            gradient.GradientStops.Add(new GradientStop(mid, 0.6));
+
+            if (!string.IsNullOrWhiteSpace(theme.BgWindow3) &&
+                ColorConverter.ConvertFromString(theme.BgWindow3) is Color third)
+            {
+                gradient.GradientStops.Add(new GradientStop(third, 1));
+            }
+
+            gradient.Freeze();
+            return gradient;
+        }
+
+        var solid = new SolidColorBrush(from);
+        solid.Freeze();
+        return solid;
     }
 
     /// <summary>Цвет темы: для градиентных — плавный переход от акцента ко второму цвету.</summary>
@@ -363,9 +472,11 @@ public partial class AdminWindow : Window
 
             bool active = string.Equals(key, activeKey, StringComparison.OrdinalIgnoreCase);
 
-            chip.BorderBrush = active ? Brushes.White : Brushes.Transparent;
-            chip.BorderThickness = new Thickness(active ? 2.5 : 0);
-            chip.Opacity = active ? 1.0 : 0.85;
+            chip.BorderBrush = active
+                ? (FindResource("AccentBrush") as Brush ?? Brushes.White)
+                : Brushes.Transparent;
+            chip.BorderThickness = new Thickness(active ? 2.5 : 2);
+            chip.Opacity = active ? 1.0 : 0.82;
         }
     }
 
