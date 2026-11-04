@@ -41,6 +41,21 @@
                        Foreground="White" HorizontalAlignment="Center" Margin="0,18,0,0"/>
             <TextBlock x:Name="HintText" Text="ждите…" FontSize="18" Foreground="#B9B9C4"
                        HorizontalAlignment="Center" Margin="0,9,0,0"/>
+
+            <!-- Управление: мини-клавиатура с нужными клавишами -->
+            <StackPanel x:Name="ControlsPanel" HorizontalAlignment="Center" Margin="0,24,0,0"
+                        Visibility="Collapsed">
+                <Border Height="1" Background="#26FFFFFF" Margin="0,0,0,18"/>
+
+                <TextBlock Text="Управление" FontSize="12" FontWeight="Bold"
+                           Foreground="#8E8E9E" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+
+                <StackPanel x:Name="ControlsRows" HorizontalAlignment="Center"/>
+
+                <TextBlock x:Name="ControlsNoteText" Text="" FontSize="12.5" Foreground="#B9B9C4"
+                           TextAlignment="Center" TextWrapping="Wrap" MaxWidth="420"
+                           HorizontalAlignment="Center" Margin="0,16,0,0"/>
+            </StackPanel>
         </StackPanel>
     </Border>
 </Window>

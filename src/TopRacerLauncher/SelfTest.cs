@@ -48,7 +48,28 @@ public static class SelfTest
 
         try
         {
-            Check("Промокод: создание и погашение", () =>
+            Check("Подсказка управления: у разных жанров свои клавиши", () =>
+        {
+            var fps = GameControls.For("Counter-Strike 2");
+            if (fps.Kind != "fps") return "CS2 не распознан как шутер: " + fps.Kind;
+            if (!fps.Rows.Any(r => r.Contains("W"))) return "в подсказке нет W";
+            if (!fps.Rows.Any(r => r.Contains("ЛКМ"))) return "в подсказке нет мыши";
+            if (!fps.Note.Contains("мышь", StringComparison.OrdinalIgnoreCase)) return "нет пояснения про мышь";
+
+            var racing = GameControls.For("Need for Speed Heat");
+            if (racing.Kind != "racing") return "гонка не распознана: " + racing.Kind;
+            if (!racing.Rows.Any(r => r.Contains("↑"))) return "в гонке нет стрелок";
+
+            var moba = GameControls.For("Dota 2");
+            if (moba.Kind != "moba") return "Dota 2 не распознана как MOBA: " + moba.Kind;
+
+            var unknown = GameControls.For("Какая-то игра");
+            if (unknown.Kind != "common") return "неизвестная игра не получила общий набор";
+            if (unknown.Rows.Length == 0) return "пустая подсказка";
+
+            return null;
+        });
+        Check("Промокод: создание и погашение", () =>
         {
             var promo = PromoService.Create(15, 1, 1);
             if (!PromoService.TryRedeem(promo.Code, out int minutes, out string error))

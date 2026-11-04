@@ -432,7 +432,7 @@ public partial class MainWindow : Window
 
         try
         {
-            overlay = new LaunchOverlayWindow(game.Title);
+            overlay = new LaunchOverlayWindow(game.Title, GameControls.For(game.Title));
             overlay.Show();
 
             App.Runner.Start(game);

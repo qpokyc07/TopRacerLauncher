@@ -248,7 +248,7 @@ public partial class App : Application
                 Probe("LoginWindow", () => new LoginWindow(GateMode.AdminPrompt));
                 Probe("CoverSearchWindow", () => new CoverSearchWindow(ImageKind.Cover, ""));
                 Probe("ToastWindow", () => new ToastWindow(5, critical: true));
-                Probe("LaunchOverlayWindow", () => new LaunchOverlayWindow("Test"));
+                Probe("LaunchOverlayWindow", () => new LaunchOverlayWindow("Test", GameControls.For("Counter-Strike 2")));
                 Probe("ChatWindow", () =>
                 {
                     // Заодно проверяем карточку «Ты хочешь созвониться с другом?» на вкладке чата.
@@ -339,21 +339,38 @@ public partial class App : Application
     private bool TryRunShot(string[] args)
     {
         string? Arg(string name) => args.FirstOrDefault(a => a.StartsWith(name, StringComparison.OrdinalIgnoreCase));
-        static string PathOf(string arg) => arg.Contains('=') ? arg[(arg.IndexOf('=') + 1)..] : Path.Combine(Path.GetTempPath(), "shot.png");
+        // Значение после "=" — путь к PNG; если это не путь (например, название игры), пишем в TEMP.
+        static string PathOf(string arg)
+        {
+            var value = arg.Contains('=') ? arg[(arg.IndexOf('=') + 1)..] : "";
+            return Path.IsPathRooted(value) && value.EndsWith(".png", StringComparison.OrdinalIgnoreCase)
+                ? value
+                : Path.Combine(Path.GetTempPath(), "shot.png");
+        }
 
         var mainArg = Arg("--shot-main");
         var adminArg = Arg("--shot-admin");
         var scrollArg = Arg("--shot-scroll");
-        if (mainArg == null && adminArg == null) return false;
+        var overlayArg = Arg("--shot-overlay");
+        if (mainArg == null && adminArg == null && overlayArg == null) return false;
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
         var originalFullScreen = Settings.FullScreen;
         if (mainArg != null) Settings.FullScreen = false;
 
-        Window window = mainArg != null
-            ? new MainWindow { Width = 1600, Height = 900 }
-            : new AdminWindow { Width = 1000, Height = 840 };
+        var overlayTitle = overlayArg == null
+            ? ""
+            : overlayArg.Contains('=') ? overlayArg[(overlayArg.IndexOf('=') + 1)..] : "Counter-Strike 2";
+
+        if (overlayArg != null) LaunchOverlayWindow.SuppressAutoCenter = true;
+
+        Window window = overlayArg != null
+            ? new LaunchOverlayWindow(overlayTitle, GameControls.For(overlayTitle))
+            : mainArg != null
+                ? new MainWindow { Width = 1600, Height = 900 }
+                : new AdminWindow { Width = 1000, Height = 840 };
+
 
         window.WindowStartupLocation = WindowStartupLocation.Manual;
         window.Left = -30000;
@@ -410,7 +427,9 @@ public partial class App : Application
                     var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
                     encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
 
-                    var file = mainArg != null ? PathOf(mainArg) : PathOf(adminArg!);
+                    var file = overlayArg != null ? PathOf(overlayArg)
+                        : mainArg != null ? PathOf(mainArg)
+                        : PathOf(adminArg!);
                     using var fs = File.Create(file);
                     encoder.Save(fs);
                 }
