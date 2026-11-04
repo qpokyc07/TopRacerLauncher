@@ -179,6 +179,16 @@ public partial class MainWindow : Window
         }
 
         GamesItems.ItemsSource = App.Library.Items;
+
+        // Плавное появление сетки после перестроения.
+        GamesItems.BeginAnimation(OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(
+            0.86, 1, TimeSpan.FromMilliseconds(240))
+        {
+            EasingFunction = new System.Windows.Media.Animation.CubicEase
+            {
+                EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut,
+            },
+        });
         EmptyState.Visibility = App.Library.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         DetailsPanel.Visibility = App.Library.Items.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
         ShowDetails(App.Library.Items.FirstOrDefault());
@@ -656,7 +666,19 @@ public partial class MainWindow : Window
     {
         LoadQrCodes();
         LoadWelcomeAd();
+
         WelcomeOverlay.Visibility = Visibility.Visible;
+        WelcomeOverlay.BeginAnimation(OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(
+            0, 1, TimeSpan.FromMilliseconds(220)));
+
+        WelcomeShift.BeginAnimation(System.Windows.Media.TranslateTransform.YProperty,
+            new System.Windows.Media.Animation.DoubleAnimation(16, 0, TimeSpan.FromMilliseconds(320))
+            {
+                EasingFunction = new System.Windows.Media.Animation.CubicEase
+                {
+                    EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut,
+                },
+            });
     }
 
     /// <summary>Обновляет блок рекламы на уже открытом экране приветствия (из админ-меню).</summary>
@@ -904,6 +926,21 @@ public partial class MainWindow : Window
     }
 
 
+    /// <summary>Блик на обложке карточки следует за курсором — «дорогой» глянец.</summary>
+    private void CardCover_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (sender is not FrameworkElement cover || cover.DataContext is not GameViewModel vm) return;
+
+        double width = cover.ActualWidth;
+        double height = cover.ActualHeight;
+        if (width <= 0 || height <= 0) return;
+
+        var position = e.GetPosition(cover);
+        vm.HighlightCenter = new Point(
+            Math.Clamp(position.X / width, 0, 1),
+            Math.Clamp(position.Y / height, 0, 1));
+    }
+
     private void Card_MouseEnter(object sender, MouseEventArgs e)
     {
         if (sender is FrameworkElement fe && fe.DataContext is GameViewModel vm)
@@ -952,6 +989,16 @@ public partial class MainWindow : Window
             : description;
 
         DetailPlayButton.IsEnabled = true;
+
+        // Мягкое появление текста при смене игры.
+        DetailsBody.BeginAnimation(OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(
+            0.65, 1, TimeSpan.FromMilliseconds(200))
+        {
+            EasingFunction = new System.Windows.Media.Animation.CubicEase
+            {
+                EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut,
+            },
+        });
     }
 
     private void DetailPlay_Click(object sender, RoutedEventArgs e)

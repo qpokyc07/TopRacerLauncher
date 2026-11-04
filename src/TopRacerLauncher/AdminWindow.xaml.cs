@@ -24,6 +24,23 @@ public partial class AdminWindow : Window
         Opacity = 0;
         BeginAnimation(OpacityProperty,
             new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(160)));
+
+        // Лёгкое «всплытие» содержимого окна — дороже, чем просто появиться.
+        // Самому Window RenderTransform задавать нельзя, только его содержимому.
+        var scale = new ScaleTransform(0.985, 0.985);
+        if (Content is FrameworkElement root)
+        {
+            root.RenderTransform = scale;
+            root.RenderTransformOrigin = new Point(0.5, 0.5);
+        }
+
+        var ease = new System.Windows.Media.Animation.CubicEase
+        {
+            EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut,
+        };
+
+        scale.BeginAnimation(ScaleTransform.ScaleXProperty, new System.Windows.Media.Animation.DoubleAnimation(0.985, 1, TimeSpan.FromMilliseconds(220)) { EasingFunction = ease });
+        scale.BeginAnimation(ScaleTransform.ScaleYProperty, new System.Windows.Media.Animation.DoubleAnimation(0.985, 1, TimeSpan.FromMilliseconds(220)) { EasingFunction = ease });
         Loaded += OnLoaded;
         _uiTimer.Tick += (_, _) => UpdateRemainingLabel();
         _uiTimer.Start();

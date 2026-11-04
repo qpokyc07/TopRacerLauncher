@@ -241,6 +241,7 @@ public sealed class AfishaCardVm
 public sealed class GameViewModel : INotifyPropertyChanged
 {
     private bool _isRunning;
+    private System.Windows.Point _highlight = new(0.5, 0.4);
 
     public GameItem Item { get; }
 
@@ -263,6 +264,20 @@ public sealed class GameViewModel : INotifyPropertyChanged
 
         PlaySeconds = Math.Max(0, playSeconds);
         PlayTimeText = FormatPlayTime(PlaySeconds);
+    }
+
+    /// <summary>Положение блика на обложке (0..1) — следует за курсором.</summary>
+    public System.Windows.Point HighlightCenter
+    {
+        get => _highlight;
+        set
+        {
+            var rounded = new System.Windows.Point(Math.Round(value.X, 2), Math.Round(value.Y, 2));
+            if (rounded == _highlight) return;
+
+            _highlight = rounded;
+            OnPropertyChanged();
+        }
     }
 
     /// <summary>Сколько наиграно, секунды (0 — ещё не играли).</summary>

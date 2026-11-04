@@ -70,6 +70,65 @@
                 </Border.OpacityMask>
             </Border>
 
+            <!-- Аврора: медленно «дышащие» пятна цвета темы -->
+            <Border Background="{DynamicResource AccentBrush}" Opacity="0.12"
+                    RenderTransformOrigin="0.35,0.25">
+                <Border.RenderTransform>
+                    <ScaleTransform x:Name="AuroraScale1" ScaleX="1" ScaleY="1"/>
+                </Border.RenderTransform>
+                <Border.OpacityMask>
+                    <RadialGradientBrush Center="0.35,0.25" GradientOrigin="0.35,0.25" RadiusX="0.55" RadiusY="0.7">
+                        <GradientStop Color="#B3FFFFFF" Offset="0"/>
+                        <GradientStop Color="#00FFFFFF" Offset="1"/>
+                    </RadialGradientBrush>
+                </Border.OpacityMask>
+                <Border.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                <DoubleAnimation Storyboard.TargetName="AuroraScale1" Storyboard.TargetProperty="ScaleX"
+                                                 To="1.3" Duration="0:0:17">
+                                    <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetName="AuroraScale1" Storyboard.TargetProperty="ScaleY"
+                                                 To="1.22" Duration="0:0:17">
+                                    <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Border.Triggers>
+            </Border>
+
+            <Border Background="{DynamicResource AccentBrush}" Opacity="0.09"
+                    RenderTransformOrigin="0.75,0.8">
+                <Border.RenderTransform>
+                    <ScaleTransform x:Name="AuroraScale2" ScaleX="1" ScaleY="1"/>
+                </Border.RenderTransform>
+                <Border.OpacityMask>
+                    <RadialGradientBrush Center="0.75,0.8" GradientOrigin="0.75,0.8" RadiusX="0.5" RadiusY="0.65">
+                        <GradientStop Color="#B3FFFFFF" Offset="0"/>
+                        <GradientStop Color="#00FFFFFF" Offset="1"/>
+                    </RadialGradientBrush>
+                </Border.OpacityMask>
+                <Border.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                <DoubleAnimation Storyboard.TargetName="AuroraScale2" Storyboard.TargetProperty="ScaleX"
+                                                 To="1.24" Duration="0:0:23">
+                                    <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetName="AuroraScale2" Storyboard.TargetProperty="ScaleY"
+                                                 To="1.35" Duration="0:0:23">
+                                    <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Border.Triggers>
+            </Border>
+
             <!-- Затемнение сверху и снизу: шапка и карточки остаются читаемыми -->
             <Border>
                 <Border.Background>
@@ -503,6 +562,7 @@
                                     <!-- Обложка с задним фоном -->
                                     <Border Height="{Binding Ui.CardHeight, RelativeSource={RelativeSource AncestorType=Window}}"
                                             CornerRadius="14,14,0,0" ClipToBounds="True"
+                                            MouseMove="CardCover_MouseMove"
                                             BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
                                         <Grid>
                                             <!-- Задний фон (широкая картинка) -->
@@ -560,6 +620,44 @@
                                                         <GradientStop Color="#8C000000" Offset="1"/>
                                                     </LinearGradientBrush>
                                                 </Border.Background>
+                                            </Border>
+
+                                            <!-- Глянцевый блик, следующий за курсором -->
+                                            <Border x:Name="CardGlow" IsHitTestVisible="False">
+                                                <Border.Background>
+                                                    <RadialGradientBrush Center="{Binding HighlightCenter}"
+                                                                         GradientOrigin="{Binding HighlightCenter}"
+                                                                         RadiusX="0.55" RadiusY="0.75">
+                                                        <GradientStop Color="#66FFFFFF" Offset="0"/>
+                                                        <GradientStop Color="#00FFFFFF" Offset="1"/>
+                                                    </RadialGradientBrush>
+                                                </Border.Background>
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Opacity" Value="0"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Border}}"
+                                                                         Value="True">
+                                                                <DataTrigger.EnterActions>
+                                                                    <BeginStoryboard>
+                                                                        <Storyboard>
+                                                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                                             To="1" Duration="0:0:0.16"/>
+                                                                        </Storyboard>
+                                                                    </BeginStoryboard>
+                                                                </DataTrigger.EnterActions>
+                                                                <DataTrigger.ExitActions>
+                                                                    <BeginStoryboard>
+                                                                        <Storyboard>
+                                                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                                             To="0" Duration="0:0:0.3"/>
+                                                                        </Storyboard>
+                                                                    </BeginStoryboard>
+                                                                </DataTrigger.ExitActions>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
                                             </Border>
 
                                             <!-- Бейдж «играет» -->
@@ -627,6 +725,17 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
+                    <!-- Световая кромка сверху: эффект стекла -->
+                    <Border Height="1" VerticalAlignment="Top" Margin="10,0,10,0" IsHitTestVisible="False">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#00FFFFFF" Offset="0"/>
+                                <GradientStop Color="#4DFFFFFF" Offset="0.5"/>
+                                <GradientStop Color="#00FFFFFF" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+
                     <Button x:Name="DetailsToggle" Grid.Row="0" Margin="0,0,0,6"
                             Style="{StaticResource SectionHeaderButton}" Click="ToggleDetails_Click"
                             ToolTip="Свернуть / развернуть описание">
@@ -668,7 +777,27 @@
                                    TextWrapping="Wrap" LineHeight="20" Margin="2,12,2,0"/>
 
                         <Button x:Name="DetailPlayButton" Content="Играть" Height="42" Margin="0,16,0,0"
-                                Style="{StaticResource PrimaryButton}" Click="DetailPlay_Click"/>
+                                Style="{StaticResource PrimaryButton}" Click="DetailPlay_Click">
+                            <Button.Effect>
+                                <DropShadowEffect x:Name="PlayGlow" Color="#8B5CF6" BlurRadius="22"
+                                                  ShadowDepth="0" Opacity="0.45"/>
+                            </Button.Effect>
+                            <Button.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                            <DoubleAnimation Storyboard.TargetName="PlayGlow"
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             To="0.95" Duration="0:0:2.4">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <SineEase EasingMode="EaseInOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Button.Triggers>
+                        </Button>
                     </StackPanel>
                 </ScrollViewer>
 
@@ -722,6 +851,17 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
+
+                    <!-- Световая кромка сверху: эффект стекла -->
+                    <Border Height="1" VerticalAlignment="Top" Margin="10,0,10,0" IsHitTestVisible="False">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#00FFFFFF" Offset="0"/>
+                                <GradientStop Color="#4DFFFFFF" Offset="0.5"/>
+                                <GradientStop Color="#00FFFFFF" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
 
                     <Grid>
                         <TextBlock Text="Друзья в сети" FontWeight="Bold" FontSize="14"
@@ -823,7 +963,12 @@
                                    HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     </Grid>
                     <ProgressBar x:Name="TimeProgress" Minimum="0" Maximum="100" Value="0"
-                                 Margin="0,9,0,0" Height="7" Style="{StaticResource TimerProgress}"/>
+                                 Margin="0,9,0,0" Height="7" Style="{StaticResource TimerProgress}">
+                        <ProgressBar.Effect>
+                            <DropShadowEffect x:Name="TimerGlow" Color="#8B5CF6" BlurRadius="16"
+                                              ShadowDepth="0" Opacity="0.55"/>
+                        </ProgressBar.Effect>
+                    </ProgressBar>
                 </StackPanel>
 
                 <!-- Быстрые ссылки слева -->
@@ -893,6 +1038,9 @@
         <Grid x:Name="WelcomeOverlay" Grid.RowSpan="3" Panel.ZIndex="50" Visibility="Collapsed"
               Background="#C7080A0E">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel.RenderTransform>
+                    <TranslateTransform x:Name="WelcomeShift" Y="0"/>
+                </StackPanel.RenderTransform>
                 <TextBlock Text="&#x1F44B;" FontSize="46" HorizontalAlignment="Center"/>
                 <TextBlock Text="Добро пожаловать" FontSize="38" FontWeight="Bold"
                            Foreground="White" HorizontalAlignment="Center"
