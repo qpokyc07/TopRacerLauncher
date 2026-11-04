@@ -73,6 +73,9 @@ public partial class MainWindow : Window
         // Оверлей звонка поверх игры: показываем и обновляем вместе с состоянием звонка.
         VoiceEngine.StateChanged += VoiceOverlayWindow.Update;
 
+        // Новая игра появилась в Steam — перестраиваем библиотеку.
+        SteamLibraryWatcher.LibraryGrown += OnLibraryGrown;
+
         _tick.Tick += OnTick;
         Achievements.Unlocked += OnAchievementsUnlocked;
         _friendsTimer.Tick += (_, _) => RefreshFriends();
@@ -839,6 +842,22 @@ public partial class MainWindow : Window
             MessageBox.Show(this, "Не удалось открыть друзей Steam:\n\n" + ex.Message,
                 "TopRacerLauncher", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    /// <summary>В библиотеку добавились игры из Steam (фоновый watcher) — перестраиваем список.</summary>
+    private void OnLibraryGrown(int count)
+    {
+        if (!IsVisible) return;
+
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            try
+            {
+                RebuildLibrary();
+                RefreshUi();
+            }
+            catch { /* не мешаем игре */ }
+        }));
     }
 
     // ---------- Карточка выбранной игры ----------
@@ -1731,6 +1750,7 @@ public partial class MainWindow : Window
             "TopRacerLauncher", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (answer != MessageBoxResult.Yes) return;
 
+        SteamLibraryWatcher.Forget(game);
         App.Settings.Games.Remove(game);
 
         // Не оставляем «сиротские» картинки в media.

@@ -122,6 +122,12 @@ public partial class App : Application
         // Применяем сохранённую тему оформления.
         Themes.Apply(Settings.AccentTheme);
 
+        // Фоновое автодополнение библиотеки из Steam (новые appmanifest).
+        if (!smoke && !demoMode)
+        {
+            try { SteamLibraryWatcher.Start(); } catch { /* наблюдение не критично */ }
+        }
+
 #if DEBUG
         // Отладочные режимы для проверки отрисовки окон. В релизной сборке их нет:
         // иначе флаг в ярлыке открывал бы админ-меню без пароля.

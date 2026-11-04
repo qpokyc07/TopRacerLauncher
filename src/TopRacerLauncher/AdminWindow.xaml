@@ -156,6 +156,11 @@
                                     ToolTip="Заново загрузить описание и жанры на русском для всех игр"/>
                         </StackPanel>
 
+                        <CheckBox x:Name="AutoAddSteamCheck"
+                                  Content="Сам добавлять новые игры из Steam (обложка подтянется)"
+                                  Margin="0,14,0,0" Checked="AutoAddSteam_Changed" Unchecked="AutoAddSteam_Changed"
+                                  ToolTip="Фоновый наблюдатель: установили игру в Steam — карточка появилась в лаунчере"/>
+
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                             <Button Content="Обложка…" Height="40" Padding="14,0"
                                     Style="{StaticResource BaseButton}" Click="ChangeCover_Click"/>

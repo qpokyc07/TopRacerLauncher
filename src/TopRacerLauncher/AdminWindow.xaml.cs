@@ -77,6 +77,7 @@ public partial class AdminWindow : Window
         MicGainSlider.Value = Math.Clamp(s.VoiceInputGain, 0, 200);
         OpenMicCheck.IsChecked = s.VoiceMode == "open";
         VoiceOverlayCheck.IsChecked = s.VoiceOverlay;
+        AutoAddSteamCheck.IsChecked = s.AutoAddSteamGames;
         RefreshMicLabels();
         MakeSectionsCollapsible();
         UpdateUrlBox.Text = s.UpdateUrl;
@@ -851,6 +852,7 @@ public partial class AdminWindow : Window
             "TopRacerLauncher", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (answer != MessageBoxResult.Yes) return;
 
+        SteamLibraryWatcher.Forget(game);
         App.Settings.Games.Remove(game);
         ImageSearchService.DeleteIfMedia(game.CoverPath);
         ImageSearchService.DeleteIfMedia(game.BackgroundPath);
@@ -1170,6 +1172,17 @@ public partial class AdminWindow : Window
         var room = VoiceEngine.RoomId;
         VoiceEngine.LeaveCall();
         VoiceEngine.StartCall(room);
+    }
+
+    private void AutoAddSteam_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_loaded) return;
+
+        App.Settings.AutoAddSteamGames = AutoAddSteamCheck.IsChecked == true;
+        App.SaveState();
+
+        if (App.Settings.AutoAddSteamGames) SteamLibraryWatcher.Restart();
+        else SteamLibraryWatcher.Stop();
     }
 
     private void VoiceOverlay_Changed(object sender, RoutedEventArgs e)

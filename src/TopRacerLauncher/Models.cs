@@ -186,6 +186,12 @@ public sealed class Settings
     /// <summary>Оверлей звонка поверх игры (кто говорит).</summary>
     public bool VoiceOverlay { get; set; } = true;
 
+    /// <summary>Сам добавлять новые игры из Steam в библиотеку (фоновый watcher appmanifest).</summary>
+    public bool AutoAddSteamGames { get; set; } = true;
+
+    /// <summary>Appid, которые админ удалил из библиотеки: заново не добавляем.</summary>
+    public List<string> RemovedSteamIds { get; set; } = new();
+
 
     [System.Text.Json.Serialization.JsonIgnore]
     public bool PasswordSet => !string.IsNullOrEmpty(PasswordHash);

@@ -247,8 +247,34 @@ public static class SelfTest
                 return null;
             });
 
-            Check("Steam-игра запускается через steam.exe -applaunch", () =>
+            Check("Автодополнение Steam: находит игры и не дублирует их", () =>
             {
+                var found = GameScanner.ScanSteam();
+                if (found.Count == 0) return null;   // Steam не установлен — не применимо
+
+                foreach (var game in found)
+                {
+                    if (string.IsNullOrWhiteSpace(game.Title)) return "игра без названия";
+                    if (string.IsNullOrWhiteSpace(game.AppId)) return "нет appid у «" + game.Title + "»";
+                    if (!File.Exists(game.FilePath)) return "нет файла игры: " + game.FilePath;
+                }
+
+                // Игра из библиотеки не должна считаться новой.
+                var existing = App.Settings.Games.FirstOrDefault(g => !string.IsNullOrWhiteSpace(g.AppId));
+                if (existing != null &&
+                    !SteamLibraryWatcher.AlreadyInLibrary(
+                        new ScanResult(existing.Title, existing.ExecutablePath, "Steam", "", existing.AppId)))
+                    return "не узнаёт игру, которая уже в библиотеке";
+
+                // Совершенно новый appid должен считаться новым.
+                if (SteamLibraryWatcher.AlreadyInLibrary(
+                        new ScanResult("Тестовая игра", @"C:\nope\test.exe", "Steam", "", "999999999")))
+                    return "чужую игру считает своей";
+
+                return null;
+            });
+
+            Check("Steam-игра запускается через steam.exe -applaunch", () =>            {
                 // Без Steam проверка не применима — на клубных ПК Steam стоит.
                 if (GameRunner.FindSteamExe() == null) return null;
 

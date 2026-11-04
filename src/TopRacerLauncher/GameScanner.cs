@@ -56,12 +56,15 @@ public static class GameScanner
 
     // ------------------------------------------------------------------ Steam
 
-    private static void TryScanSteam(List<ScanResult> results, HashSet<string> seen)
+    /// <summary>Папки steamapps всех библиотек Steam (основная + из libraryfolders.vdf).</summary>
+    public static List<string> SteamAppsFolders()
     {
-        var steamPath = FindSteamPath();
-        if (steamPath is null) return;
+        var folders = new List<string>();
 
-        var steamAppsList = new List<string> { Path.Combine(steamPath, "steamapps") };
+        var steamPath = FindSteamPath();
+        if (steamPath is null) return folders;
+
+        folders.Add(Path.Combine(steamPath, "steamapps"));
 
         // Дополнительные библиотеки из libraryfolders.vdf
         var vdf = Path.Combine(steamPath, "steamapps", "libraryfolders.vdf");
@@ -74,12 +77,28 @@ public static class GameScanner
                 {
                     var p = m.Groups[1].Value.Replace("\\\\", "\\");
                     var sa = Path.Combine(p, "steamapps");
-                    if (Directory.Exists(sa) && !steamAppsList.Contains(sa, StringComparer.OrdinalIgnoreCase))
-                        steamAppsList.Add(sa);
+                    if (Directory.Exists(sa) && !folders.Contains(sa, StringComparer.OrdinalIgnoreCase))
+                        folders.Add(sa);
                 }
             }
         }
-        catch { /* повреждённый vdf — пропускаем */ }
+        catch { /* повреждённый vdf — работаем с основной библиотекой */ }
+
+        return folders.Where(Directory.Exists).ToList();
+    }
+
+    /// <summary>Игры только из Steam — для фонового автодополнения библиотеки.</summary>
+    public static List<ScanResult> ScanSteam()
+    {
+        var results = new List<ScanResult>();
+        TryScanSteam(results, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+        return results;
+    }
+
+    private static void TryScanSteam(List<ScanResult> results, HashSet<string> seen)
+    {
+        var steamAppsList = SteamAppsFolders();
+        if (steamAppsList.Count == 0) return;
 
         foreach (var steamApps in steamAppsList)
         {
