@@ -47,7 +47,6 @@
 
                 <!-- ===== СЕССИЯ ===== -->
                 <TextBlock Text="СЕССИЯ" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,0,0,8"/>
-                <!-- ===== Таймер ===== -->
                 <Border Style="{StaticResource PanelCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <Grid>
@@ -86,8 +85,6 @@
                                 Padding="20,0" Style="{StaticResource PrimaryButton}" Click="ApplyTime_Click"/>
                     </StackPanel>
                 </Border>
-
-                <!-- ===== Игры ===== -->
                 <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
                     <StackPanel>
                         <Grid>
@@ -179,11 +176,104 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ===== Статистика по играм ===== -->
+                <!-- ===== СТАТИСТИКА ===== -->
+                <TextBlock Text="СТАТИСТИКА" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,22,0,8"/>
                 <Border Style="{StaticResource PanelCard}" Margin="0,0,0,16">
                     <StackPanel>
+                        <TextBlock Text="Статистика" Style="{StaticResource H1Text}"/>
+                        <TextBlock Text="История событий, запуски лаунчера и время по играм."
+                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+
+                        <!-- Переключатель разделов -->
+                        <StackPanel x:Name="StatsTabs" Orientation="Horizontal" Margin="0,14,0,0">
+                            <Button Content="История" Tag="history" Height="34"
+                                    Padding="16,0" FontSize="12.5" FontWeight="SemiBold" Margin="0,0,8,0"
+                                    Style="{StaticResource BaseButton}" Click="StatsTab_Click"/>
+                            <Button Content="Использование" Tag="usage" Height="34"
+                                    Padding="16,0" FontSize="12.5" FontWeight="SemiBold" Margin="0,0,8,0"
+                                    Style="{StaticResource BaseButton}" Click="StatsTab_Click"/>
+                            <Button Content="По играм" Tag="games" Height="34"
+                                    Padding="16,0" FontSize="12.5" FontWeight="SemiBold" Margin="0,0,8,0"
+                                    Style="{StaticResource BaseButton}" Click="StatsTab_Click"/>
+                        </StackPanel>
+
+                        <Grid Margin="0,14,0,0">
+                            <StackPanel x:Name="StatsPageHistory" Visibility="Visible">
+                    <StackPanel>
                         <Grid>
-                            <TextBlock Text="Статистика по играм" Style="{StaticResource H1Text}"/>
+                            <TextBlock x:Name="HistorySummary" Text="за 7 дней: —" FontSize="13"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <TextBlock Text="Сколько времени выдано по дням и последние события: запуски, истечение сеанса,&#x0a;неудачные попытки ввода пароля."
+                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+
+                        <StackPanel x:Name="HistoryChart" Orientation="Horizontal" Height="104" Margin="0,16,0,0"/>
+
+                        <Border Background="#141419" CornerRadius="5" BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1" Margin="0,14,0,0" Height="186">
+                            <ListBox x:Name="HistoryList" Background="Transparent" BorderThickness="0"
+                                     Foreground="{StaticResource TextBrush}"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Padding" Value="10,7"/>
+                                        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border x:Name="Bd" Background="Transparent" CornerRadius="4"
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="Bd" Property="Background" Value="#1E1E24"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontSize="12.5" TextWrapping="Wrap"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </StackPanel>
+                            </StackPanel>
+                            <StackPanel x:Name="StatsPageUsage" Visibility="Collapsed">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock x:Name="UsageSummaryLabel" Text="—" FontSize="13"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <TextBlock Text="Запуски лаунчера на этом компьютере: с каких учётных записей и как часто."
+                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+
+                        <WrapPanel x:Name="UsageStatsPanel" Margin="0,14,0,0"/>
+
+                        <Border Background="#141419" CornerRadius="5" BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1" Margin="0,12,0,0" Height="112">
+                            <ListBox x:Name="UsageList" Background="Transparent" BorderThickness="0"
+                                     Foreground="{StaticResource TextBrush}"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontSize="12.5" TextWrapping="Wrap"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </StackPanel>
+                            </StackPanel>
+                            <StackPanel x:Name="StatsPageGames" Visibility="Collapsed">
+                    <StackPanel>
+                        <Grid>
                             <TextBlock x:Name="PlayStatsTotal" Text="" FontSize="13" FontWeight="SemiBold"
                                        Foreground="{DynamicResource AccentBrush}"
                                        HorizontalAlignment="Right" VerticalAlignment="Center"/>
@@ -231,97 +321,35 @@
                                    FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
                                    Visibility="Collapsed" Margin="0,8,0,0"/>
                     </StackPanel>
-                </Border>
-
-
-                <!-- ===== ЖУРНАЛ ===== -->
-                <TextBlock Text="ЖУРНАЛ" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,22,0,8"/>
-                <!-- ===== История ===== -->
-                <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
-                    <StackPanel>
-                        <Grid>
-                            <TextBlock Text="История" Style="{StaticResource H1Text}"/>
-                            <TextBlock x:Name="HistorySummary" Text="за 7 дней: —" FontSize="13"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            </StackPanel>
                         </Grid>
-                        <TextBlock Text="Сколько времени выдано по дням и последние события: запуски, истечение сеанса,&#x0a;неудачные попытки ввода пароля."
-                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
-
-                        <StackPanel x:Name="HistoryChart" Orientation="Horizontal" Height="104" Margin="0,16,0,0"/>
-
-                        <Border Background="#141419" CornerRadius="5" BorderBrush="{StaticResource BorderBrush}"
-                                BorderThickness="1" Margin="0,14,0,0" Height="186">
-                            <ListBox x:Name="HistoryList" Background="Transparent" BorderThickness="0"
-                                     Foreground="{StaticResource TextBrush}"
-                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                                <ListBox.ItemContainerStyle>
-                                    <Style TargetType="ListBoxItem">
-                                        <Setter Property="Padding" Value="10,7"/>
-                                        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="ListBoxItem">
-                                                    <Border x:Name="Bd" Background="Transparent" CornerRadius="4"
-                                                            Padding="{TemplateBinding Padding}">
-                                                        <ContentPresenter/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="Bd" Property="Background" Value="#1E1E24"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ListBox.ItemContainerStyle>
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}" FontSize="12.5" TextWrapping="Wrap"/>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                        </Border>
                     </StackPanel>
                 </Border>
-
-                <!-- ===== Использование ===== -->
-                <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
-                    <StackPanel>
-                        <Grid>
-                            <TextBlock Text="Использование" Style="{StaticResource H1Text}"/>
-                            <TextBlock x:Name="UsageSummaryLabel" Text="—" FontSize="13"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        </Grid>
-                        <TextBlock Text="Запуски лаунчера на этом компьютере: с каких учётных записей и как часто."
-                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
-
-                        <WrapPanel x:Name="UsageStatsPanel" Margin="0,14,0,0"/>
-
-                        <Border Background="#141419" CornerRadius="5" BorderBrush="{StaticResource BorderBrush}"
-                                BorderThickness="1" Margin="0,12,0,0" Height="112">
-                            <ListBox x:Name="UsageList" Background="Transparent" BorderThickness="0"
-                                     Foreground="{StaticResource TextBrush}"
-                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}" FontSize="12.5" TextWrapping="Wrap"/>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                        </Border>
-                    </StackPanel>
-                </Border>
-
 
                 <!-- ===== КЛУБ ===== -->
                 <TextBlock Text="КЛУБ" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,22,0,8"/>
-                <!-- ===== Промокоды ===== -->
                 <Border Style="{StaticResource PanelCard}" Margin="0,0,0,16">
                     <StackPanel>
-                        <TextBlock Text="Промокоды на минуты" Style="{StaticResource H1Text}"/>
+                        <TextBlock Text="Клуб" Style="{StaticResource H1Text}"/>
+                        <TextBlock Text="Промокоды, посты на экране приветствия и афиша клуба."
+                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+
+                        <!-- Переключатель разделов -->
+                        <StackPanel x:Name="ClubTabs" Orientation="Horizontal" Margin="0,14,0,0">
+                            <Button Content="Промокоды" Tag="promo" Height="34"
+                                    Padding="16,0" FontSize="12.5" FontWeight="SemiBold" Margin="0,0,8,0"
+                                    Style="{StaticResource BaseButton}" Click="ClubTab_Click"/>
+                            <Button Content="Посты" Tag="posts" Height="34"
+                                    Padding="16,0" FontSize="12.5" FontWeight="SemiBold" Margin="0,0,8,0"
+                                    Style="{StaticResource BaseButton}" Click="ClubTab_Click"/>
+                            <Button Content="Афиша" Tag="afisha" Height="34"
+                                    Padding="16,0" FontSize="12.5" FontWeight="SemiBold" Margin="0,0,8,0"
+                                    Style="{StaticResource BaseButton}" Click="ClubTab_Click"/>
+                        </StackPanel>
+
+                        <Grid Margin="0,14,0,0">
+                            <StackPanel x:Name="ClubPagePromo" Visibility="Visible">
+                    <StackPanel>
                         <TextBlock Text="Код добавляет игроку указанное количество минут. Один код срабатывает один раз на компьютере."
                                    Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
 
@@ -376,12 +404,9 @@
                             </ItemsControl>
                         </ScrollViewer>
                     </StackPanel>
-                </Border>
-
-                <!-- Экран приветствия: реклама постов из соцсетей -->
-                <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
+                            </StackPanel>
+                            <StackPanel x:Name="ClubPagePosts" Visibility="Collapsed">
                     <StackPanel>
-                        <TextBlock Text="Экран приветствия" Style="{StaticResource H1Text}"/>
                         <TextBlock Text="Блок рекламы видят гости клуба до старта сессии. Вставьте пост или анонс из Телеграма, ВКонтакте или MAX — он появится на экране приветствия."
                                    Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
                         <CheckBox x:Name="WelcomeAdCheck" Content="Показывать блок рекламы постов"
@@ -402,12 +427,9 @@
                         <TextBlock x:Name="WelcomeAdStatusText" Text="" Style="{StaticResource SecondaryText}"
                                    Margin="0,8,0,0" Visibility="Collapsed"/>
                     </StackPanel>
-                </Border>
-
-                <!-- Афиша клуба: фото + текст на главном экране -->
-                <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
+                            </StackPanel>
+                            <StackPanel x:Name="ClubPageAfisha" Visibility="Collapsed">
                     <StackPanel>
-                        <TextBlock Text="Афиша клуба" Style="{StaticResource H1Text}"/>
                         <TextBlock Text="Карточки с фото и текстом на главном экране: турниры, акции, новинки. Их видят все гости, пока открыт лаунчер."
                                    Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
 
@@ -482,12 +504,13 @@
                         <TextBlock x:Name="AfishaStatusText" Text="" Style="{StaticResource SecondaryText}"
                                    Margin="0,8,0,0" Visibility="Collapsed"/>
                     </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
                 </Border>
-
 
                 <!-- ===== СВЯЗЬ ===== -->
                 <TextBlock Text="СВЯЗЬ" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,22,0,8"/>
-                    <!-- Микрофон и звонки -->
                     <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
                         <StackPanel>
                             <TextBlock Text="Микрофон и звонки" Style="{StaticResource H1Text}"/>
@@ -526,10 +549,8 @@
                         </StackPanel>
                     </Border>
 
-
                 <!-- ===== СИСТЕМА ===== -->
                 <TextBlock Text="СИСТЕМА" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,22,0,8"/>
-                    <!-- Система -->
                     <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
                         <StackPanel>
                             <TextBlock Text="Система" Style="{StaticResource H1Text}"/>
@@ -592,8 +613,6 @@
                                     Style="{StaticResource DangerButton}" Click="KillGame_Click"/>
                         </StackPanel>
                     </Border>
-
-                <!-- Оформление: тема и фон приложения -->
                 <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
                     <StackPanel>
                         <TextBlock Text="Оформление" Style="{StaticResource H1Text}"/>
@@ -664,6 +683,7 @@
                         </StackPanel>
                     </StackPanel>
                 </Border>
+
 
                 <!-- Низ -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">

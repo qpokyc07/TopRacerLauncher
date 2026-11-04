@@ -48,6 +48,10 @@ public partial class App : Application
         // Демо-режимы (только Debug) показывают одно окно и не должны конфликтовать
         // с уже запущенным лаунчером на этом ПК.
         bool demoMode = e.Args.Any(a => a.StartsWith("--demo-", StringComparison.OrdinalIgnoreCase));
+#if DEBUG
+        // Отладочные скриншоты не должны упираться в проверку одного экземпляра.
+        demoMode |= e.Args.Any(a => a.StartsWith("--shot-", StringComparison.OrdinalIgnoreCase));
+#endif
 
         // Один экземпляр: два лаунчера = два таймера и гонка записи конфига.
         if (!smoke && !demoMode)
@@ -132,6 +136,7 @@ public partial class App : Application
         // Отладочные режимы для проверки отрисовки окон. В релизной сборке их нет:
         // иначе флаг в ярлыке открывал бы админ-меню без пароля.
         if (TryRunDemo(e.Args)) return;
+        if (TryRunShot(e.Args)) return;
 #endif
 
         try
@@ -319,6 +324,111 @@ public partial class App : Application
     }
 #endif
 
+
+
+#if DEBUG
+    /// <summary>
+    /// Отладочный скриншот окна (только DEBUG): --shot-admin=путь.png, --shot-main=путь.png.
+    /// Окно создаётся за экраном и рисуется в PNG — удобно проверять вёрстку.
+    /// </summary>
+    private bool TryRunShot(string[] args)
+    {
+        string? Arg(string name) => args.FirstOrDefault(a => a.StartsWith(name, StringComparison.OrdinalIgnoreCase));
+        static string PathOf(string arg) => arg.Contains('=') ? arg[(arg.IndexOf('=') + 1)..] : Path.Combine(Path.GetTempPath(), "shot.png");
+
+        var mainArg = Arg("--shot-main");
+        var adminArg = Arg("--shot-admin");
+        var scrollArg = Arg("--shot-scroll");
+        if (mainArg == null && adminArg == null) return false;
+
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+        var originalFullScreen = Settings.FullScreen;
+        if (mainArg != null) Settings.FullScreen = false;
+
+        Window window = mainArg != null
+            ? new MainWindow { Width = 1600, Height = 900 }
+            : new AdminWindow { Width = 1000, Height = 840 };
+
+        window.WindowStartupLocation = WindowStartupLocation.Manual;
+        window.Left = -30000;
+        window.Top = -30000;
+        window.ShowActivated = false;
+        window.ShowInTaskbar = false;
+        window.Show();
+
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1300) };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+
+            if (window is MainWindow main)
+            {
+                main.WelcomeOverlay.Visibility = Visibility.Collapsed;
+
+                var showDetails = typeof(MainWindow).GetMethod("ShowDetails",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var vm = Library.Items.FirstOrDefault();
+                if (vm != null) showDetails?.Invoke(main, new object?[] { vm });
+            }
+
+            if (scrollArg != null && int.TryParse(scrollArg.Split('=').Last(), out int offset))
+            {
+                try { FindScroller(window)?.ScrollToVerticalOffset(offset); } catch { }
+            }
+
+            var wait = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(800) };
+            wait.Tick += (_, _) =>
+            {
+                wait.Stop();
+
+                try
+                {
+                    var root = (FrameworkElement)window.Content;
+                    int w = Math.Max(1, (int)Math.Ceiling(root.ActualWidth));
+                    int h = Math.Max(1, (int)Math.Ceiling(root.ActualHeight));
+
+                    var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap(
+                        w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+                    rtb.Render(root);
+
+                    var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                    encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
+
+                    var file = mainArg != null ? PathOf(mainArg) : PathOf(adminArg!);
+                    using var fs = File.Create(file);
+                    encoder.Save(fs);
+                }
+                catch (Exception ex)
+                {
+                    try { File.WriteAllText(Path.Combine(Path.GetTempPath(), "shot-error.txt"), ex.ToString()); } catch { }
+                }
+
+                Settings.FullScreen = originalFullScreen;
+                Shutdown(0);
+            };
+            wait.Start();
+        };
+        timer.Start();
+
+        return true;
+    }
+#endif
+    private static System.Windows.Controls.ScrollViewer? FindScroller(DependencyObject root)
+    {
+        if (root is System.Windows.Controls.ScrollViewer sv &&
+            sv.VerticalScrollBarVisibility != System.Windows.Controls.ScrollBarVisibility.Disabled)
+            return sv;
+
+        int count = System.Windows.Media.VisualTreeHelper.GetChildrenCount(root);
+        for (int i = 0; i < count; i++)
+        {
+            var found = FindScroller(System.Windows.Media.VisualTreeHelper.GetChild(root, i));
+            if (found != null) return found;
+        }
+
+        return null;
+    }
 
     private static void LogCrash(string tag, object? exception)
     {

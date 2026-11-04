@@ -102,6 +102,9 @@ public partial class AdminWindow : Window
         RefreshHistory();
         RefreshUsage();
 
+        HighlightTabs(StatsTabs, "history");
+        HighlightTabs(ClubTabs, "promo");
+
         _loaded = true;
     }
 
@@ -1023,6 +1026,44 @@ public partial class AdminWindow : Window
         WelcomeAdStatusText.Foreground = error
             ? FindResource("DangerBrush") as Brush ?? Brushes.OrangeRed
             : FindResource("TextSecondaryBrush") as Brush ?? Brushes.Gray;
+    }
+
+    // ---------- Переключатели разделов ----------
+
+    private void StatsTab_Click(object sender, RoutedEventArgs e)
+        => SelectTab(sender, StatsTabs, ("history", StatsPageHistory), ("usage", StatsPageUsage), ("games", StatsPageGames));
+
+    private void ClubTab_Click(object sender, RoutedEventArgs e)
+        => SelectTab(sender, ClubTabs, ("promo", ClubPagePromo), ("posts", ClubPagePosts), ("afisha", ClubPageAfisha));
+
+    private void SelectTab(object? sender, StackPanel tabs, params (string Tag, UIElement Page)[] pages)
+    {
+        string tag = (sender as FrameworkElement)?.Tag as string ?? pages[0].Tag;
+
+        foreach (var (pageTag, page) in pages)
+            page.Visibility = pageTag == tag ? Visibility.Visible : Visibility.Collapsed;
+
+        HighlightTabs(tabs, tag);
+    }
+
+    /// <summary>Подсвечивает активную вкладку, остальные оставляет обычными.</summary>
+    private void HighlightTabs(StackPanel tabs, string activeTag)
+    {
+        var accent = FindResource("AccentBrush") as Brush ?? Brushes.SteelBlue;
+        var card = FindResource("BgCardBrush") as Brush ?? Brushes.DimGray;
+        var text = FindResource("TextBrush") as Brush ?? Brushes.White;
+        var border = FindResource("BorderBrush") as Brush ?? Brushes.Gray;
+
+        foreach (var child in tabs.Children)
+        {
+            if (child is not Button button) continue;
+
+            bool active = (button.Tag as string) == activeTag;
+            button.Background = active ? accent : card;
+            button.Foreground = active ? Brushes.White : text;
+            button.BorderBrush = active ? accent : border;
+            button.BorderThickness = new Thickness(1);
+        }
     }
 
     // ---------- Микрофон и звонки ----------
