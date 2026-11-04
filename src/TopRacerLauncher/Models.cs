@@ -20,6 +20,9 @@ public sealed class GameItem
     /// <summary>Steam appid, если известен: по нему подтягиваются обложка и фон.</summary>
     public string AppId { get; set; } = "";
 
+    /// <summary>Клавиши для оверлея, заданные вручную: «W, A, S, D, пробел, ЛКМ». Пусто — по жанру.</summary>
+    public string Controls { get; set; } = "";
+
     public string? CoverPath { get; set; }
 
     /// <summary>Задний фон карточки игры (широкая картинка).</summary>

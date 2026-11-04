@@ -37,9 +37,13 @@ public static class GameControls
         "project playtime", "poppy playtime", "ultimate custom night", "fnaf",
     };
 
-    /// <summary>Подсказка для игры по названию: жанр угадываем по ключевым словам.</summary>
-    public static Hint For(string? title)
+    /// <summary>Подсказка для игры: свои клавиши (если заданы) важнее жанра.</summary>
+    public static Hint For(string? title, string? custom = null)
     {
+        var manual = ParseKeys(custom);
+        if (manual.Count > 0)
+            return new Hint("manual", "Клавиши заданы вручную в админ-меню.", Chunk(manual, 6));
+
         var text = (title ?? "").ToLowerInvariant();
 
         if (Contains(text, Fps))
@@ -118,10 +122,10 @@ public static class GameControls
             });
     }
 
-    /// <summary>Клавиши, которые используются в игре (для подсветки на оверлее).</summary>
-    public static IReadOnlySet<string> UsedKeys(string? title)
+    /// <summary>Клавиши для оверлея: свои (если заданы) или из пресета жанра.</summary>
+    public static IReadOnlySet<string> UsedKeys(string? title, string? custom = null)
     {
-        var hint = For(title);
+        var hint = For(title, custom);
         var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var row in hint.Rows)
@@ -129,6 +133,77 @@ public static class GameControls
                 set.Add(key);
 
         return set;
+    }
+
+    private static readonly Dictionary<string, string[]> Aliases = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["wasd"] = new[] { "W", "A", "S", "D" },
+        ["мышь"] = new[] { "ЛКМ", "ПКМ", "КОЛЕСО" },
+        ["mouse"] = new[] { "ЛКМ", "ПКМ", "КОЛЕСО" },
+        ["лкм"] = new[] { "ЛКМ" },
+        ["пкм"] = new[] { "ПКМ" },
+        ["колесо"] = new[] { "КОЛЕСО" },
+        ["пробел"] = new[] { "SPACE" },
+        ["space"] = new[] { "SPACE" },
+        ["шифт"] = new[] { "SHIFT" },
+        ["shift"] = new[] { "SHIFT" },
+        ["контрл"] = new[] { "CTRL" },
+        ["ctrl"] = new[] { "CTRL" },
+        ["esc"] = new[] { "ESC" },
+        ["tab"] = new[] { "TAB" },
+        ["enter"] = new[] { "ENTER" },
+        ["вверх"] = new[] { "↑" },
+        ["вниз"] = new[] { "↓" },
+        ["влево"] = new[] { "←" },
+        ["вправо"] = new[] { "→" },
+    };
+
+    /// <summary>Разбор строки вроде «W, A, S, D, пробел, ЛКМ» в канонические клавиши.</summary>
+    public static List<string> ParseKeys(string? text)
+    {
+        var result = new List<string>();
+        if (string.IsNullOrWhiteSpace(text)) return result;
+
+        var separators = new[] { ',', ';', '|', ' ' };
+        foreach (var raw in text.Split(separators, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var token = raw.Trim();
+            if (token.Length == 0) continue;
+
+            if (Aliases.TryGetValue(token, out var mapped))
+            {
+                foreach (var key in mapped)
+                    if (!result.Contains(key)) result.Add(key);
+
+                continue;
+            }
+
+            if (token is "↑" or "↓" or "←" or "→")
+            {
+                if (!result.Contains(token)) result.Add(token);
+                continue;
+            }
+
+            // Одиночная буква или цифра — как есть.
+            if (token.Length == 1 && char.IsLetterOrDigit(token[0]))
+            {
+                var key = token.ToUpperInvariant();
+                if (!result.Contains(key)) result.Add(key);
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>Режет список клавиш на ряды для отрисовки.</summary>
+    private static string[][] Chunk(List<string> keys, int perRow)
+    {
+        var rows = new List<string[]>();
+
+        for (int i = 0; i < keys.Count; i += perRow)
+            rows.Add(keys.Skip(i).Take(perRow).ToArray());
+
+        return rows.ToArray();
     }
 
     /// <summary>Короткая подпись клавиши для отрисовки на колпачке.</summary>

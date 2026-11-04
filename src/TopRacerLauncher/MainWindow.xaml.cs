@@ -432,7 +432,7 @@ public partial class MainWindow : Window
 
         try
         {
-            overlay = new LaunchOverlayWindow(game.Title, GameControls.For(game.Title));
+            overlay = new LaunchOverlayWindow(game.Title, GameControls.For(game.Title, game.Controls));
             overlay.Show();
 
             App.Runner.Start(game);
@@ -449,7 +449,7 @@ public partial class MainWindow : Window
 
         // Оверлей управления поверх игры (включается кнопкой внизу лаунчера).
         if (App.Settings.ControlsOverlay && App.Runner.IsRunning)
-            ControlsOverlayWindow.Show(game.Title);
+            ControlsOverlayWindow.Show(game.Title, game.Controls);
     }
 
     /// <summary>Фоном проверяет обновления и показывает окно, если есть новая версия.</summary>

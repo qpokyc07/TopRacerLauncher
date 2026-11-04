@@ -210,8 +210,8 @@ public static class Themes
     {
         if (string.IsNullOrWhiteSpace(topHex) || string.IsNullOrWhiteSpace(bottomHex)) return;
 
-        if (ColorConverter.ConvertFromString(topHex) is not Color top) return;
-        if (ColorConverter.ConvertFromString(bottomHex) is not Color bottom) return;
+        if (!TryParseColor(topHex, out var top)) return;
+        if (!TryParseColor(bottomHex, out var bottom)) return;
 
         var gradient = new LinearGradientBrush
         {
@@ -226,12 +226,35 @@ public static class Themes
         app.Resources["BgWindowBrush"] = gradient;
     }
 
+    /// <summary>Безопасный разбор цвета: кривой текст не роняет приложение.</summary>
+    public static bool TryParseColor(string? text, out Color color)
+    {
+        color = Colors.Transparent;
+
+        var value = (text ?? "").Trim();
+        if (value.Length == 0) return false;
+        if (!value.StartsWith('#')) value = "#" + value;
+
+        try
+        {
+            if (ColorConverter.ConvertFromString(value) is Color parsed)
+            {
+                color = parsed;
+                return true;
+            }
+        }
+        catch
+        {
+            // некорректный цвет — просто не применяем
+        }
+
+        return false;
+    }
+
     /// <summary>Узор по имени: none, stripes, diag, dots, grid, rings.</summary>
     public static Brush? CreatePatternByName(string? name, string? colorHex)
     {
-        var color = ColorConverter.ConvertFromString(colorHex ?? "#FFFFFF") is Color c
-            ? c
-            : Colors.White;
+        var color = TryParseColor(colorHex, out var c) ? c : Colors.White;
 
         var soft = Color.FromArgb(0x22, color.R, color.G, color.B);
         var faint = Color.FromArgb(0x00, color.R, color.G, color.B);
@@ -255,7 +278,7 @@ public static class Themes
     {
         if (string.IsNullOrWhiteSpace(theme.Pattern)) return null;
 
-        var color = ColorConverter.ConvertFromString(theme.PatternColor ?? theme.Accent) is Color c
+        var color = TryParseColor(theme.PatternColor ?? theme.Accent, out var c)
             ? c
             : Color.FromRgb(0xFF, 0xFF, 0xFF);
 
@@ -380,7 +403,7 @@ public static class Themes
         SetBrush(app, "BgCardHoverBrush", t.BgCardHover);
 
         // На светлых акцентах (лайм, лёд, золото) белый текст не читается — делаем тёмный.
-        var accentColor = ColorConverter.ConvertFromString(t.Accent) is Color ac ? ac : Colors.White;
+        var accentColor = TryParseColor(t.Accent, out var ac) ? ac : Colors.White;
         double luminance = (0.299 * accentColor.R + 0.587 * accentColor.G + 0.114 * accentColor.B) / 255.0;
         app.Resources["AccentTextBrush"] = new SolidColorBrush(
             luminance > 0.62 ? Color.FromRgb(0x14, 0x14, 0x18) : Colors.White);

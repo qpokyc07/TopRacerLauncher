@@ -1265,14 +1265,36 @@ public partial class AdminWindow : Window
 
         AdminScroll?.ScrollToTop();
     }
+    // ---------- Клавиши для оверлея конкретной игры ----------
+
+    private bool _loadingGameControls;
+
+    private void GamesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (GameControlsBox == null) return;
+
+        _loadingGameControls = true;
+        GameControlsBox.Text = (GamesList.SelectedItem as GameItem)?.Controls ?? "";
+        _loadingGameControls = false;
+    }
+
+    private void GameControls_Changed(object sender, TextChangedEventArgs e)
+    {
+        if (!_loaded || _loadingGameControls) return;
+        if (GamesList.SelectedItem is not GameItem game) return;
+
+        game.Controls = GameControlsBox.Text.Trim();
+        App.SaveState();
+    }
     // ---------- Свой фон: два цвета и узор ----------
 
     private void BgColor_Changed(object sender, TextChangedEventArgs e)
     {
         if (!_loaded) return;
 
-        App.Settings.BgTopColor = BgTopBox.Text.Trim();
-        App.Settings.BgBottomColor = BgBottomBox.Text.Trim();
+        // Сохраняем только корректный цвет или пустое значение — иначе при запуске был бы сбой.
+        App.Settings.BgTopColor = Themes.TryParseColor(BgTopBox.Text, out _) ? BgTopBox.Text.Trim() : "";
+        App.Settings.BgBottomColor = Themes.TryParseColor(BgBottomBox.Text, out _) ? BgBottomBox.Text.Trim() : "";
         App.SaveState();
 
         UpdateBgSwatches();

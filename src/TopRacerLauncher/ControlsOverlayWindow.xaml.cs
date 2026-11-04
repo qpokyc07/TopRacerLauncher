@@ -28,7 +28,7 @@ public partial class ControlsOverlayWindow : Window
         },
         new[]
         {
-            ("Tab", "TAB", 54.0), ("Q", "Q", 100.0), ("W", "W", 0.0), ("E", "E", 0.0), ("R", "R", 0.0),
+            ("Tab", "TAB", 54.0), ("Q", "Q", 0.0), ("W", "W", 0.0), ("E", "E", 0.0), ("R", "R", 0.0),
             ("T", "T", 0.0), ("Y", "Y", 0.0), ("U", "U", 0.0), ("I", "I", 0.0), ("O", "O", 0.0),
             ("P", "P", 0.0), ("[", "[", 0.0), ("]", "]", 0.0), ("\\", "\\", 54.0),
         },
@@ -69,10 +69,10 @@ public partial class ControlsOverlayWindow : Window
     }
 
     /// <summary>Показать оверлей управления для игры (или обновить, если уже открыт).</summary>
-    public static void Show(string gameTitle)
+    public static void Show(string gameTitle, string? customKeys = null)
     {
-        var hint = GameControls.For(gameTitle);
-        var used = GameControls.UsedKeys(gameTitle);
+        var hint = GameControls.For(gameTitle, customKeys);
+        var used = GameControls.UsedKeys(gameTitle, customKeys);
 
         if (_instance != null)
         {

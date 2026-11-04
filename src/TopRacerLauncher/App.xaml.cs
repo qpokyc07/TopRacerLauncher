@@ -124,6 +124,14 @@ public partial class App : Application
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
         // Применяем сохранённую тему оформления.
+        // Битая строка цвета в конфиге раньше роняла запуск — чистим на старте.
+        bool colorsFixed = false;
+
+        if (!Themes.TryParseColor(Settings.BgTopColor, out _)) { Settings.BgTopColor = ""; colorsFixed = true; }
+        if (!Themes.TryParseColor(Settings.BgBottomColor, out _)) { Settings.BgBottomColor = ""; colorsFixed = true; }
+
+        if (colorsFixed) { try { SaveState(); } catch { } }
+
         Themes.Apply(Settings.AccentTheme);
 
         // Фоновое автодополнение библиотеки из Steam (новые appmanifest).
