@@ -446,6 +446,10 @@ public partial class MainWindow : Window
         }
 
         UpdateGameStatus();
+
+        // Оверлей управления поверх игры (включается кнопкой внизу лаунчера).
+        if (App.Settings.ControlsOverlay && App.Runner.IsRunning)
+            ControlsOverlayWindow.Show(game.Title);
     }
 
     /// <summary>Фоном проверяет обновления и показывает окно, если есть новая версия.</summary>
@@ -1273,6 +1277,38 @@ public partial class MainWindow : Window
 
         foreach (var vm in App.Library.Items)
             vm.IsRunning = running && string.Equals(vm.Title, title, StringComparison.OrdinalIgnoreCase);
+
+        // Игра закрылась (или оверлей выключили) — убираем клавиатуру с экрана.
+        if ((!running || !App.Settings.ControlsOverlay) && ControlsOverlayWindow.IsVisible)
+            ControlsOverlayWindow.Hide();
+    }
+
+    /// <summary>Кнопка внизу: включить/выключить оверлей управления и запомнить выбор.</summary>
+    private void ToggleControlsOverlay_Click(object sender, RoutedEventArgs e)
+    {
+        App.Settings.ControlsOverlay = !App.Settings.ControlsOverlay;
+        App.SaveState();
+        UpdateControlsOverlayButton();
+
+        if (!App.Settings.ControlsOverlay)
+        {
+            ControlsOverlayWindow.Hide();
+            return;
+        }
+
+        var running = App.Runner.CurrentTitle;
+        if (!string.IsNullOrWhiteSpace(running)) ControlsOverlayWindow.Show(running!);
+    }
+
+    private void UpdateControlsOverlayButton()
+    {
+        bool on = App.Settings.ControlsOverlay;
+
+        ControlsOverlayButton.Content = on ? "Управление: вкл" : "Управление: выкл";
+        ControlsOverlayButton.ToolTip = on
+            ? "Клавиатура с нужными клавишами показывается поверх игры — нажмите, чтобы выключить"
+            : "Показывать клавиатуру с нужными клавишами поверх игры";
+        ControlsOverlayButton.Opacity = on ? 1.0 : 0.65;
     }
 
     private static string FormatTime(int seconds)

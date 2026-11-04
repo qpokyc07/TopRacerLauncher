@@ -118,6 +118,19 @@ public static class GameControls
             });
     }
 
+    /// <summary>Клавиши, которые используются в игре (для подсветки на оверлее).</summary>
+    public static IReadOnlySet<string> UsedKeys(string? title)
+    {
+        var hint = For(title);
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var row in hint.Rows)
+            foreach (var key in row)
+                set.Add(key);
+
+        return set;
+    }
+
     /// <summary>Короткая подпись клавиши для отрисовки на колпачке.</summary>
     public static string Label(string key) => key switch
     {

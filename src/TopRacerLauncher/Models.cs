@@ -192,6 +192,9 @@ public sealed class Settings
     /// <summary>Искать новые игры при запуске: Steam, Epic, GOG и ярлыки на рабочем столе.</summary>
     public bool AutoScanGames { get; set; }
 
+    /// <summary>Показывать поверх игры клавиатуру с нужными клавишами.</summary>
+    public bool ControlsOverlay { get; set; } = true;
+
     /// <summary>Appid, которые админ удалил из библиотеки: заново не добавляем.</summary>
     public List<string> RemovedSteamIds { get; set; } = new();
 

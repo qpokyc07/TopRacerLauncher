@@ -63,6 +63,10 @@ public static class SelfTest
             var moba = GameControls.For("Dota 2");
             if (moba.Kind != "moba") return "Dota 2 не распознана как MOBA: " + moba.Kind;
 
+            var used = GameControls.UsedKeys("Counter-Strike 2");
+            if (!used.Contains("W") || !used.Contains("SHIFT") || !used.Contains("ЛКМ"))
+                return "набор клавиш для оверлея собран неверно";
+
             var unknown = GameControls.For("Какая-то игра");
             if (unknown.Kind != "common") return "неизвестная игра не получила общий набор";
             if (unknown.Rows.Length == 0) return "пустая подсказка";

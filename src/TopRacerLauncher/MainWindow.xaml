@@ -1048,6 +1048,10 @@
                             FontWeight="SemiBold" Margin="0,0,8,0"
                             Style="{StaticResource BaseButton}" Click="PromoCode_Click"
                             ToolTip="Ввести код на дополнительные минуты"/>
+                    <Button x:Name="ControlsOverlayButton" Content="Управление: вкл" Height="30" Padding="14,0"
+                            FontSize="11.5" FontWeight="SemiBold" Margin="0,0,8,0"
+                            Style="{StaticResource BaseButton}" Click="ToggleControlsOverlay_Click"
+                            ToolTip="Клавиатура с нужными клавишами поверх игры"/>
                     <Button Content="Хочешь до 30 минут бесплатно?" Height="30" Padding="14,0"
                             FontSize="11.5" FontWeight="SemiBold" Margin="0,0,16,0"
                             Style="{StaticResource PrimaryButton}" Click="Promo_Click"/>

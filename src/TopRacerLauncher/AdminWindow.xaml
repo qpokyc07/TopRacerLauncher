@@ -557,7 +557,11 @@
                             <CheckBox x:Name="OpenMicCheck" Content="Передавать постоянно (без кнопки)"
                                       Margin="0,14,0,0" Checked="MicMode_Changed" Unchecked="MicMode_Changed"
                                       ToolTip="Выключено — режим «по кнопке» (Push-to-Talk)"/>
-                            <CheckBox x:Name="VoiceOverlayCheck" Content="Оверлей звонка поверх игры (кто говорит)"
+                            <CheckBox x:Name="ControlsOverlayCheck"
+                                  Content="Клавиатура с нужными клавишами поверх игры"
+                                  Margin="0,8,0,0" Checked="ControlsOverlay_Changed" Unchecked="ControlsOverlay_Changed"
+                                  ToolTip="Пока идёт игра, внизу экрана видна клавиатура: подсвечены клавиши этой игры и мышь"/>
+                        <CheckBox x:Name="VoiceOverlayCheck" Content="Оверлей звонка поверх игры (кто говорит)"
                                       Margin="0,8,0,0" Checked="VoiceOverlay_Changed" Unchecked="VoiceOverlay_Changed"
                                       ToolTip="Полупрозрачный список участников в углу экрана во время игры"/>
 

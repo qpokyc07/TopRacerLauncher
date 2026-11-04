@@ -89,6 +89,7 @@ public partial class AdminWindow : Window
         MicGainSlider.Value = Math.Clamp(s.VoiceInputGain, 0, 200);
         OpenMicCheck.IsChecked = s.VoiceMode == "open";
         VoiceOverlayCheck.IsChecked = s.VoiceOverlay;
+        ControlsOverlayCheck.IsChecked = s.ControlsOverlay;
         AutoAddSteamCheck.IsChecked = s.AutoAddSteamGames;
         AutoScanCheck.IsChecked = s.AutoScanGames;
         RefreshMicLabels();
@@ -1476,6 +1477,16 @@ public partial class AdminWindow : Window
 
         if (App.Settings.AutoAddSteamGames) SteamLibraryWatcher.Restart();
         else SteamLibraryWatcher.Stop();
+    }
+
+    private void ControlsOverlay_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_loaded) return;
+
+        App.Settings.ControlsOverlay = ControlsOverlayCheck.IsChecked == true;
+        App.SaveState();
+
+        if (!App.Settings.ControlsOverlay) ControlsOverlayWindow.Hide();
     }
 
     private void VoiceOverlay_Changed(object sender, RoutedEventArgs e)

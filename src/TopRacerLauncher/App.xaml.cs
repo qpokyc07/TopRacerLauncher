@@ -249,6 +249,8 @@ public partial class App : Application
                 Probe("CoverSearchWindow", () => new CoverSearchWindow(ImageKind.Cover, ""));
                 Probe("ToastWindow", () => new ToastWindow(5, critical: true));
                 Probe("LaunchOverlayWindow", () => new LaunchOverlayWindow("Test", GameControls.For("Counter-Strike 2")));
+            Probe("ControlsOverlayWindow", () => new ControlsOverlayWindow("Test",
+                GameControls.UsedKeys("Counter-Strike 2"), GameControls.For("Counter-Strike 2").Note));
                 Probe("ChatWindow", () =>
                 {
                     // Заодно проверяем карточку «Ты хочешь созвониться с другом?» на вкладке чата.
@@ -352,7 +354,8 @@ public partial class App : Application
         var adminArg = Arg("--shot-admin");
         var scrollArg = Arg("--shot-scroll");
         var overlayArg = Arg("--shot-overlay");
-        if (mainArg == null && adminArg == null && overlayArg == null) return false;
+        var controlsArg = Arg("--shot-controls");
+        if (mainArg == null && adminArg == null && overlayArg == null && controlsArg == null) return false;
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
@@ -374,7 +377,16 @@ public partial class App : Application
 
         if (overlayArg != null) LaunchOverlayWindow.SuppressAutoCenter = true;
 
-        Window window = overlayArg != null
+        var controlsTitle = controlsArg == null
+            ? ""
+            : controlsArg.Contains('=') ? controlsArg[(controlsArg.IndexOf('=') + 1)..] : "Counter-Strike 2";
+
+        if (controlsArg != null) ControlsOverlayWindow.SuppressAutoPlace = true;
+
+        Window window = controlsArg != null
+            ? new ControlsOverlayWindow(controlsTitle, GameControls.UsedKeys(controlsTitle),
+                GameControls.For(controlsTitle).Note)
+            : overlayArg != null
             ? new LaunchOverlayWindow(overlayTitle, GameControls.For(overlayTitle))
             : mainArg != null
                 ? new MainWindow { Width = 1600, Height = 900 }
@@ -436,7 +448,8 @@ public partial class App : Application
                     var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
                     encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
 
-                    var file = overlayArg != null ? PathOf(overlayArg)
+                    var file = controlsArg != null ? Path.Combine(Path.GetTempPath(), "shot-controls.png")
+                        : overlayArg != null ? PathOf(overlayArg)
                         : mainArg != null ? PathOf(mainArg)
                         : PathOf(adminArg!);
                     using var fs = File.Create(file);
