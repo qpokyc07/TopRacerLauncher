@@ -76,6 +76,7 @@ public partial class AdminWindow : Window
         _spkDevices = VoiceEngine.GetOutputDevices();
         MicGainSlider.Value = Math.Clamp(s.VoiceInputGain, 0, 200);
         OpenMicCheck.IsChecked = s.VoiceMode == "open";
+        VoiceOverlayCheck.IsChecked = s.VoiceOverlay;
         RefreshMicLabels();
         MakeSectionsCollapsible();
         UpdateUrlBox.Text = s.UpdateUrl;
@@ -1169,6 +1170,15 @@ public partial class AdminWindow : Window
         var room = VoiceEngine.RoomId;
         VoiceEngine.LeaveCall();
         VoiceEngine.StartCall(room);
+    }
+
+    private void VoiceOverlay_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_loaded) return;
+
+        App.Settings.VoiceOverlay = VoiceOverlayCheck.IsChecked == true;
+        App.SaveState();
+        VoiceOverlayWindow.Update();
     }
 
     private void MicMode_Changed(object sender, RoutedEventArgs e)

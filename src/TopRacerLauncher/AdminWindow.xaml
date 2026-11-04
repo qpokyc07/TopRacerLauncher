@@ -44,6 +44,9 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="24,20,24,24">
 
+
+                <!-- ===== СЕССИЯ ===== -->
+                <TextBlock Text="СЕССИЯ" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,0,0,8"/>
                 <!-- ===== Таймер ===== -->
                 <Border Style="{StaticResource PanelCard}" Margin="0,0,0,16">
                     <StackPanel>
@@ -171,6 +174,63 @@
                     </StackPanel>
                 </Border>
 
+                <!-- ===== Статистика по играм ===== -->
+                <Border Style="{StaticResource PanelCard}" Margin="0,0,0,16">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="Статистика по играм" Style="{StaticResource H1Text}"/>
+                            <TextBlock x:Name="PlayStatsTotal" Text="" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <TextBlock Text="Сколько времени проведено в каждой игре."
+                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <Button Content="Сегодня" Height="32" Padding="14,0"
+                                    Style="{StaticResource BaseButton}" Click="PlayStatsToday_Click"/>
+                            <Button Content="7 дней" Height="32" Padding="14,0" Margin="8,0,0,0"
+                                    Style="{StaticResource BaseButton}" Click="PlayStatsWeek_Click"/>
+                            <Button Content="Всё время" Height="32" Padding="14,0" Margin="8,0,0,0"
+                                    Style="{StaticResource BaseButton}" Click="PlayStatsAll_Click"/>
+                        </StackPanel>
+
+                        <ScrollViewer MaxHeight="280" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="PlayStatsList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#10FFFFFF" CornerRadius="8" Padding="10,8" Margin="0,0,0,6">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource TextBrush}"
+                                                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding TimeText}" FontSize="13"
+                                                           FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"
+                                                           VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding LaunchesText}" FontSize="11.5"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                           VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <TextBlock x:Name="PlayStatsEmpty" Text="Пока нет данных — запустите игру."
+                                   FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                   Visibility="Collapsed" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+
+                <!-- ===== ЖУРНАЛ ===== -->
+                <TextBlock Text="ЖУРНАЛ" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,22,0,8"/>
                 <!-- ===== История ===== -->
                 <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
                     <StackPanel>
@@ -250,6 +310,9 @@
                     </StackPanel>
                 </Border>
 
+
+                <!-- ===== КЛУБ ===== -->
+                <TextBlock Text="КЛУБ" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,22,0,8"/>
                 <!-- ===== Промокоды ===== -->
                 <Border Style="{StaticResource PanelCard}" Margin="0,0,0,16">
                     <StackPanel>
@@ -307,236 +370,6 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </ScrollViewer>
-                    </StackPanel>
-                </Border>
-
-                <!-- ===== Статистика по играм ===== -->
-                <Border Style="{StaticResource PanelCard}" Margin="0,0,0,16">
-                    <StackPanel>
-                        <Grid>
-                            <TextBlock Text="Статистика по играм" Style="{StaticResource H1Text}"/>
-                            <TextBlock x:Name="PlayStatsTotal" Text="" FontSize="13" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        </Grid>
-                        <TextBlock Text="Сколько времени проведено в каждой игре."
-                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0"/>
-
-                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                            <Button Content="Сегодня" Height="32" Padding="14,0"
-                                    Style="{StaticResource BaseButton}" Click="PlayStatsToday_Click"/>
-                            <Button Content="7 дней" Height="32" Padding="14,0" Margin="8,0,0,0"
-                                    Style="{StaticResource BaseButton}" Click="PlayStatsWeek_Click"/>
-                            <Button Content="Всё время" Height="32" Padding="14,0" Margin="8,0,0,0"
-                                    Style="{StaticResource BaseButton}" Click="PlayStatsAll_Click"/>
-                        </StackPanel>
-
-                        <ScrollViewer MaxHeight="280" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto">
-                            <ItemsControl x:Name="PlayStatsList">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Background="#10FFFFFF" CornerRadius="8" Padding="10,8" Margin="0,0,0,6">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold"
-                                                           Foreground="{StaticResource TextBrush}"
-                                                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding TimeText}" FontSize="13"
-                                                           FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"
-                                                           VerticalAlignment="Center" Margin="12,0,0,0"/>
-                                                <TextBlock Grid.Column="2" Text="{Binding LaunchesText}" FontSize="11.5"
-                                                           Foreground="{StaticResource TextSecondaryBrush}"
-                                                           VerticalAlignment="Center" Margin="12,0,0,0"/>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-
-                        <TextBlock x:Name="PlayStatsEmpty" Text="Пока нет данных — запустите игру."
-                                   FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
-                                   Visibility="Collapsed" Margin="0,8,0,0"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- ===== Безопасность и система ===== -->
-                <StackPanel Margin="0,16,0,0">
-
-                    <!-- Микрофон и звонки -->
-                    <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
-                        <StackPanel>
-                            <TextBlock Text="Микрофон и звонки" Style="{StaticResource H1Text}"/>
-                            <TextBlock Text="Что использует голосовой чат: микрофон, наушники, режим передачи и громкость своего микрофона."
-                                       Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
-
-                            <TextBlock Text="Микрофон" Style="{StaticResource SecondaryText}" Margin="0,14,0,6"/>
-                            <Button x:Name="MicDeviceButton" Content="Микрофон: по умолчанию  ▾"
-                                    Height="36" HorizontalAlignment="Stretch" FontSize="12.5"
-                                    Style="{StaticResource BaseButton}" Click="MicDevice_Click"/>
-
-                            <TextBlock Text="Наушники" Style="{StaticResource SecondaryText}" Margin="0,10,0,6"/>
-                            <Button x:Name="SpkDeviceButton" Content="Наушники: по умолчанию  ▾"
-                                    Height="36" HorizontalAlignment="Stretch" FontSize="12.5"
-                                    Style="{StaticResource BaseButton}" Click="SpkDevice_Click"/>
-
-                            <CheckBox x:Name="OpenMicCheck" Content="Передавать постоянно (без кнопки)"
-                                      Margin="0,14,0,0" Checked="MicMode_Changed" Unchecked="MicMode_Changed"
-                                      ToolTip="Выключено — режим «по кнопке» (Push-to-Talk)"/>
-
-                            <TextBlock x:Name="MicGainLabel" Text="Громкость микрофона: 100%"
-                                       Style="{StaticResource SecondaryText}" Margin="0,14,0,4"/>
-                            <Slider x:Name="MicGainSlider" Minimum="0" Maximum="200" TickFrequency="10"
-                                    IsSnapToTickEnabled="True" Style="{StaticResource BaseSlider}"
-                                    ValueChanged="MicGain_Changed"/>
-
-                            <TextBlock Text="Клавиша разговора (Push-to-Talk)"
-                                       Style="{StaticResource SecondaryText}" Margin="0,14,0,6"/>
-                            <Button x:Name="PttKeyButton" Content="Клавиша: V" Height="36"
-                                    HorizontalAlignment="Left" Padding="16,0" FontSize="12.5"
-                                    Style="{StaticResource BaseButton}" Click="PttKey_Click"
-                                    ToolTip="Нажмите кнопку, затем нужную клавишу"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Система -->
-                    <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
-                        <StackPanel>
-                            <TextBlock Text="Система" Style="{StaticResource H1Text}"/>
-                            <TextBlock Text="Пароль закрытой системы (вход в лаунчер и админ-меню по Ctrl+1) и автозапуск при включении ПК."
-                                       Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
-                            <Button Content="Сменить пароль" Height="40" Margin="0,14,0,0"
-                                    HorizontalAlignment="Left" Padding="18,0"
-                                    Style="{StaticResource BaseButton}" Click="ChangePassword_Click"/>
-                            <CheckBox x:Name="AutostartCheck" Content="Автозагрузка при включении ПК"
-                                      Margin="0,14,0,0" Checked="Autostart_Changed" Unchecked="Autostart_Changed"/>
-                            <CheckBox x:Name="SoundCheck" Content="Звук при неверном пароле"
-                                      Margin="0,10,0,0" Checked="Sound_Changed" Unchecked="Sound_Changed"/>
-                            <CheckBox x:Name="AutoCoversCheck" Content="Обложки из Steam автоматически"
-                                      Margin="0,10,0,0" Checked="AutoCovers_Changed" Unchecked="AutoCovers_Changed"/>
-                            <CheckBox x:Name="HideStoreCheck" Content="Скрывать окна Steam/Rockstar при запуске игры"
-                                      Margin="0,10,0,0" Checked="HideStore_Changed" Unchecked="HideStore_Changed"
-                                      ToolTip="Лаунчер магазина не будет выскакивать поверх игры"/>
-
-                            <CheckBox x:Name="FullScreenCheck" Content="Полный экран"
-                                      Margin="0,10,0,0" Checked="FullScreen_Changed" Unchecked="FullScreen_Changed"/>
-
-                            <CheckBox x:Name="KioskCheck" Content="Киоск-режим (не выпускать из лаунчера)"
-                                      Margin="0,10,0,0" Checked="Kiosk_Changed" Unchecked="Kiosk_Changed"/>
-
-                            <TextBlock Text="Ваше имя (видно друзьям в сети)" Style="{StaticResource SecondaryText}"
-                                       Margin="0,14,0,6"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBox x:Name="UserNameBox" Grid.Column="0" Style="{StaticResource BaseTextBox}"
-                                         Height="36" MaxLength="32"/>
-                                <Button Grid.Column="1" Content="Сохранить" Height="36" Margin="8,0,0,0"
-                                        Padding="12,0" Style="{StaticResource BaseButton}"
-                                        Click="SaveUserName_Click"/>
-                            </Grid>
-
-                            <TextBlock Text="Обновления — ссылка на update.json или папка с ним"
-                                       Style="{StaticResource SecondaryText}" Margin="0,14,0,6"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBox x:Name="UpdateUrlBox" Grid.Column="0" Style="{StaticResource BaseTextBox}"
-                                         Height="36" MaxLength="400"/>
-                                <Button Grid.Column="1" Content="Сохранить и проверить" Height="36" Margin="8,0,0,0"
-                                        Padding="12,0" Style="{StaticResource BaseButton}"
-                                        Click="SaveUpdate_Click"/>
-                            </Grid>
-                            <TextBlock x:Name="VersionLabel" Text="" Style="{StaticResource SecondaryText}"
-                                       Margin="0,6,0,0"/>
-                            <Button Content="История версий" Height="30" Padding="12,0" FontSize="12"
-                                    HorizontalAlignment="Left" Margin="0,8,0,0"
-                                    Style="{StaticResource BaseButton}" Click="OpenChangelog_Click"
-                                    ToolTip="Что менялось в прошлых патчах"/>
-                            <Button x:Name="KillGameButton" Content="Завершить запущенную игру" Height="40"
-                                    Margin="0,16,0,0" HorizontalAlignment="Left" Padding="18,0"
-                                    Style="{StaticResource DangerButton}" Click="KillGame_Click"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <!-- Оформление: тема и фон приложения -->
-                <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
-                    <StackPanel>
-                        <TextBlock Text="Оформление" Style="{StaticResource H1Text}"/>
-                        <TextBlock Text="Цвета акцентов и фонов лаунчера применяются сразу."
-                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
-                                      Margin="0,14,0,0">
-                            <StackPanel x:Name="ThemeButtonsPanel" Orientation="Horizontal"/>
-                        </ScrollViewer>
-                        <TextBlock x:Name="ThemeNameText" Text="" FontSize="12.5" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource AccentBrush}" Margin="0,8,0,0"/>
-
-                        <CheckBox x:Name="TransparentPanelsCheck" Content="Полупрозрачные панели «Друзья» и «Описание»"
-                                  Margin="0,12,0,0" Checked="Panels_Changed" Unchecked="Panels_Changed"/>
-                        <CheckBox x:Name="AccentTitlesCheck" Content="Названия игр цветом акцента"
-                                  Margin="0,8,0,0" Checked="Titles_Changed" Unchecked="Titles_Changed"/>
-                        <CheckBox x:Name="PcSpecsCheck" Content="Блок «Характеристики ПК» на главном экране"
-                                  Margin="0,8,0,0" Checked="PcSpecs_Changed" Unchecked="PcSpecs_Changed"
-                                  ToolTip="Снимите галочку, чтобы скрыть характеристики компьютера от гостей"/>
-
-                        <!-- Пропорции карточек -->
-                        <TextBlock Text="Пропорции карточек" Style="{StaticResource H2Text}" Margin="0,10,0,8"/>
-                        <WrapPanel x:Name="AspectPanel" Margin="0,0,0,4"/>
-
-                        <!-- Размер карточек: ползунок в шапке виден только админу -->
-                        <TextBlock Text="Размер карточек" Style="{StaticResource H2Text}" Margin="0,12,0,6"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Slider x:Name="CardWidthSlider" Minimum="100" Maximum="380"
-                                    VerticalAlignment="Center" Style="{StaticResource BaseSlider}"
-                                    ValueChanged="CardWidth_Changed"
-                                    PreviewMouseLeftButtonUp="CardWidth_Commit"
-                                    PreviewKeyUp="CardWidth_Commit"/>
-                            <TextBlock x:Name="CardWidthLabel" Grid.Column="1" Text="178" FontSize="12.5"
-                                       FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"
-                                       VerticalAlignment="Center" Margin="12,0,0,0" MinWidth="34"/>
-                        </Grid>
-
-                        <!-- Фон всего приложения -->
-                        <TextBlock Text="Фон приложения" Style="{StaticResource H2Text}" Margin="0,10,0,8"/>
-                        <TextBlock Text="Картинка позади библиотеки игр. Подойдёт любое изображение."
-                                   Style="{StaticResource SecondaryText}" Margin="0,0,0,10" TextWrapping="Wrap"/>
-                        <StackPanel Orientation="Horizontal">
-                            <Border Width="160" Height="90" CornerRadius="5" Background="#141419"
-                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
-                                    ClipToBounds="True">
-                                <Grid>
-                                    <TextBlock x:Name="BgPreviewHint" Text="Фон не задан"
-                                               FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <Image x:Name="BgPreviewImage" Stretch="UniformToFill" Visibility="Collapsed"/>
-                                </Grid>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <Button Content="Выбрать файл…" Height="32" Padding="14,0" FontSize="12.5"
-                                        HorizontalAlignment="Left" Style="{StaticResource BaseButton}"
-                                        Click="BrowseAppBackground_Click"/>
-                                <Button Content="Найти в интернете…" Height="32" Padding="14,0" FontSize="12.5"
-                                        Margin="0,8,0,0" HorizontalAlignment="Left" Style="{StaticResource BaseButton}"
-                                        Click="SearchAppBackground_Click"/>
-                                <Button Content="Убрать фон" Height="32" Padding="14,0" FontSize="12.5"
-                                        Margin="0,8,0,0" HorizontalAlignment="Left" Style="{StaticResource DangerButton}"
-                                        Click="ClearAppBackground_Click"/>
-                            </StackPanel>
-                        </StackPanel>
                     </StackPanel>
                 </Border>
 
@@ -643,6 +476,187 @@
                         </StackPanel>
                         <TextBlock x:Name="AfishaStatusText" Text="" Style="{StaticResource SecondaryText}"
                                    Margin="0,8,0,0" Visibility="Collapsed"/>
+                    </StackPanel>
+                </Border>
+
+
+                <!-- ===== СВЯЗЬ ===== -->
+                <TextBlock Text="СВЯЗЬ" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,22,0,8"/>
+                    <!-- Микрофон и звонки -->
+                    <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Микрофон и звонки" Style="{StaticResource H1Text}"/>
+                            <TextBlock Text="Что использует голосовой чат: микрофон, наушники, режим передачи и громкость своего микрофона."
+                                       Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+
+                            <TextBlock Text="Микрофон" Style="{StaticResource SecondaryText}" Margin="0,14,0,6"/>
+                            <Button x:Name="MicDeviceButton" Content="Микрофон: по умолчанию  ▾"
+                                    Height="36" HorizontalAlignment="Stretch" FontSize="12.5"
+                                    Style="{StaticResource BaseButton}" Click="MicDevice_Click"/>
+
+                            <TextBlock Text="Наушники" Style="{StaticResource SecondaryText}" Margin="0,10,0,6"/>
+                            <Button x:Name="SpkDeviceButton" Content="Наушники: по умолчанию  ▾"
+                                    Height="36" HorizontalAlignment="Stretch" FontSize="12.5"
+                                    Style="{StaticResource BaseButton}" Click="SpkDevice_Click"/>
+
+                            <CheckBox x:Name="OpenMicCheck" Content="Передавать постоянно (без кнопки)"
+                                      Margin="0,14,0,0" Checked="MicMode_Changed" Unchecked="MicMode_Changed"
+                                      ToolTip="Выключено — режим «по кнопке» (Push-to-Talk)"/>
+                            <CheckBox x:Name="VoiceOverlayCheck" Content="Оверлей звонка поверх игры (кто говорит)"
+                                      Margin="0,8,0,0" Checked="VoiceOverlay_Changed" Unchecked="VoiceOverlay_Changed"
+                                      ToolTip="Полупрозрачный список участников в углу экрана во время игры"/>
+
+                            <TextBlock x:Name="MicGainLabel" Text="Громкость микрофона: 100%"
+                                       Style="{StaticResource SecondaryText}" Margin="0,14,0,4"/>
+                            <Slider x:Name="MicGainSlider" Minimum="0" Maximum="200" TickFrequency="10"
+                                    IsSnapToTickEnabled="True" Style="{StaticResource BaseSlider}"
+                                    ValueChanged="MicGain_Changed"/>
+
+                            <TextBlock Text="Клавиша разговора (Push-to-Talk)"
+                                       Style="{StaticResource SecondaryText}" Margin="0,14,0,6"/>
+                            <Button x:Name="PttKeyButton" Content="Клавиша: V" Height="36"
+                                    HorizontalAlignment="Left" Padding="16,0" FontSize="12.5"
+                                    Style="{StaticResource BaseButton}" Click="PttKey_Click"
+                                    ToolTip="Нажмите кнопку, затем нужную клавишу"/>
+                        </StackPanel>
+                    </Border>
+
+
+                <!-- ===== СИСТЕМА ===== -->
+                <TextBlock Text="СИСТЕМА" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,22,0,8"/>
+                    <!-- Система -->
+                    <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Система" Style="{StaticResource H1Text}"/>
+                            <TextBlock Text="Пароль закрытой системы (вход в лаунчер и админ-меню по Ctrl+1) и автозапуск при включении ПК."
+                                       Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                            <Button Content="Сменить пароль" Height="40" Margin="0,14,0,0"
+                                    HorizontalAlignment="Left" Padding="18,0"
+                                    Style="{StaticResource BaseButton}" Click="ChangePassword_Click"/>
+                            <CheckBox x:Name="AutostartCheck" Content="Автозагрузка при включении ПК"
+                                      Margin="0,14,0,0" Checked="Autostart_Changed" Unchecked="Autostart_Changed"/>
+                            <CheckBox x:Name="SoundCheck" Content="Звук при неверном пароле"
+                                      Margin="0,10,0,0" Checked="Sound_Changed" Unchecked="Sound_Changed"/>
+                            <CheckBox x:Name="AutoCoversCheck" Content="Обложки из Steam автоматически"
+                                      Margin="0,10,0,0" Checked="AutoCovers_Changed" Unchecked="AutoCovers_Changed"/>
+                            <CheckBox x:Name="HideStoreCheck" Content="Скрывать окна Steam/Rockstar при запуске игры"
+                                      Margin="0,10,0,0" Checked="HideStore_Changed" Unchecked="HideStore_Changed"
+                                      ToolTip="Лаунчер магазина не будет выскакивать поверх игры"/>
+
+                            <CheckBox x:Name="FullScreenCheck" Content="Полный экран"
+                                      Margin="0,10,0,0" Checked="FullScreen_Changed" Unchecked="FullScreen_Changed"/>
+
+                            <CheckBox x:Name="KioskCheck" Content="Киоск-режим (не выпускать из лаунчера)"
+                                      Margin="0,10,0,0" Checked="Kiosk_Changed" Unchecked="Kiosk_Changed"/>
+
+                            <TextBlock Text="Ваше имя (видно друзьям в сети)" Style="{StaticResource SecondaryText}"
+                                       Margin="0,14,0,6"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="UserNameBox" Grid.Column="0" Style="{StaticResource BaseTextBox}"
+                                         Height="36" MaxLength="32"/>
+                                <Button Grid.Column="1" Content="Сохранить" Height="36" Margin="8,0,0,0"
+                                        Padding="12,0" Style="{StaticResource BaseButton}"
+                                        Click="SaveUserName_Click"/>
+                            </Grid>
+
+                            <TextBlock Text="Обновления — ссылка на update.json или папка с ним"
+                                       Style="{StaticResource SecondaryText}" Margin="0,14,0,6"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="UpdateUrlBox" Grid.Column="0" Style="{StaticResource BaseTextBox}"
+                                         Height="36" MaxLength="400"/>
+                                <Button Grid.Column="1" Content="Сохранить и проверить" Height="36" Margin="8,0,0,0"
+                                        Padding="12,0" Style="{StaticResource BaseButton}"
+                                        Click="SaveUpdate_Click"/>
+                            </Grid>
+                            <TextBlock x:Name="VersionLabel" Text="" Style="{StaticResource SecondaryText}"
+                                       Margin="0,6,0,0"/>
+                            <Button Content="История версий" Height="30" Padding="12,0" FontSize="12"
+                                    HorizontalAlignment="Left" Margin="0,8,0,0"
+                                    Style="{StaticResource BaseButton}" Click="OpenChangelog_Click"
+                                    ToolTip="Что менялось в прошлых патчах"/>
+                            <Button x:Name="KillGameButton" Content="Завершить запущенную игру" Height="40"
+                                    Margin="0,16,0,0" HorizontalAlignment="Left" Padding="18,0"
+                                    Style="{StaticResource DangerButton}" Click="KillGame_Click"/>
+                        </StackPanel>
+                    </Border>
+
+                <!-- Оформление: тема и фон приложения -->
+                <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Оформление" Style="{StaticResource H1Text}"/>
+                        <TextBlock Text="Цвета акцентов и фонов лаунчера применяются сразу."
+                                   Style="{StaticResource SecondaryText}" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                                      Margin="0,14,0,0">
+                            <StackPanel x:Name="ThemeButtonsPanel" Orientation="Horizontal"/>
+                        </ScrollViewer>
+                        <TextBlock x:Name="ThemeNameText" Text="" FontSize="12.5" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource AccentBrush}" Margin="0,8,0,0"/>
+
+                        <CheckBox x:Name="TransparentPanelsCheck" Content="Полупрозрачные панели «Друзья» и «Описание»"
+                                  Margin="0,12,0,0" Checked="Panels_Changed" Unchecked="Panels_Changed"/>
+                        <CheckBox x:Name="AccentTitlesCheck" Content="Названия игр цветом акцента"
+                                  Margin="0,8,0,0" Checked="Titles_Changed" Unchecked="Titles_Changed"/>
+                        <CheckBox x:Name="PcSpecsCheck" Content="Блок «Характеристики ПК» на главном экране"
+                                  Margin="0,8,0,0" Checked="PcSpecs_Changed" Unchecked="PcSpecs_Changed"
+                                  ToolTip="Снимите галочку, чтобы скрыть характеристики компьютера от гостей"/>
+
+                        <!-- Пропорции карточек -->
+                        <TextBlock Text="Пропорции карточек" Style="{StaticResource H2Text}" Margin="0,10,0,8"/>
+                        <WrapPanel x:Name="AspectPanel" Margin="0,0,0,4"/>
+
+                        <!-- Размер карточек: ползунок в шапке виден только админу -->
+                        <TextBlock Text="Размер карточек" Style="{StaticResource H2Text}" Margin="0,12,0,6"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider x:Name="CardWidthSlider" Minimum="100" Maximum="380"
+                                    VerticalAlignment="Center" Style="{StaticResource BaseSlider}"
+                                    ValueChanged="CardWidth_Changed"
+                                    PreviewMouseLeftButtonUp="CardWidth_Commit"
+                                    PreviewKeyUp="CardWidth_Commit"/>
+                            <TextBlock x:Name="CardWidthLabel" Grid.Column="1" Text="178" FontSize="12.5"
+                                       FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"
+                                       VerticalAlignment="Center" Margin="12,0,0,0" MinWidth="34"/>
+                        </Grid>
+
+                        <!-- Фон всего приложения -->
+                        <TextBlock Text="Фон приложения" Style="{StaticResource H2Text}" Margin="0,10,0,8"/>
+                        <TextBlock Text="Картинка позади библиотеки игр. Подойдёт любое изображение."
+                                   Style="{StaticResource SecondaryText}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="160" Height="90" CornerRadius="5" Background="#141419"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                    ClipToBounds="True">
+                                <Grid>
+                                    <TextBlock x:Name="BgPreviewHint" Text="Фон не задан"
+                                               FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Image x:Name="BgPreviewImage" Stretch="UniformToFill" Visibility="Collapsed"/>
+                                </Grid>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <Button Content="Выбрать файл…" Height="32" Padding="14,0" FontSize="12.5"
+                                        HorizontalAlignment="Left" Style="{StaticResource BaseButton}"
+                                        Click="BrowseAppBackground_Click"/>
+                                <Button Content="Найти в интернете…" Height="32" Padding="14,0" FontSize="12.5"
+                                        Margin="0,8,0,0" HorizontalAlignment="Left" Style="{StaticResource BaseButton}"
+                                        Click="SearchAppBackground_Click"/>
+                                <Button Content="Убрать фон" Height="32" Padding="14,0" FontSize="12.5"
+                                        Margin="0,8,0,0" HorizontalAlignment="Left" Style="{StaticResource DangerButton}"
+                                        Click="ClearAppBackground_Click"/>
+                            </StackPanel>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 

@@ -70,6 +70,9 @@ public partial class MainWindow : Window
         RefreshAfisha();
         TickerViewport.SizeChanged += (_, _) => StartTickerMarquee();
 
+        // Оверлей звонка поверх игры: показываем и обновляем вместе с состоянием звонка.
+        VoiceEngine.StateChanged += VoiceOverlayWindow.Update;
+
         _tick.Tick += OnTick;
         Achievements.Unlocked += OnAchievementsUnlocked;
         _friendsTimer.Tick += (_, _) => RefreshFriends();

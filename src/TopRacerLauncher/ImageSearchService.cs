@@ -119,6 +119,27 @@ public static class ImageSearchService
         var cover = await TryDownloadArtAsync(appId, ImageKind.Cover, ct);
         var background = await TryDownloadArtAsync(appId, ImageKind.Background, ct);
 
+        // По appid ничего нет — ищем игру по названию и пробуем лучшие совпадения.
+        // Так обложка подтягивается автоматически, даже если appid устарел или ошибочный.
+        if (cover == null && background == null && !string.IsNullOrWhiteSpace(title))
+        {
+            var found = await SearchAsync(title, ct);
+
+            foreach (var candidate in found.Take(3))
+            {
+                if (string.Equals(candidate.AppId, appId, StringComparison.Ordinal)) continue;
+
+                cover = await TryDownloadArtAsync(candidate.AppId, ImageKind.Cover, ct);
+                background ??= await TryDownloadArtAsync(candidate.AppId, ImageKind.Background, ct);
+
+                if (cover != null || background != null)
+                {
+                    appId = candidate.AppId;
+                    break;
+                }
+            }
+        }
+
         if (cover == null && background == null) return null;
         return new GameArt(cover, background, appId);
     }

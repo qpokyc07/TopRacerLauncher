@@ -849,10 +849,21 @@
                 </StackPanel>
 
                 <!-- Справка по центру -->
-                <Button Grid.Column="1" Width="38" Height="38" HorizontalAlignment="Center"
-                        VerticalAlignment="Center" Style="{StaticResource CaptionButton}"
-                        Click="Help_Click" ToolTip="Как играть" Content="?&#x20;" FontSize="20"
-                        FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                <Button Grid.Column="1" Height="38" Padding="16,0" HorizontalAlignment="Center"
+                        VerticalAlignment="Center" Style="{StaticResource BaseButton}"
+                        Click="Help_Click" ToolTip="Как играть: браузер, Steam, промокоды, звонки"
+                        WindowChrome.IsHitTestVisibleInChrome="True">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="22" Height="22" CornerRadius="11"
+                                Background="{DynamicResource AccentBrush}" VerticalAlignment="Center">
+                            <TextBlock Text="?" FontSize="13" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Как играть" FontSize="13" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"
+                                   Margin="9,0,0,0"/>
+                    </StackPanel>
+                </Button>
 
                 <!-- Акция и ссылка справа -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"

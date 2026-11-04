@@ -39,6 +39,16 @@ public static class VoiceEngine
 
     public static void SetPeerVolume(Guid id, int percent) => PeerVolumes[id] = Math.Clamp(percent, 0, 200);
 
+    // ---- Кто сейчас говорит (для оверлея звонка) ----
+
+    private static readonly Dictionary<Guid, DateTime> SpeakingSince = new();
+
+    /// <summary>Говорит ли участник: слышали его пакеты в последние 600 мс.</summary>
+    public static bool IsPeerSpeaking(Guid id)
+        => SpeakingSince.TryGetValue(id, out var at) && (DateTime.UtcNow - at).TotalMilliseconds < 600;
+
+    private static void MarkSpeaking(Guid id) => SpeakingSince[id] = DateTime.UtcNow;
+
     /// <summary>Масштабирует 16-битный PCM на месте.</summary>
     private static void ApplyGain(byte[] buffer, int offset, int count, double gain)
     {
@@ -170,6 +180,7 @@ public static class VoiceEngine
         _buffer = null;
         RoomId = Guid.Empty;
         PushToTalkHeld = false;
+        SpeakingSince.Clear();
 
         StateChanged?.Invoke();
     }
@@ -226,6 +237,7 @@ public static class VoiceEngine
 
                 ApplyGain(data, HeaderSize, data.Length - HeaderSize, volume / 100.0);
                 _buffer?.AddSamples(data, HeaderSize, data.Length - HeaderSize);
+                MarkSpeaking(sender);
             }
             catch { /* битый пакет */ }
         }

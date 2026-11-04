@@ -183,6 +183,9 @@ public sealed class Settings
     /// <summary>Усиление своего микрофона, проценты (100 — как есть).</summary>
     public int VoiceInputGain { get; set; } = 100;
 
+    /// <summary>Оверлей звонка поверх игры (кто говорит).</summary>
+    public bool VoiceOverlay { get; set; } = true;
+
 
     [System.Text.Json.Serialization.JsonIgnore]
     public bool PasswordSet => !string.IsNullOrEmpty(PasswordHash);
