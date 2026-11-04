@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="TopRacerLauncher — Админ-меню"
-        Width="880" Height="760"
+        Width="1010" Height="780"
         MinWidth="720" MinHeight="600"
         WindowStyle="None" ResizeMode="CanResize"
         WindowStartupLocation="CenterScreen"
@@ -17,6 +17,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="52"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -40,13 +41,21 @@
             </Grid>
         </Border>
 
+        <!-- Вкладки разделов админ-меню -->
+        <Border Grid.Row="1" Background="{DynamicResource BgPanelBrush}"
+                BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="0,0,0,1">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <StackPanel x:Name="AdminTabs" Orientation="Horizontal" Margin="16,9,16,9"/>
+            </ScrollViewer>
+        </Border>
+
         <!-- Содержимое -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="AdminScroll" Grid.Row="2" VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="24,20,24,24">
 
 
-                <!-- ===== СЕССИЯ ===== -->
-                <TextBlock Text="СЕССИЯ" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,0,0,8"/>
+                <StackPanel x:Name="PageSession" Visibility="Visible">
+
                 <Border Style="{StaticResource PanelCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <Grid>
@@ -180,8 +189,10 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ===== СТАТИСТИКА ===== -->
-                <TextBlock Text="СТАТИСТИКА" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,22,0,8"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PageStats" Visibility="Collapsed">
+
                 <Border Style="{StaticResource PanelCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="Статистика" Style="{StaticResource H1Text}"/>
@@ -330,8 +341,10 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ===== КЛУБ ===== -->
-                <TextBlock Text="КЛУБ" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,22,0,8"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PageClub" Visibility="Collapsed">
+
                 <Border Style="{StaticResource PanelCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="Клуб" Style="{StaticResource H1Text}"/>
@@ -521,8 +534,10 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ===== СВЯЗЬ ===== -->
-                <TextBlock Text="СВЯЗЬ" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,22,0,8"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PageComm" Visibility="Collapsed">
+
                     <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
                         <StackPanel>
                             <TextBlock Text="Микрофон и звонки" Style="{StaticResource H1Text}"/>
@@ -561,8 +576,10 @@
                         </StackPanel>
                     </Border>
 
-                <!-- ===== СИСТЕМА ===== -->
-                <TextBlock Text="СИСТЕМА" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="6,22,0,8"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PageSystem" Visibility="Collapsed">
+
                     <Border Style="{StaticResource PanelCard}" Margin="0,16,0,0">
                         <StackPanel>
                             <TextBlock Text="Система" Style="{StaticResource H1Text}"/>
@@ -696,6 +713,8 @@
                     </StackPanel>
                 </Border>
 
+
+                </StackPanel>
 
                 <!-- Низ -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">

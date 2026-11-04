@@ -140,6 +140,32 @@ public partial class MainWindow : Window
         LoadPcInfo();
     }
 
+    /// <summary>Главное окно плавно поднимается снизу при запуске.</summary>
+    private void AnimateWindowEntrance()
+    {
+        if (Content is not FrameworkElement root) return;
+
+        var shift = new TranslateTransform(0, 30);
+        root.RenderTransform = shift;
+
+        var ease = new System.Windows.Media.Animation.CubicEase
+        {
+            EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut,
+        };
+
+        shift.BeginAnimation(TranslateTransform.YProperty,
+            new System.Windows.Media.Animation.DoubleAnimation(30, 0, TimeSpan.FromMilliseconds(460))
+            {
+                EasingFunction = ease,
+            });
+
+        root.BeginAnimation(OpacityProperty,
+            new System.Windows.Media.Animation.DoubleAnimation(0.3, 1, TimeSpan.FromMilliseconds(360))
+            {
+                EasingFunction = ease,
+            });
+    }
+
     // ---------- Библиотека ----------
 
     private void RebuildLibrary()

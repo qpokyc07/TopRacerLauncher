@@ -25,22 +25,17 @@ public partial class AdminWindow : Window
         BeginAnimation(OpacityProperty,
             new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(160)));
 
-        // Лёгкое «всплытие» содержимого окна — дороже, чем просто появиться.
-        // Самому Window RenderTransform задавать нельзя, только его содержимому.
-        var scale = new ScaleTransform(0.96, 0.96);
-        if (Content is FrameworkElement root)
-        {
-            root.RenderTransform = scale;
-            root.RenderTransformOrigin = new Point(0.5, 0.5);
-        }
+        // Окно «поднимается» снизу: сдвиг + фейд. Самому Window RenderTransform задавать нельзя.
+        var slide = new TranslateTransform(0, 26);
+        if (Content is FrameworkElement root) root.RenderTransform = slide;
 
         var ease = new System.Windows.Media.Animation.CubicEase
         {
             EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut,
         };
 
-        scale.BeginAnimation(ScaleTransform.ScaleXProperty, new System.Windows.Media.Animation.DoubleAnimation(0.96, 1, TimeSpan.FromMilliseconds(260)) { EasingFunction = ease });
-        scale.BeginAnimation(ScaleTransform.ScaleYProperty, new System.Windows.Media.Animation.DoubleAnimation(0.96, 1, TimeSpan.FromMilliseconds(260)) { EasingFunction = ease });
+        slide.BeginAnimation(TranslateTransform.YProperty, new System.Windows.Media.Animation.DoubleAnimation(
+            26, 0, TimeSpan.FromMilliseconds(340)) { EasingFunction = ease });
         Loaded += OnLoaded;
         _uiTimer.Tick += (_, _) => UpdateRemainingLabel();
         _uiTimer.Start();
@@ -120,6 +115,7 @@ public partial class AdminWindow : Window
         RefreshHistory();
         RefreshUsage();
 
+        BuildAdminTabs();
         HighlightTabs(StatsTabs, "history");
         HighlightTabs(ClubTabs, "promo");
 
@@ -1059,6 +1055,97 @@ public partial class AdminWindow : Window
             : FindResource("TextSecondaryBrush") as Brush ?? Brushes.Gray;
     }
 
+    // ---------- Вкладки админ-меню ----------
+
+    private readonly Dictionary<string, UIElement> _adminPages = new();
+
+    /// <summary>Вкладки разделов: заголовок + короткое пояснение, как в браузере.</summary>
+    private void BuildAdminTabs()
+    {
+        AdminTabs.Children.Clear();
+        _adminPages.Clear();
+
+        var tabs = new (string Key, string Title, string Hint, UIElement Page)[]
+        {
+            ("session", "Таймер и игры", "сессия, минуты, библиотека", PageSession),
+            ("stats",   "Статистика",    "история и часы по играм",       PageStats),
+            ("club",    "Клуб",          "промокоды, посты, афиша",              PageClub),
+            ("comm",    "Связь",         "микрофон, звонки, оверлей",            PageComm),
+            ("system",  "Система",       "пароль, оформление, обновления", PageSystem),
+        };
+
+        foreach (var (key, title, hint, page) in tabs)
+        {
+            var content = new StackPanel();
+            content.Children.Add(new TextBlock
+            {
+                Text = title,
+                FontSize = 13,
+                FontWeight = FontWeights.SemiBold,
+                HorizontalAlignment = HorizontalAlignment.Left,
+            });
+            content.Children.Add(new TextBlock
+            {
+                Text = hint,
+                FontSize = 10,
+                Margin = new Thickness(0, 1, 0, 0),
+                HorizontalAlignment = HorizontalAlignment.Left,
+            });
+
+            var button = new Button
+            {
+                Content = content,
+                Tag = key,
+                Padding = new Thickness(14, 6, 14, 7),
+                Margin = new Thickness(0, 0, 8, 0),
+                Style = FindResource("BaseButton") as Style,
+                Cursor = System.Windows.Input.Cursors.Hand,
+            };
+            button.Click += AdminTab_Click;
+
+            AdminTabs.Children.Add(button);
+            _adminPages[key] = page;
+        }
+
+        SelectAdminTab("session");
+    }
+
+    private void AdminTab_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.Tag is string key) SelectAdminTab(key);
+    }
+
+    private void SelectAdminTab(string key)
+    {
+        if (_adminPages.Count == 0) return;
+
+        foreach (var (pageKey, page) in _adminPages)
+            page.Visibility = pageKey == key ? Visibility.Visible : Visibility.Collapsed;
+
+        var accent = FindResource("AccentBrush") as Brush ?? Brushes.SteelBlue;
+        var card = FindResource("BgCardBrush") as Brush ?? Brushes.DimGray;
+        var secondary = FindResource("TextSecondaryBrush") as Brush ?? Brushes.Gray;
+        var activeHint = new SolidColorBrush(Color.FromArgb(0xCC, 0xFF, 0xFF, 0xFF));
+
+        foreach (var child in AdminTabs.Children)
+        {
+            if (child is not Button button || button.Tag is not string tag) continue;
+
+            bool active = tag == key;
+            button.Background = active ? accent : card;
+            button.BorderBrush = active ? accent : (FindResource("BorderBrush") as Brush ?? Brushes.Gray);
+
+            if (button.Content is StackPanel content && content.Children.Count >= 2)
+            {
+                if (content.Children[0] is TextBlock title)
+                    title.Foreground = active ? Brushes.White : (FindResource("TextBrush") as Brush ?? Brushes.White);
+                if (content.Children[1] is TextBlock hint)
+                    hint.Foreground = active ? activeHint : secondary;
+            }
+        }
+
+        AdminScroll?.ScrollToTop();
+    }
     // ---------- Переключатели разделов ----------
 
     private void StatsTab_Click(object sender, RoutedEventArgs e)
