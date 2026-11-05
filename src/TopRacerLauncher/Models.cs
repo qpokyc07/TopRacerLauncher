@@ -207,6 +207,12 @@ public sealed class Settings
     /// <summary>Свой узор поверх фона: none, stripes, diag, dots, grid, rings. Пусто — из темы.</summary>
     public string BgPattern { get; set; } = "";
 
+    /// <summary>Размер оверлея управления, проценты (60–140).</summary>
+    public int OverlayScale { get; set; } = 100;
+
+    /// <summary>Положение оверлея: bottom, left, right.</summary>
+    public string OverlayPosition { get; set; } = "bottom";
+
     /// <summary>Appid, которые админ удалил из библиотеки: заново не добавляем.</summary>
     public List<string> RemovedSteamIds { get; set; } = new();
 

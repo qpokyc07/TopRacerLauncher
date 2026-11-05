@@ -233,9 +233,25 @@ public partial class ControlsOverlayWindow : Window
     /// <summary>Ставит оверлей по центру снизу, над панелью задач.</summary>
     private void PlaceAtBottom()
     {
+        // Размер из настроек: 60–140 %.
+        double scale = Math.Clamp(App.Settings.OverlayScale, 60, 140) / 100.0;
+        RenderTransformOrigin = new Point(0.5, 1);
+        RenderTransform = new ScaleTransform(scale, scale);
+        UpdateLayout();
+
         var area = SystemParameters.WorkArea;
-        Left = area.Left + (area.Width - ActualWidth) / 2;
-        Top = area.Top + area.Height - ActualHeight - 36;
+        double width = ActualWidth * scale;
+        double height = ActualHeight * scale;
+        string position = App.Settings.OverlayPosition;
+
+        Left = position switch
+        {
+            "left" => area.Left + 24,
+            "right" => area.Left + area.Width - width - 24,
+            _ => area.Left + (area.Width - width) / 2,
+        };
+
+        Top = position == "bottom" ? area.Top + area.Height - height - 30 : area.Top + 24;
     }
 
     /// <summary>Клики проходят сквозь окно, фокус остаётся у игры.</summary>
