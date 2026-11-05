@@ -77,6 +77,8 @@ public partial class MainWindow : Window
         SteamLibraryWatcher.LibraryGrown += OnLibraryGrown;
 
         _tick.Tick += OnTick;
+        _tick.Tick += (_, _) => UpdateClock();
+        UpdateClock();
         Achievements.Unlocked += OnAchievementsUnlocked;
         _friendsTimer.Tick += (_, _) => RefreshFriends();
         _cardWidthSave.Tick += (_, _) =>

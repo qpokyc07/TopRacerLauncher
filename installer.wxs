@@ -1,5 +1,5 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <Package Name="TopRacer Launcher" Manufacturer="Top Racer Club" Version="1.9.39.0"
+  <Package Name="TopRacer Launcher" Manufacturer="Top Racer Club" Version="1.9.40.0"
            UpgradeCode="A3F5C1D2-8B44-4E19-9C77-2E6D4B1A9F30"
            Scope="perMachine" Compressed="yes" Language="1049">
 
@@ -15,9 +15,9 @@
         <Component Id="MainExe" Guid="C1B2A3D4-5E6F-4A7B-8C9D-0E1F2A3B4C5D">
           <File Id="ExeFile" Source="dist\TopRacerLauncher.exe" KeyPath="yes">
             <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="TopRacer Launcher"
-                      WorkingDirectory="INSTALLFOLDER" Advertise="yes" Icon="AppIcon" />
-            <Shortcut Id="StartShortcut" Directory="ProgramMenuFolder" Name="TopRacer Launcher"
-                      WorkingDirectory="INSTALLFOLDER" Advertise="yes" Icon="AppIcon" />
+                      WorkingDirectory="INSTALLFOLDER" Advertise="no" Icon="AppIcon" />
+            <Shortcut Id="StartShortcut" Directory="TRMenuFolder" Name="TopRacer Launcher"
+                      WorkingDirectory="INSTALLFOLDER" Advertise="no" Icon="AppIcon" />
           </File>
         </Component>
       </Directory>

@@ -1,5 +1,5 @@
 {
-  "version": "1.9.39",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.39/TopRacerLauncher.exe",
-  "notes": "1.9.39 — крупные часы на экране приветствия вместо тарифов, часы в шапке."
+  "version": "1.9.40",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.40/TopRacerLauncher.exe",
+  "notes": "1.9.40 — рабочий MSI (Program Files, ярлыки, удаление) и часы цветом темы."
 }
