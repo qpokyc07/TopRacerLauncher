@@ -204,7 +204,7 @@ public partial class MainWindow : Window
             App.Library.Items.Add(new GameViewModel(entry.Game, entry.Seconds));
         }
 
-        GamesItems.ItemsSource = App.Library.Items;
+        GamesItems.ItemsSource = App.Library.Items.ToList();
 
         // Плавное появление сетки после перестроения.
         GamesItems.BeginAnimation(OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(

@@ -614,7 +614,8 @@ public partial class AdminWindow : Window
         var selectedId = (GamesList.SelectedItem as GameItem)?.Id;
 
         GamesList.ItemsSource = null;
-        GamesList.ItemsSource = App.Settings.Games;
+        // Копия, а не живой список: иначе фоновое добавление игр ломает ItemsControl.
+        GamesList.ItemsSource = App.Settings.Games.ToList();
 
         if (selectedId != null)
             GamesList.SelectedItem = App.Settings.Games.FirstOrDefault(g => g.Id == selectedId);
