@@ -1,5 +1,5 @@
 {
-  "version": "1.9.31",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.31/TopRacerLauncher.exe",
-  "notes": "1.9.31 — кнопки «Браузер», «Steam» и «Друзья Steam» работают без пароля администратора."
+  "version": "1.9.32",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.32/TopRacerLauncher.exe",
+  "notes": "1.9.32 — в киоск-режиме браузер, Steam и друзья Steam открываются поверх лаунчера."
 }

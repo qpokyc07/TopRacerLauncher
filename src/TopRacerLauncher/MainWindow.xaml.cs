@@ -859,12 +859,42 @@ public partial class MainWindow : Window
 
     // ---------- Быстрые ссылки ----------
 
+    /// <summary>
+    /// Киоск держит лаунчер поверх всех окон — внешняя программа окажется за ним.
+    /// На время запуска снимаем Topmost и возвращаем его позже.
+    /// </summary>
+    private void LaunchExternal(string target)
+    {
+        bool wasTopmost = Topmost;
+
+        try
+        {
+            Topmost = false;
+            Process.Start(new ProcessStartInfo(target) { UseShellExecute = true });
+
+            if (!wasTopmost) return;
+
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(12) };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                if (App.Settings.KioskMode) Topmost = true;
+            };
+            timer.Start();
+        }
+        catch (Exception ex)
+        {
+            Topmost = wasTopmost;
+            MessageBox.Show(this, "Не удалось открыть: \n\n" + ex.Message,
+                "TopRacerLauncher", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
     private void OpenBrowser_Click(object sender, RoutedEventArgs e)
     {
 
         try
         {
-            Process.Start(new ProcessStartInfo("https://www.google.com") { UseShellExecute = true });
+            LaunchExternal("https://www.google.com");
         }
         catch (Exception ex)
         {
@@ -878,7 +908,7 @@ public partial class MainWindow : Window
 
         try
         {
-            Process.Start(new ProcessStartInfo("steam://open/main") { UseShellExecute = true });
+            LaunchExternal("steam://open/main");
         }
         catch (Exception ex)
         {
@@ -892,7 +922,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            Process.Start(new ProcessStartInfo("steam://open/friends") { UseShellExecute = true });
+            LaunchExternal("steam://open/friends");
         }
         catch (Exception ex)
         {
