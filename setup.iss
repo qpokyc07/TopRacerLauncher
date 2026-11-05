@@ -1,5 +1,5 @@
 ﻿#define MyAppName "TopRacer Launcher"
-#define MyAppVersion "1.9.34"
+#define MyAppVersion "1.9.35"
 #define MyAppPublisher "Top Racer Club"
 #define MyAppExeName "TopRacerLauncher.exe"
 
@@ -22,7 +22,7 @@ WizardStyle=modern
 UninstallDisplayIcon={app}\{#MyAppExeName}
 SetupIconFile=src\TopRacerLauncher\Assets\icon.ico
 DisableDirPage=no
-LicenseFile=
+LicenseFile=docs\license.txt
 
 [Languages]
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
