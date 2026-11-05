@@ -7,7 +7,7 @@
         ShowInTaskbar="False" ShowActivated="False" Topmost="True"
         ResizeMode="NoResize" WindowStartupLocation="Manual"
         FontFamily="Segoe UI" IsHitTestVisible="False">
-    <Border x:Name="Shell" CornerRadius="16" Background="#C70A0B11" BorderBrush="#33FFFFFF" BorderThickness="1"
+    <Border x:Name="Shell" CornerRadius="16" Background="#8C0A0B11" BorderBrush="#26FFFFFF" BorderThickness="1"
             Padding="16,12,16,14">
         <Border.Effect>
             <DropShadowEffect Color="Black" BlurRadius="26" ShadowDepth="5" Opacity="0.55"/>

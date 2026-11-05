@@ -1285,6 +1285,70 @@ public partial class MainWindow : Window
             ControlsOverlayWindow.Hide();
     }
 
+    // ---------- Горячая клавиша Ctrl+3: оверлей управления ----------
+
+    private const int OverlayHotkeyId = 0x5447;
+    private const int WmHotkey = 0x0312;
+    private const uint ModControl = 0x0002;
+    private const uint ModNoRepeat = 0x4000;
+    private const uint Vk3 = 0x33;
+
+    private IntPtr _hotkeyHwnd;
+    private System.Windows.Interop.HwndSource? _hotkeySource;
+
+    private void RegisterOverlayHotkey()
+    {
+        try
+        {
+            _hotkeyHwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            _hotkeySource = System.Windows.Interop.HwndSource.FromHwnd(_hotkeyHwnd);
+            _hotkeySource?.AddHook(OverlayHotkeyHook);
+
+            RegisterHotKey(_hotkeyHwnd, OverlayHotkeyId, ModControl | ModNoRepeat, Vk3);
+        }
+        catch { /* горячая клавиша не критична */ }
+    }
+
+    private IntPtr OverlayHotkeyHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg == WmHotkey && wParam.ToInt32() == OverlayHotkeyId)
+        {
+            ToggleOverlayByHotkey();
+            handled = true;
+        }
+
+        return IntPtr.Zero;
+    }
+
+    /// <summary>Ctrl+3 — показать/спрятать оверлей с клавишами.</summary>
+    private void ToggleOverlayByHotkey()
+    {
+        if (ControlsOverlayWindow.IsVisible)
+        {
+            ControlsOverlayWindow.Hide();
+            return;
+        }
+
+        var title = App.Runner.CurrentTitle ?? "";
+        var game = App.Settings.Games.FirstOrDefault(g =>
+                       string.Equals(g.Title, title, StringComparison.OrdinalIgnoreCase))
+                   ?? App.Settings.Games.FirstOrDefault();
+
+        App.Settings.ControlsOverlay = true;
+        App.SaveState();
+        UpdateControlsOverlayButton();
+
+        ControlsOverlayWindow.Show(
+            string.IsNullOrWhiteSpace(title) ? game?.Title ?? "Игра" : title,
+            game?.Controls);
+    }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
     /// <summary>Кнопка внизу: включить/выключить оверлей управления и запомнить выбор.</summary>
     private void ToggleControlsOverlay_Click(object sender, RoutedEventArgs e)
     {
@@ -1767,6 +1831,14 @@ public partial class MainWindow : Window
             }
         };
         menu.Items.Add(play);
+
+        var overlayItem = new MenuItem { Header = "Оверлей: клавиши…" };
+        overlayItem.Click += (_, _) =>
+        {
+            var dialog = new ControlsSetupWindow(vm.Item) { Owner = this };
+            if (dialog.ShowDialog() == true) ControlsOverlayWindow.Show(vm.Title, vm.Item.Controls);
+        };
+        menu.Items.Add(overlayItem);
         menu.Items.Add(new Separator());
 
         var setup = new MenuItem { Header = "Настроить игру…" };
