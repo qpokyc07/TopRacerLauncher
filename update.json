@@ -1,5 +1,5 @@
 {
-  "version": "1.9.36",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.36/TopRacerLauncher.exe",
-  "notes": "1.9.36 — исправлен вылет при настройке оверлея, оверлей звонка меньше и прозрачнее."
+  "version": "1.9.37",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.37/TopRacerLauncher.exe",
+  "notes": "1.9.37 — шумоподавление и автовыравнивание громкости микрофона."
 }
