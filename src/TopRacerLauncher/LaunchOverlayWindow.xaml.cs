@@ -25,10 +25,10 @@ public partial class LaunchOverlayWindow : Window
     {
         InitializeComponent();
 
-        TitleText.Text = "Игра запускается";
+        TitleText.Text = "Памятка перед игрой";
         HintText.Text = string.IsNullOrWhiteSpace(gameTitle)
-            ? "ждите…"
-            : "«" + gameTitle + "» — ждите…";
+            ? "управление"
+            : "«" + gameTitle + "» — управление";
 
         if (controls != null) BuildControls(controls);
 

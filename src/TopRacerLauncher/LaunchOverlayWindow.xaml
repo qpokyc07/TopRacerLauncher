@@ -37,7 +37,7 @@
                 </Path>
             </Grid>
 
-            <TextBlock x:Name="TitleText" Text="Игра запускается" FontSize="26" FontWeight="Bold"
+            <TextBlock x:Name="TitleText" Text="Памятка перед игрой" FontSize="26" FontWeight="Bold"
                        Foreground="White" HorizontalAlignment="Center" Margin="0,18,0,0"/>
             <TextBlock x:Name="HintText" Text="ждите…" FontSize="18" Foreground="#B9B9C4"
                        HorizontalAlignment="Center" Margin="0,9,0,0"/>
@@ -55,6 +55,10 @@
                 <TextBlock x:Name="ControlsNoteText" Text="" FontSize="12.5" Foreground="#B9B9C4"
                            TextAlignment="Center" TextWrapping="Wrap" MaxWidth="420"
                            HorizontalAlignment="Center" Margin="0,16,0,0"/>
+
+                <TextBlock Text="Нажмите, чтобы убрать памятку — она закроется сама"
+                           FontSize="11" Foreground="#66FFFFFF" TextAlignment="Center"
+                           HorizontalAlignment="Center" Margin="0,14,0,0"/>
             </StackPanel>
         </StackPanel>
     </Border>

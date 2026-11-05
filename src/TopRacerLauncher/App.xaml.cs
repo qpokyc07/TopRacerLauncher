@@ -132,6 +132,14 @@ public partial class App : Application
 
         if (colorsFixed) { try { SaveState(); } catch { } }
 
+        // С версии 1.9.29 оверлей в игре по умолчанию выключен — остаётся памятка перед запуском.
+        if (!Settings.OverlayOffApplied)
+        {
+            Settings.ControlsOverlay = false;
+            Settings.OverlayOffApplied = true;
+            try { SaveState(); } catch { }
+        }
+
         Themes.Apply(Settings.AccentTheme);
 
         // Фоновое автодополнение библиотеки из Steam (новые appmanifest).

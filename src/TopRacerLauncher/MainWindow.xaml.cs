@@ -1304,7 +1304,8 @@ public partial class MainWindow : Window
             _hotkeySource = System.Windows.Interop.HwndSource.FromHwnd(_hotkeyHwnd);
             _hotkeySource?.AddHook(OverlayHotkeyHook);
 
-            RegisterHotKey(_hotkeyHwnd, OverlayHotkeyId, ModControl | ModNoRepeat, Vk3);
+            if (App.Settings.ControlsOverlay)
+                RegisterHotKey(_hotkeyHwnd, OverlayHotkeyId, ModControl | ModNoRepeat, Vk3);
         }
         catch { /* горячая клавиша не критична */ }
     }

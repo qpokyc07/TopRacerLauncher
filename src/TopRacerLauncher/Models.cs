@@ -195,8 +195,11 @@ public sealed class Settings
     /// <summary>Искать новые игры при запуске: Steam, Epic, GOG и ярлыки на рабочем столе.</summary>
     public bool AutoScanGames { get; set; }
 
-    /// <summary>Показывать поверх игры клавиатуру с нужными клавишами.</summary>
-    public bool ControlsOverlay { get; set; } = true;
+    /// <summary>Показывать поверх игры клавиатуру с нужными клавишами (по умолчанию выключено).</summary>
+    public bool ControlsOverlay { get; set; }
+
+    /// <summary>Разовая миграция: оверлей в игре выключен, остаётся памятка перед запуском.</summary>
+    public bool OverlayOffApplied { get; set; }
 
     /// <summary>Свой фон: цвет верха окна (#RRGGBB). Пусто — берётся из темы.</summary>
     public string BgTopColor { get; set; } = "";
