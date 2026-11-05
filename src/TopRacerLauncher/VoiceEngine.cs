@@ -50,6 +50,61 @@ public static class VoiceEngine
     private static void MarkSpeaking(Guid id) => SpeakingSince[id] = DateTime.UtcNow;
 
     /// <summary>Масштабирует 16-битный PCM на месте.</summary>
+    // ---- Шумоподавление и выравнивание громкости ----
+
+    /// <summary>Порог тишины: всё тише этого считается шумом и глушится (16-бит PCM).</summary>
+    public static int NoiseGateLevel { get; set; } = 900;
+
+    /// <summary>Автовыравнивание: тихую речь подтягиваем, громкую приглушаем.</summary>
+    public static bool AutoLevel { get; set; } = true;
+
+    /// <summary>
+    /// Мягкий шумовой затвор + компрессор: давит фоновый шум (вентилятор, клавиатуру)
+    /// и выравнивает громкость речи, чтобы собеседник слышал ровно.
+    /// </summary>
+    private static void Denoise(byte[] buffer, int offset, int count)
+    {
+        if (count < 2) return;
+
+        int samples = count / 2;
+
+        // Средняя громкость блока — по ней решаем, шум это или речь.
+        long sum = 0;
+        for (int i = 0; i < samples; i++)
+        {
+            short s = (short)(buffer[offset + i * 2] | (buffer[offset + i * 2 + 1] << 8));
+            sum += Math.Abs((int)s);
+        }
+
+        double level = samples > 0 ? (double)sum / samples : 0;
+        double gate = Math.Max(200, NoiseGateLevel);
+
+        // Ниже порога — плавно приглушаем (мягкий затвор, без «щелчков»).
+        double factor = level >= gate ? 1.0 : Math.Max(0.12, level / gate);
+
+        // Компрессор: тихую речь подтягиваем до ~35 % от максимума, громкую не даём уйти в клиппинг.
+        if (AutoLevel && level > gate)
+        {
+            double target = 9000.0;
+            double gain = Math.Clamp(target / Math.Max(level, 1.0), 1.0, 2.6);
+            factor *= gain;
+        }
+
+        factor = Math.Min(factor, 3.2);
+
+        for (int i = 0; i < samples; i++)
+        {
+            int index = offset + i * 2;
+            short s = (short)(buffer[index] | (buffer[index + 1] << 8));
+            int value = (int)(s * factor);
+
+            if (value > short.MaxValue) value = short.MaxValue;
+            if (value < short.MinValue) value = short.MinValue;
+
+            buffer[index] = (byte)(value & 0xFF);
+            buffer[index + 1] = (byte)((value >> 8) & 0xFF);
+        }
+    }
     private static void ApplyGain(byte[] buffer, int offset, int count, double gain)
     {
         if (Math.Abs(gain - 1.0) < 0.01) return;
@@ -195,6 +250,7 @@ public static class VoiceEngine
         SelfIdBytes().CopyTo(packet, 16);
         Buffer.BlockCopy(e.Buffer, 0, packet, HeaderSize, e.BytesRecorded);
 
+        Denoise(packet, HeaderSize, e.BytesRecorded);
         ApplyGain(packet, HeaderSize, e.BytesRecorded, InputGain / 100.0);
 
         try { _udp.Send(packet, packet.Length, new IPEndPoint(IPAddress.Broadcast, Port)); }
