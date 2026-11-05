@@ -276,6 +276,7 @@ public partial class App : Application
                 });
                 Probe("CallWindow", () => new CallWindow());
                 Probe("ChangelogWindow", () => new ChangelogWindow());
+            Probe("LegalWindow", () => new LegalWindow(LegalWindow.DocKind.Privacy));
                 Probe("IncomingCallWindow", () => new IncomingCallWindow("Тест"));
                 Probe("VoiceOverlayWindow", () => new VoiceOverlayWindow());
                 Probe("NoticeWindow", () => new NoticeWindow("Тест", "Текст уведомления"));
@@ -372,7 +373,8 @@ public partial class App : Application
         var overlayArg = Arg("--shot-overlay");
         var controlsArg = Arg("--shot-controls");
         var dialogArg = Arg("--shot-dialog");
-        if (mainArg == null && adminArg == null && overlayArg == null && controlsArg == null && dialogArg == null) return false;
+        var legalArg = Arg("--shot-legal");
+        if (mainArg == null && adminArg == null && overlayArg == null && controlsArg == null && dialogArg == null && legalArg == null) return false;
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
@@ -414,7 +416,9 @@ public partial class App : Application
 
         if (controlsArg != null) ControlsOverlayWindow.SuppressAutoPlace = true;
 
-        Window window = dialogArg != null
+        Window window = legalArg != null
+            ? new LegalWindow(LegalWindow.DocKind.Privacy)
+            : dialogArg != null
             ? new AddGameWindow()
             : controlsArg != null
             ? new ControlsOverlayWindow(controlsTitle, GameControls.UsedKeys(controlsTitle),
@@ -481,7 +485,8 @@ public partial class App : Application
                     var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
                     encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
 
-                    var file = dialogArg != null ? Path.Combine(Path.GetTempPath(), "shot-dialog.png")
+                    var file = legalArg != null ? Path.Combine(Path.GetTempPath(), "shot-legal.png")
+                        : dialogArg != null ? Path.Combine(Path.GetTempPath(), "shot-dialog.png")
                         : controlsArg != null ? Path.Combine(Path.GetTempPath(), "shot-controls.png")
                         : overlayArg != null ? PathOf(overlayArg)
                         : mainArg != null ? PathOf(mainArg)

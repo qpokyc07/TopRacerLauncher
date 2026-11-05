@@ -1625,6 +1625,11 @@ public partial class AdminWindow : Window
     private string? _editingAfishaId;
     private string? _afishaFormImagePath;
 
+    private void Privacy_Click(object sender, RoutedEventArgs e)
+        => new LegalWindow(LegalWindow.DocKind.Privacy) { Owner = this }.ShowDialog();
+
+    private void Terms_Click(object sender, RoutedEventArgs e)
+        => new LegalWindow(LegalWindow.DocKind.Terms) { Owner = this }.ShowDialog();
     private void OpenChangelog_Click(object sender, RoutedEventArgs e)
         => ChangelogWindow.Open(this);
 
