@@ -1229,6 +1229,7 @@ public partial class MainWindow : Window
                 : "Осталось: " + formatted;
             SessionTotalText.Text = $"из {s.SessionMinutes} мин";
             TimeProgress.Value = 100.0 * remaining / total;
+            UpdateTimerRing(100.0 * remaining / total);
             SessionStatusText.Foreground = s.TimerPaused
                 ? FindResource("TextSecondaryBrush") as Brush ?? Brushes.Gray
                 : remaining <= 60
@@ -1241,6 +1242,7 @@ public partial class MainWindow : Window
             SessionStatusText.Text = "Время истекло — введите пароль";
             SessionTotalText.Text = "";
             TimeProgress.Value = 0;
+            UpdateTimerRing(0);
             SessionStatusText.Foreground = FindResource("DangerBrush") as Brush ?? Brushes.White;
         }
 
@@ -1309,6 +1311,39 @@ public partial class MainWindow : Window
             ? "Клавиатура с нужными клавишами показывается поверх игры — нажмите, чтобы выключить"
             : "Показывать клавиатуру с нужными клавишами поверх игры";
         ControlsOverlayButton.Opacity = on ? 1.0 : 0.65;
+    }
+
+    /// <summary>Кольцо таймера: дуга от 12 часов по часовой стрелке.</summary>
+    private void UpdateTimerRing(double percent)
+    {
+        double fraction = Math.Clamp(percent / 100.0, 0, 1);
+
+        if (fraction <= 0.001)
+        {
+            TimerRingArc.Data = null;
+            return;
+        }
+
+        const double radius = 16;
+        var center = new Point(20, 20);
+        var start = new Point(center.X, center.Y - radius);
+
+        double angle = fraction * 360.0 - 90;
+        double radians = angle * Math.PI / 180.0;
+        var end = new Point(
+            center.X + radius * Math.Cos(radians),
+            center.Y + radius * Math.Sin(radians));
+
+        var figure = new System.Windows.Media.PathFigure { StartPoint = start, IsClosed = false };
+        figure.Segments.Add(new System.Windows.Media.ArcSegment
+        {
+            Point = end,
+            Size = new Size(radius, radius),
+            IsLargeArc = fraction > 0.5,
+            SweepDirection = System.Windows.Media.SweepDirection.Clockwise,
+        });
+
+        TimerRingArc.Data = new System.Windows.Media.PathGeometry(new[] { figure });
     }
 
     private static string FormatTime(int seconds)

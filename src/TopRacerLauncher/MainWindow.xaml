@@ -212,7 +212,6 @@
                                    Foreground="{StaticResource TextSecondaryBrush}"/>
                     </Border>
                     <TextBlock x:Name="UserNameText" Text="Профиль" FontSize="12"
-                               Foreground="{StaticResource TextSecondaryBrush}"
                                VerticalAlignment="Center" Margin="12,0,0,0"/>
 
                     <!-- Размер карточек: виден только администратору (в админ-меню есть свой ползунок) -->
@@ -265,7 +264,7 @@
                 <!-- Справа: замок, статус игры, таймер, выход -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0">
                     <!-- Замок: открыт (зелёный) / закрыт (красный), Ctrl+2 -->
-                    <Border x:Name="LockBadge" CornerRadius="8" Padding="10,5" Margin="0,0,10,0"
+                    <Border x:Name="LockBadge" CornerRadius="10" Padding="9,5" Margin="0,0,8,0"
                             VerticalAlignment="Center" Background="#D64545" Cursor="Hand"
                             WindowChrome.IsHitTestVisibleInChrome="True"
                             MouseLeftButtonUp="LockToggle_Click"
@@ -309,24 +308,21 @@
                                     </EventTrigger>
                                 </Ellipse.Triggers>
                             </Ellipse>
-                            <TextBlock x:Name="GameStatusText" Text="Игра не запущена" FontSize="12.5"
+                            <TextBlock x:Name="GameStatusText" Text="Игра не запущена" FontSize="11.5"
                                        Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Таймер сеанса -->
-                    <Border x:Name="TimerChip" Background="{DynamicResource BgCardBrush}" CornerRadius="6" Padding="12,7"
-                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="0,0,10,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Grid Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
-                                <Ellipse Stroke="{DynamicResource AccentBrush}" StrokeThickness="1.6"/>
-                                <Line X1="8" Y1="3.5" X2="8" Y2="8.2" Stroke="{DynamicResource AccentBrush}" StrokeThickness="1.6"/>
-                                <Line X1="8" Y1="8.2" X2="11.4" Y2="10.4" Stroke="{DynamicResource AccentBrush}" StrokeThickness="1.6"/>
-                            </Grid>
-                            <TextBlock x:Name="TimerChipText" Text="--:--" FontSize="13" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
+                    <!-- Таймер сеанса: кольцо прогресса с остатком времени -->
+                    <Grid x:Name="TimerChip" Width="40" Height="40" Margin="0,0,8,0"
+                          ToolTip="Сколько осталось времени">
+                        <Ellipse Stroke="#26FFFFFF" StrokeThickness="3" Margin="4"/>
+                        <Path x:Name="TimerRingArc" Stroke="{DynamicResource AccentBrush}" StrokeThickness="3"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                        <TextBlock x:Name="TimerChipText" Text="--:--" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
 
 
                     <!-- Завершить сессию (для клуба) -->
@@ -584,10 +580,9 @@
                                     </Style>
                                 </Border.Style>
 
-                                <StackPanel>
                                     <!-- Обложка с задним фоном -->
                                     <Border Height="{Binding Ui.CardHeight, RelativeSource={RelativeSource AncestorType=Window}}"
-                                            CornerRadius="14,14,0,0" ClipToBounds="True"
+                                            CornerRadius="14" ClipToBounds="True"
                                             MouseMove="CardCover_MouseMove"
                                             BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
                                         <Grid>
@@ -639,7 +634,7 @@
                                                 </Image.Effect>
                                             </Image>
                                             <!-- Мягкий градиент снизу -->
-                                            <Border VerticalAlignment="Bottom" Height="70" IsHitTestVisible="False">
+                                            <Border VerticalAlignment="Bottom" Height="96" IsHitTestVisible="False">
                                                 <Border.Background>
                                                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                                         <GradientStop Color="#00000000" Offset="0"/>
@@ -706,25 +701,20 @@
                                                                Foreground="White" Margin="4,0,0,0" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Border>
+
+                                            <!-- Название и время — прямо на обложке -->
+                                            <StackPanel VerticalAlignment="Bottom" Margin="12,0,12,10"
+                                                        IsHitTestVisible="False">
+                                                <TextBlock Text="{Binding Title}" FontSize="13.5" FontWeight="Bold"
+                                                           Foreground="White" TextWrapping="Wrap"
+                                                           TextTrimming="CharacterEllipsis" MaxHeight="40"/>
+                                                <TextBlock Text="{Binding PlayTimeText}" FontSize="10.5" FontWeight="SemiBold"
+                                                           Foreground="#B3FFFFFF" Margin="0,2,0,0"
+                                                           Visibility="{Binding HasPlayTime, Converter={StaticResource BoolToVis}}"/>
+                                            </StackPanel>
                                         </Grid>
                                     </Border>
 
-                                    <!-- Название -->
-                                    <TextBlock Text="{Binding Title}" FontSize="14.5" FontWeight="Bold"
-                                               Foreground="{Binding TitleForeground}"
-                                               TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
-                                               MaxHeight="58" Margin="10,10,10,0">
-                                        <TextBlock.Effect>
-                                            <DropShadowEffect Color="Black" BlurRadius="6" ShadowDepth="1" Opacity="0.55"/>
-                                        </TextBlock.Effect>
-                                    </TextBlock>
-
-                                    <!-- Наиграно: под названием, только если играли -->
-                                    <TextBlock Text="{Binding PlayTimeText}" FontSize="11" FontWeight="SemiBold"
-                                               Foreground="#A6FFFFFF"
-                                               Margin="10,3,10,12"
-                                               Visibility="{Binding HasPlayTime, Converter={StaticResource BoolToVis}}"/>
-                                </StackPanel>
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -776,7 +766,6 @@
                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <TextBlock Grid.Column="1" x:Name="DetailsHeaderText" Text="Описание"
                                        FontSize="13" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"/>
                         </Grid>
                     </Button>
@@ -793,12 +782,16 @@
 
                         <TextBlock x:Name="DetailTitle" Text="Выберите игру" FontSize="18.5" FontWeight="Bold"
                                    Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" Margin="2,12,2,0"/>
-                        <TextBlock x:Name="DetailSubtitle" Text="" FontSize="12.5"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                   TextWrapping="Wrap" Margin="2,4,2,0"/>
-                        <TextBlock x:Name="DetailGenres" Text="" FontSize="12"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   TextWrapping="Wrap" Margin="2,8,2,0"/>
+                        <WrapPanel Margin="2,6,2,0">
+                            <Border Background="#14FFFFFF" CornerRadius="8" Padding="9,4" Margin="0,0,6,6">
+                                <TextBlock x:Name="DetailSubtitle" Text="" FontSize="11.5"
+                                           Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                            </Border>
+                            <Border Background="#1FCCA0FF" CornerRadius="8" Padding="9,4" Margin="0,0,6,6">
+                                <TextBlock x:Name="DetailGenres" Text="" FontSize="11.5"
+                                           Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
+                            </Border>
+                        </WrapPanel>
                         <TextBlock x:Name="DetailDescription" Text="" FontSize="13.5" Foreground="#DCDCE6"
                                    TextWrapping="Wrap" LineHeight="20" Margin="2,12,2,0"/>
 
@@ -897,7 +890,6 @@
                                     Style="{StaticResource BaseButton}" Click="Status_Click"
                                     ToolTip="Мой статус для друзей"/>
                             <TextBlock x:Name="FriendsCount" Text="" FontSize="12" Margin="8,0,0,0"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
@@ -922,7 +914,6 @@
                                                            Foreground="{Binding NameBrush}"
                                                            TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock Text="{Binding StatusText}" FontSize="11.5"
-                                                           Foreground="{StaticResource TextSecondaryBrush}"
                                                            Margin="0,2,0,0" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
                                             <Border Grid.Column="1" Background="#E6D64545" CornerRadius="9"
@@ -985,7 +976,6 @@
                         <TextBlock x:Name="SessionStatusText" Text="Сеанс не запущен" FontSize="13"
                                    Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"/>
                         <TextBlock x:Name="SessionTotalText" Text="" FontSize="12"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
                                    HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     </Grid>
                     <ProgressBar x:Name="TimeProgress" Minimum="0" Maximum="100" Value="0"
