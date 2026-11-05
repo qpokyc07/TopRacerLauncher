@@ -1,0 +1,34 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="TopRacer Launcher" Manufacturer="Top Racer Club" Version="1.9.39.0"
+           UpgradeCode="A3F5C1D2-8B44-4E19-9C77-2E6D4B1A9F30"
+           Scope="perMachine" Compressed="yes" Language="1049">
+
+    <MajorUpgrade DowngradeErrorMessage="Установлена более новая версия TopRacer Launcher." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="AppIcon" SourceFile="src\TopRacerLauncher\Assets\icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="TopRacerLauncher">
+        <Component Id="MainExe" Guid="C1B2A3D4-5E6F-4A7B-8C9D-0E1F2A3B4C5D">
+          <File Id="ExeFile" Source="dist\TopRacerLauncher.exe" KeyPath="yes">
+            <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="TopRacer Launcher"
+                      WorkingDirectory="INSTALLFOLDER" Advertise="yes" Icon="AppIcon" />
+            <Shortcut Id="StartShortcut" Directory="ProgramMenuFolder" Name="TopRacer Launcher"
+                      WorkingDirectory="INSTALLFOLDER" Advertise="yes" Icon="AppIcon" />
+          </File>
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="TRMenuFolder" Name="TopRacer Launcher" />
+    </StandardDirectory>
+
+    <Feature Id="Main" Title="TopRacer Launcher" Level="1">
+      <ComponentRef Id="MainExe" />
+    </Feature>
+  </Package>
+</Wix>
