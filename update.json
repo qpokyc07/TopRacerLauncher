@@ -1,5 +1,5 @@
 {
-  "version": "1.9.30",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.30/TopRacerLauncher.exe",
-  "notes": "1.9.30 — чистый интерфейс: карточки с обложкой во всю площадь, пилюли и кольцо таймера в шапке, чипы метаданных; подсказка управления перед запуском игры; проверка обновлений и исправления вылетов."
+  "version": "1.9.31",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.31/TopRacerLauncher.exe",
+  "notes": "1.9.31 — кнопки «Браузер», «Steam» и «Друзья Steam» работают без пароля администратора."
 }

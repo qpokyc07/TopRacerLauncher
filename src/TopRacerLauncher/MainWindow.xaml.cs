@@ -861,7 +861,6 @@ public partial class MainWindow : Window
 
     private void OpenBrowser_Click(object sender, RoutedEventArgs e)
     {
-        if (!App.AdminUnlocked && !RequireAdmin()) return;
 
         try
         {
@@ -876,7 +875,6 @@ public partial class MainWindow : Window
 
     private void OpenSteam_Click(object sender, RoutedEventArgs e)
     {
-        if (!App.AdminUnlocked && !RequireAdmin()) return;
 
         try
         {
@@ -1558,7 +1556,6 @@ public partial class MainWindow : Window
     private void Minimize_Click(object sender, RoutedEventArgs e)
     {
         // Пока замок закрыт — свернуть нельзя без пароля администратора.
-        if (!App.AdminUnlocked && !RequireAdmin()) return;
 
         _allowMinimize = true;
         WindowState = WindowState.Minimized;
