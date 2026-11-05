@@ -235,8 +235,14 @@ public partial class ControlsOverlayWindow : Window
     {
         // Размер из настроек: 60–140 %.
         double scale = Math.Clamp(App.Settings.OverlayScale, 60, 140) / 100.0;
-        RenderTransformOrigin = new Point(0.5, 1);
-        RenderTransform = new ScaleTransform(scale, scale);
+
+        // Масштаб задаём содержимому окна: самому Window RenderTransform запрещён.
+        if (Content is FrameworkElement root)
+        {
+            root.RenderTransformOrigin = new Point(0.5, 1);
+            root.RenderTransform = new ScaleTransform(scale, scale);
+        }
+
         UpdateLayout();
 
         var area = SystemParameters.WorkArea;

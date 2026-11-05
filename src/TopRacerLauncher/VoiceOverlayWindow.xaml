@@ -2,15 +2,15 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="TopRacerLauncher — звонок"
-        SizeToContent="Height" Width="248"
+        SizeToContent="Height" Width="196"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ShowInTaskbar="False" ShowActivated="False" Topmost="True"
         ResizeMode="NoResize" WindowStartupLocation="Manual"
         FontFamily="Segoe UI" IsHitTestVisible="False">
-    <Border CornerRadius="14" Background="#D90A0B11" BorderBrush="#38FFFFFF" BorderThickness="1"
-            Padding="10,9,10,9">
+    <Border CornerRadius="12" Background="#A60A0B11" BorderBrush="#24FFFFFF" BorderThickness="1"
+            Padding="8,7,8,7">
         <Border.Effect>
-            <DropShadowEffect Color="Black" BlurRadius="24" ShadowDepth="4" Opacity="0.5"/>
+            <DropShadowEffect Color="Black" BlurRadius="16" ShadowDepth="3" Opacity="0.35"/>
         </Border.Effect>
 
         <StackPanel>

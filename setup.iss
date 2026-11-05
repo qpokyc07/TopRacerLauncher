@@ -1,5 +1,5 @@
 ﻿#define MyAppName "TopRacer Launcher"
-#define MyAppVersion "1.9.35"
+#define MyAppVersion "1.9.36"
 #define MyAppPublisher "Top Racer Club"
 #define MyAppExeName "TopRacerLauncher.exe"
 
