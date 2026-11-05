@@ -150,6 +150,11 @@ public partial class MainWindow : Window
             ClockText.Text = now.ToString("HH:mm");
             ClockText.ToolTip = now.ToString("dddd, d MMMM yyyy");
         }
+
+        if (WelcomeClockText != null)
+        {
+            WelcomeClockText.Text = now.ToString("HH:mm");
+        }
     }
 
     /// <summary>Главное окно плавно поднимается снизу при запуске.</summary>
