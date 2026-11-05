@@ -140,6 +140,18 @@ public partial class MainWindow : Window
         LoadPcInfo();
     }
 
+    /// <summary>Текущее время в шапке.</summary>
+    private void UpdateClock()
+    {
+        var now = DateTime.Now;
+
+        if (ClockText != null)
+        {
+            ClockText.Text = now.ToString("HH:mm");
+            ClockText.ToolTip = now.ToString("dddd, d MMMM yyyy");
+        }
+    }
+
     /// <summary>Главное окно плавно поднимается снизу при запуске.</summary>
     private void AnimateWindowEntrance()
     {

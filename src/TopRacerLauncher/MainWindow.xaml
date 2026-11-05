@@ -282,7 +282,12 @@
                     </Border>
 
                     <!-- Статус игры -->
-                    <Border x:Name="GameStatusChip" Background="{DynamicResource BgCardBrush}" CornerRadius="6" Padding="12,7"
+                    <!-- Часы -->
+                    <TextBlock x:Name="ClockText" Text="--:--" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextBrush}" VerticalAlignment="Center"
+                               Margin="0,0,12,0" ToolTip="Текущее время"/>
+
+                    <Border x:Name="GameStatusChip" Background="{DynamicResource BgCardBrush}" CornerRadius="10" Padding="10,6"
                             BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="0,0,10,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Ellipse x:Name="GameStatusDot" Width="8" Height="8" Fill="#6E6E7A" Margin="0,0,8,0"
