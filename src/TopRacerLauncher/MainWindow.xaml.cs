@@ -432,6 +432,13 @@ public partial class MainWindow : Window
 
         try
         {
+            // Двойной клик по «Играть» не должен запускать вторую копию.
+            if (App.Runner.IsRunning)
+            {
+                UpdateGameStatus();
+                return;
+            }
+
             overlay = new LaunchOverlayWindow(game.Title, GameControls.For(game.Title, game.Controls));
             overlay.Show();
 

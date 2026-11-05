@@ -145,7 +145,8 @@ public static class SteamLibraryWatcher
 
             LibraryGrown?.Invoke(added.Count);
 
-            await LoadArtAsync(added);
+            // Обложки грузятся из сети: без интернета скан не должен падать.
+            try { await LoadArtAsync(added); } catch { /* нет сети — карточки останутся с заглушками */ }
 
             LibraryGrown?.Invoke(added.Count);
             return added.Count;

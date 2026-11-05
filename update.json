@@ -1,5 +1,5 @@
 {
-  "version": "1.9.1",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.1/TopRacerLauncher.exe",
-  "notes": "1.9.1 — достижения (20 наград, полка и тост), крестик в окне входа, запуск Steam-игр через steam.exe -applaunch (фикс ошибки сертификатов), блок «Характеристики ПК» в правой панели, тарифы 30/60/120 минут на приветствии."
+  "version": "1.9.30",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.30/TopRacerLauncher.exe",
+  "notes": "1.9.30 — чистый интерфейс: карточки с обложкой во всю площадь, пилюли и кольцо таймера в шапке, чипы метаданных; подсказка управления перед запуском игры; проверка обновлений и исправления вылетов."
 }
