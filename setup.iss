@@ -1,5 +1,5 @@
 ﻿#define MyAppName "TopRacer Launcher"
-#define MyAppVersion "1.9.32"
+#define MyAppVersion "1.9.33"
 #define MyAppPublisher "Top Racer Club"
 #define MyAppExeName "TopRacerLauncher.exe"
 
@@ -20,6 +20,7 @@ Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\{#MyAppExeName}
+SetupIconFile=src\TopRacerLauncher\Assets\icon.ico
 DisableDirPage=no
 LicenseFile=
 
