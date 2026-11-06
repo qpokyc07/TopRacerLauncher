@@ -79,6 +79,7 @@ public partial class MainWindow : Window
         _tick.Tick += OnTick;
         _tick.Tick += (_, _) => UpdateClock();
         UpdateClock();
+        ShowVersion();
         Achievements.Unlocked += OnAchievementsUnlocked;
         _friendsTimer.Tick += (_, _) => RefreshFriends();
         _cardWidthSave.Tick += (_, _) =>
@@ -140,6 +141,15 @@ public partial class MainWindow : Window
         RefreshUi();
         ApplyPanelSettings();
         LoadPcInfo();
+    }
+
+    /// <summary>Версия приложения в нижнем правом углу.</summary>
+    private void ShowVersion()
+    {
+        if (VersionText == null) return;
+
+        var version = typeof(MainWindow).Assembly.GetName().Version;
+        VersionText.Text = version == null ? "" : "v" + version.Major + "." + version.Minor + "." + version.Build;
     }
 
     /// <summary>Текущее время в шапке.</summary>
@@ -1414,6 +1424,7 @@ public partial class MainWindow : Window
         App.Settings.ControlsOverlay = true;
         App.SaveState();
         UpdateControlsOverlayButton();
+        ShowVersion();
 
         if (AchievementsButton != null)
             AchievementsButton.Visibility = App.Settings.AchievementsEnabled
@@ -1437,6 +1448,7 @@ public partial class MainWindow : Window
         App.Settings.ControlsOverlay = !App.Settings.ControlsOverlay;
         App.SaveState();
         UpdateControlsOverlayButton();
+        ShowVersion();
 
         if (AchievementsButton != null)
             AchievementsButton.Visibility = App.Settings.AchievementsEnabled

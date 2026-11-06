@@ -1055,6 +1055,11 @@
                         По всем вопросам —
                         <Hyperlink Click="Support_Click" Style="{StaticResource SupportLink}">@qpokycnow</Hyperlink>
                     </TextBlock>
+
+                    <!-- Версия приложения -->
+                    <TextBlock x:Name="VersionText" Text="" FontSize="10.5" VerticalAlignment="Center"
+                               Foreground="#66FFFFFF" Margin="14,0,0,0"
+                               ToolTip="Версия установленного TopRacer Launcher"/>
                 </StackPanel>
             </Grid>
         </Border>
