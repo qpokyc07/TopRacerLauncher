@@ -727,12 +727,12 @@
             </ScrollViewer>
 
             <!-- ===== Карточка выбранной игры ===== -->
-            <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Width="360" Margin="0,22,26,22">
+            <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Width="404" Margin="0,22,22,22">
                 <Grid.RowDefinitions>
                     <!-- Описание занимает всё свободное место, у друзей — полоса снизу -->
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="12"/>
-                    <RowDefinition Height="Auto" MinHeight="215" MaxHeight="300"/>
+                    <RowDefinition Height="Auto" MinHeight="190" MaxHeight="250"/>
                 </Grid.RowDefinitions>
 
             <Border x:Name="DetailsPanel" Grid.Row="0"

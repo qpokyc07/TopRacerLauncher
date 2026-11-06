@@ -1245,6 +1245,7 @@ public partial class MainWindow : Window
     {
         if (fresh == null || fresh.Count == 0) return;
         if (App.SmokeMode) return;   // в самопроверке окна не мешаем
+        if (!App.Settings.AchievementsEnabled) return;   // достижения отключены в админке
 
         try
         {
@@ -1414,6 +1415,11 @@ public partial class MainWindow : Window
         App.SaveState();
         UpdateControlsOverlayButton();
 
+        if (AchievementsButton != null)
+            AchievementsButton.Visibility = App.Settings.AchievementsEnabled
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
         ControlsOverlayWindow.Show(
             string.IsNullOrWhiteSpace(title) ? game?.Title ?? "Игра" : title,
             game?.Controls);
@@ -1431,6 +1437,11 @@ public partial class MainWindow : Window
         App.Settings.ControlsOverlay = !App.Settings.ControlsOverlay;
         App.SaveState();
         UpdateControlsOverlayButton();
+
+        if (AchievementsButton != null)
+            AchievementsButton.Visibility = App.Settings.AchievementsEnabled
+                ? Visibility.Visible
+                : Visibility.Collapsed;
 
         if (!App.Settings.ControlsOverlay)
         {

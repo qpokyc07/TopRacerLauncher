@@ -95,6 +95,7 @@ public partial class AdminWindow : Window
         UpdateBgSwatches();
         AutoAddSteamCheck.IsChecked = s.AutoAddSteamGames;
         AutoScanCheck.IsChecked = s.AutoScanGames;
+        AchievementsCheck.IsChecked = s.AchievementsEnabled;
         RefreshMicLabels();
         MakeSectionsCollapsible();
         UpdateUrlBox.Text = s.UpdateUrl;
@@ -1531,6 +1532,14 @@ public partial class AdminWindow : Window
         var room = VoiceEngine.RoomId;
         VoiceEngine.LeaveCall();
         VoiceEngine.StartCall(room);
+    }
+
+    private void Achievements_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_loaded) return;
+
+        App.Settings.AchievementsEnabled = AchievementsCheck.IsChecked == true;
+        App.SaveState();
     }
 
     private void AutoScan_Changed(object sender, RoutedEventArgs e)

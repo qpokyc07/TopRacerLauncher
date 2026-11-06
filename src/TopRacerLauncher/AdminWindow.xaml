@@ -660,7 +660,9 @@
                             <Button Content="Пользовательское соглашение" Height="34" Padding="14,0" FontSize="12"
                                     Margin="8,0,0,0" Style="{StaticResource BaseButton}" Click="Terms_Click"/>
                         </WrapPanel>
-                        <Button x:Name="KillGameButton" Content="Завершить запущенную игру" Height="40"
+                                                <CheckBox x:Name="AchievementsCheck" Content="Показывать достижения (всплывашки и окно)"
+                                  Margin="0,16,0,0" Checked="Achievements_Changed" Unchecked="Achievements_Changed"
+                                  ToolTip="Выключите, если достижения не нужны клубу"/>                        <Button x:Name="KillGameButton" Content="Завершить запущенную игру" Height="40"
                                     Margin="0,16,0,0" HorizontalAlignment="Left" Padding="18,0"
                                     Style="{StaticResource DangerButton}" Click="KillGame_Click"/>
                         </StackPanel>

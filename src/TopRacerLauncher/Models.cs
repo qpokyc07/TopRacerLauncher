@@ -210,6 +210,9 @@ public sealed class Settings
     /// <summary>Свой узор поверх фона: none, stripes, diag, dots, grid, rings. Пусто — из темы.</summary>
     public string BgPattern { get; set; } = "";
 
+    /// <summary>Показывать достижения (тосты и окно).</summary>
+    public bool AchievementsEnabled { get; set; } = true;
+
     /// <summary>Размер оверлея управления, проценты (60–140).</summary>
     public int OverlayScale { get; set; } = 100;
 
