@@ -210,6 +210,10 @@ public sealed class Settings
     /// <summary>Свой узор поверх фона: none, stripes, diag, dots, grid, rings. Пусто — из темы.</summary>
     public string BgPattern { get; set; } = "";
 
+    /// <summary>Где искать обложки игр, если в Steam их нет (адрес поиска картинок).</summary>
+    public string CoverSearchUrl { get; set; } =
+        "https://yandex.ru/images/search?lr=64&source=serp&stype=image&text=";
+
     /// <summary>Показывать достижения (тосты и окно).</summary>
     public bool AchievementsEnabled { get; set; } = true;
 

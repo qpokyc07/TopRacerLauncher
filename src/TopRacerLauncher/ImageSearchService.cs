@@ -140,6 +140,10 @@ public static class ImageSearchService
             }
         }
 
+        // Steam ничего не дал — ищем обложку по адресу из настроек.
+        if (cover == null && !string.IsNullOrWhiteSpace(title))
+            cover = await TryDownloadWebCoverAsync(title, ct);
+
         if (cover == null && background == null) return null;
         return new GameArt(cover, background, appId);
     }
@@ -176,6 +180,108 @@ public static class ImageSearchService
     {
         var path = await TryDownloadArtAsync(item.AppId, kind, ct);
         return path ?? throw new InvalidOperationException("Не удалось скачать картинку из интернета.");
+    }
+
+    /// <summary>
+    /// Ищет обложку в интернете по адресу из настроек (по умолчанию — поиск картинок Яндекса).
+    /// Если в адресе уже есть параметр text=, он заменяется на название игры.
+    /// Возвращает путь к сохранённому файлу или null.
+    /// </summary>
+    public static async Task<string?> TryDownloadWebCoverAsync(string title, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(title)) return null;
+
+        var baseUrl = (App.Settings.CoverSearchUrl ?? "").Trim();
+        if (baseUrl.Length == 0) return null;
+
+        try
+        {
+            var url = BuildSearchUrl(baseUrl, title);
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.TryAddWithoutValidation("User-Agent",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36");
+
+            using var response = await Http.SendAsync(request, ct);
+            if (!response.IsSuccessStatusCode) return null;
+
+            var html = await response.Content.ReadAsStringAsync(ct);
+            var links = ExtractImageLinks(html);
+
+            var dir = MediaDirectory;
+            Directory.CreateDirectory(dir);
+
+            foreach (var link in links.Take(10))
+            {
+                try
+                {
+                    var bytes = await Http.GetByteArrayAsync(link, ct);
+                    if (bytes.Length <= 4000) continue;
+
+                    var path = Path.Combine(dir, Guid.NewGuid().ToString("N") + ExtensionFor(bytes));
+                    await File.WriteAllBytesAsync(path, bytes, ct);
+                    return path;
+                }
+                catch { /* картинка не открылась — пробуем следующую */ }
+            }
+        }
+        catch { /* поиск в интернете не критичен */ }
+
+        return null;
+    }
+
+    /// <summary>Собирает адрес поиска: подставляет название игры в параметр text=.</summary>
+    private static string BuildSearchUrl(string baseUrl, string title)
+    {
+        var query = title + " обложка";
+        var index = baseUrl.IndexOf("text=", StringComparison.OrdinalIgnoreCase);
+
+        if (index < 0)
+        {
+            var glue = baseUrl.Contains('?') ? "&" : "?";
+            return baseUrl + glue + "text=" + Uri.EscapeDataString(query);
+        }
+
+        var start = index + "text=".Length;
+        var end = baseUrl.IndexOf('&', start);
+        if (end < 0) end = baseUrl.Length;
+
+        return baseUrl[..start] + Uri.EscapeDataString(query) + baseUrl[end..];
+    }
+
+    /// <summary>Достаёт ссылки на картинки из выдачи Яндекса или Bing.</summary>
+    private static List<string> ExtractImageLinks(string html)
+    {
+        var links = new List<string>();
+
+        void Add(string value)
+        {
+            var link = value.Replace("\\/", "/").Replace("\\u0026", "&").Replace("&amp;", "&");
+
+            if (link.StartsWith("http", StringComparison.OrdinalIgnoreCase) && !links.Contains(link))
+                links.Add(link);
+        }
+
+        // Яндекс: полные адреса картинок
+        foreach (System.Text.RegularExpressions.Match m in
+                 System.Text.RegularExpressions.Regex.Matches(html, "\"origUrl\":\"(.*?)\""))
+            Add(m.Groups[1].Value);
+
+        // Bing: адреса в атрибутах
+        foreach (System.Text.RegularExpressions.Match m in
+                 System.Text.RegularExpressions.Regex.Matches(html, "murl&quot;:&quot;(.*?)&quot;"))
+            Add(m.Groups[1].Value);
+
+        // Яндекс: превью с CDN (если полных адресов нет)
+        if (links.Count == 0)
+        {
+            foreach (System.Text.RegularExpressions.Match m in
+                     System.Text.RegularExpressions.Regex.Matches(html,
+                         "(https://avatars\\.mds\\.yandex\\.net/[^\"'&\\s]+)"))
+                Add(m.Groups[1].Value);
+        }
+
+        return links;
     }
 
     /// <summary>Пытается скачать обложку/фон по appid. null — ничего не нашлось.</summary>

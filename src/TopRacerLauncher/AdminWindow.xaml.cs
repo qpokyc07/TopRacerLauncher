@@ -95,6 +95,7 @@ public partial class AdminWindow : Window
         UpdateBgSwatches();
         AutoAddSteamCheck.IsChecked = s.AutoAddSteamGames;
         AutoScanCheck.IsChecked = s.AutoScanGames;
+        CoverSourceBox.Text = s.CoverSearchUrl;
         AchievementsCheck.IsChecked = s.AchievementsEnabled;
         RefreshMicLabels();
         MakeSectionsCollapsible();
@@ -1532,6 +1533,26 @@ public partial class AdminWindow : Window
         var room = VoiceEngine.RoomId;
         VoiceEngine.LeaveCall();
         VoiceEngine.StartCall(room);
+    }
+
+    private void CoverSource_Changed(object sender, TextChangedEventArgs e)
+    {
+        if (!_loaded) return;
+
+        var value = CoverSourceBox.Text.Trim();
+        if (value.Length == 0) return;
+
+        App.Settings.CoverSearchUrl = value;
+        App.SaveState();
+    }
+
+    private void CoverSource_Reset_Click(object sender, RoutedEventArgs e)
+    {
+        var defaults = new Settings();
+        CoverSourceBox.Text = defaults.CoverSearchUrl;
+        App.Settings.CoverSearchUrl = defaults.CoverSearchUrl;
+        App.SaveState();
+        SetArtStatus("Источник обложек сброшен на Яндекс.Картинки", autoHide: true);
     }
 
     private void Achievements_Changed(object sender, RoutedEventArgs e)
