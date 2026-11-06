@@ -1,5 +1,5 @@
 {
-  "version": "1.9.42",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.42/TopRacerLauncher.exe",
-  "notes": "1.9.42 — галочка достижений в админке, окно информации и панель описания стали больше."
+  "version": "1.9.43",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.43/TopRacerLauncher.exe",
+  "notes": "1.9.43 — обновление из Program Files ставится через запрос прав администратора."
 }

@@ -143,7 +143,19 @@ public static class UpdateService
             var old = currentExe + ".old";
 
             // 1) Кладём новый файл рядом (в ту же папку — тот же том).
-            File.Copy(PendingFile, staged, overwrite: true);
+            try
+            {
+                File.Copy(PendingFile, staged, overwrite: true);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Программа установлена в Program Files — без прав администратора не заменить.
+                return ApplyElevated(currentExe, PendingFile, out error);
+            }
+            catch (System.Security.SecurityException)
+            {
+                return ApplyElevated(currentExe, PendingFile, out error);
+            }
 
             // 2) Старый exe переименовываем, новый ставим на его место.
             try { if (File.Exists(old)) File.Delete(old); } catch { }
@@ -166,4 +178,50 @@ public static class UpdateService
             error = ex.Message;
             return false;
         }
-    }}
+    }
+
+    /// <summary>
+    /// Обновление в защищённой папке (Program Files): подменяем файл через
+    /// отдельный скрипт, запущенный с правами администратора (запрос UAC).
+    /// </summary>
+    private static bool ApplyElevated(string currentExe, string pending, out string error)
+    {
+        error = "";
+
+        try
+        {
+            var script = Path.Combine(Path.GetTempPath(), "TopRacerLauncher-update", "apply-update.cmd");
+
+            var content =
+                "@echo off\r\n" +
+                "timeout /t 3 /nobreak >nul\r\n" +
+                "copy /y \"" + pending + "\" \"" + currentExe + "\" >nul\r\n" +
+                "start \"\" \"" + currentExe + "\"\r\n" +
+                "del \"%~f0\" >nul 2>&1\r\n";
+
+            File.WriteAllText(script, content, new System.Text.UTF8Encoding(true));
+
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = "/c \"" + script + "\"",
+                UseShellExecute = true,
+                Verb = "runas",          // запрос прав администратора
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+            });
+
+            return true;
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            error = "Для установки обновления нужны права администратора — обновление отменено.";
+            return false;
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+            return false;
+        }
+    }
+}
+
