@@ -1,5 +1,5 @@
 {
-  "version": "1.9.40",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.40/TopRacerLauncher.exe",
-  "notes": "1.9.40 — рабочий MSI (Program Files, ярлыки, удаление) и часы цветом темы."
+  "version": "1.9.41",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.41/TopRacerLauncher.exe",
+  "notes": "1.9.41 — в киоск-режиме игра открывается поверх лаунчера."
 }

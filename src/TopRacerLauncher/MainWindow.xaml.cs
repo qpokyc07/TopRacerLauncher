@@ -445,6 +445,24 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Запускает игру и показывает табличку «Игра запускается, ждите…».</summary>
+    /// <summary>
+    /// Киоск: лаунчер висит поверх всех окон, поэтому игра/браузер открывается «за ним».
+    /// На время запуска уступаем место и возвращаемся через 20 секунд.
+    /// </summary>
+    private void YieldKioskTopmost(int seconds = 20)
+    {
+        if (!Topmost && !App.Settings.KioskMode) return;
+
+        Topmost = false;
+
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(seconds) };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            if (App.Settings.KioskMode) Topmost = true;
+        };
+        timer.Start();
+    }
     private void LaunchGame(GameItem game)
     {
         LaunchOverlayWindow? overlay = null;
@@ -457,6 +475,9 @@ public partial class MainWindow : Window
                 UpdateGameStatus();
                 return;
             }
+
+            // Киоск: уступаем экран запускаемой игре (Roblox, Steam-игра, URL), иначе она откроется «за» лаунчером.
+            YieldKioskTopmost();
 
             overlay = new LaunchOverlayWindow(game.Title, GameControls.For(game.Title, game.Controls));
             overlay.Show();
