@@ -80,15 +80,15 @@ public partial class ScanWindow : Window
                     Path = f.FilePath,
                     Source = f.Source,
                     Result = f,
-                    // Ярлыки с рабочего стола отмечены сразу — это то, что видит пользователь.
-                    IsChecked = f.Source.StartsWith("Ярлык", StringComparison.Ordinal),
+                    // По умолчанию отмечены все найденные игры — лишние снимаем галочкой.
+                    IsChecked = true,
                 }).ToList();
 
                 ApplyFilter();
                 SetBusy(false);
 
                 StatusText.Text = _all.Count > 0
-                    ? "Найдено: " + _all.Count + ". Ярлыки с рабочего стола уже отмечены — проверьте и нажмите «Добавить выбранные»."
+                    ? "Найдено игр: " + _all.Count + ". Отмечены все — снимите галочки с ненужных и нажмите «Добавить выбранные»."
                     : "Игры не найдены. Проверьте, где установлена игра, или добавьте вручную.";
             }));
         });

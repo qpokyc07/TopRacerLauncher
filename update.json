@@ -1,5 +1,5 @@
 {
-  "version": "1.9.46",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.46/TopRacerLauncher.exe",
-  "notes": "1.9.46 — мастер настройки при первом запуске, киоск не сворачивает игры."
+  "version": "1.9.47",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.47/TopRacerLauncher.exe",
+  "notes": "1.9.47 — после скана окно выбора игр: все отмечены, лишние снимаются."
 }

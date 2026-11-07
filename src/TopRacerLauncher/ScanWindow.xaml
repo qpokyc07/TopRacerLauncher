@@ -27,7 +27,7 @@
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
             <Grid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="18,0,0,0">
-                    <TextBlock Text="Поиск игр на этом ПК" FontWeight="Bold" FontSize="15"
+                    <TextBlock Text="Найденные игры — выберите нужные" FontWeight="Bold" FontSize="15"
                                Foreground="{StaticResource TextBrush}"/>
                     <TextBlock Text="Steam • Epic • GOG • ярлыки" FontSize="12" Margin="12,2,0,0"
                                Foreground="{StaticResource TextSecondaryBrush}"/>
