@@ -108,11 +108,21 @@ public partial class MainWindow : Window
             try
             {
                 KioskMode.Apply(App.Settings.KioskMode);
-                if (App.Settings.KioskMode) Topmost = true;
+                ApplyKioskTopmost();
             }
             catch { }
 
             ShowWelcome();
+
+            // Первый запуск: короткий мастер настройки клуба.
+            if (!App.Settings.SetupDone && !App.SmokeMode)
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    var wizard = new SetupWizardWindow { Owner = this, Topmost = true };
+                    wizard.ShowDialog();
+                }), DispatcherPriority.ApplicationIdle);
+            }
 
             // Метаданные подтягиваются сами, в фоне.
             _ = FillMissingMetadataAsync();
@@ -141,6 +151,18 @@ public partial class MainWindow : Window
         RefreshUi();
         ApplyPanelSettings();
         LoadPcInfo();
+    }
+
+    /// <summary>Применяет настройки, изменённые в мастере первого запуска.</summary>
+    public void ApplySetupChanges()
+    {
+        ApplyKioskTopmost();
+
+        try
+        {
+            if (App.Settings.AutoScanGames) _ = SteamLibraryWatcher.ScanAllAsync();
+        }
+        catch { }
     }
 
     /// <summary>Версия приложения в нижнем правом углу.</summary>
@@ -432,7 +454,7 @@ public partial class MainWindow : Window
             try
             {
                 KioskMode.Apply(App.Settings.KioskMode);
-                if (App.Settings.KioskMode) Topmost = true;
+                ApplyKioskTopmost();
             }
             catch { }
 
@@ -459,6 +481,19 @@ public partial class MainWindow : Window
     /// Киоск: лаунчер висит поверх всех окон, поэтому игра/браузер открывается «за ним».
     /// На время запуска уступаем место и возвращаемся через 20 секунд.
     /// </summary>
+    /// <summary>
+    /// Киоск: лаунчер висит поверх окон, но только пока не запущена игра.
+    /// Иначе War Thunder и другие игры сворачиваются при потере фокуса.
+    /// </summary>
+    private void ApplyKioskTopmost()
+    {
+        bool gameRunning;
+
+        try { gameRunning = App.Runner.IsRunning; }
+        catch { gameRunning = false; }
+
+        Topmost = App.Settings.KioskMode && !gameRunning;
+    }
     private void YieldKioskTopmost(int seconds = 20)
     {
         if (!Topmost && !App.Settings.KioskMode) return;
@@ -469,7 +504,7 @@ public partial class MainWindow : Window
         timer.Tick += (_, _) =>
         {
             timer.Stop();
-            if (App.Settings.KioskMode) Topmost = true;
+            ApplyKioskTopmost();
         };
         timer.Start();
     }
@@ -928,7 +963,7 @@ public partial class MainWindow : Window
             timer.Tick += (_, _) =>
             {
                 timer.Stop();
-                if (App.Settings.KioskMode) Topmost = true;
+                ApplyKioskTopmost();
             };
             timer.Start();
         }
@@ -1187,7 +1222,7 @@ public partial class MainWindow : Window
             try
             {
                 KioskMode.Apply(App.Settings.KioskMode);
-                if (App.Settings.KioskMode) Topmost = true;
+                ApplyKioskTopmost();
             }
             catch { }
 

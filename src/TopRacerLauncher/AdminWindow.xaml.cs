@@ -1655,6 +1655,20 @@ public partial class AdminWindow : Window
     private string? _editingAfishaId;
     private string? _afishaFormImagePath;
 
+    private void SetupWizard_Click(object sender, RoutedEventArgs e)
+    {
+        var wizard = new SetupWizardWindow { Owner = this };
+        if (wizard.ShowDialog() != true) return;
+
+        // Обновляем галочки в админке под выбор из мастера.
+        var s = App.Settings;
+        AutoAddSteamCheck.IsChecked = s.AutoAddSteamGames;
+        AutoScanCheck.IsChecked = s.AutoScanGames;
+        AchievementsCheck.IsChecked = s.AchievementsEnabled;
+        ControlsOverlayCheck.IsChecked = s.ControlsOverlay;
+        SetArtStatus("Настройки из мастера применены", autoHide: true);
+    }
+
     private void Privacy_Click(object sender, RoutedEventArgs e)
         => new LegalWindow(LegalWindow.DocKind.Privacy) { Owner = this }.ShowDialog();
 

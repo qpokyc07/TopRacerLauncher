@@ -374,7 +374,8 @@ public partial class App : Application
         var controlsArg = Arg("--shot-controls");
         var dialogArg = Arg("--shot-dialog");
         var legalArg = Arg("--shot-legal");
-        if (mainArg == null && adminArg == null && overlayArg == null && controlsArg == null && dialogArg == null && legalArg == null) return false;
+        var wizardArg = Arg("--shot-wizard");
+        if (mainArg == null && adminArg == null && overlayArg == null && controlsArg == null && dialogArg == null && legalArg == null && wizardArg == null) return false;
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
@@ -416,7 +417,9 @@ public partial class App : Application
 
         if (controlsArg != null) ControlsOverlayWindow.SuppressAutoPlace = true;
 
-        Window window = legalArg != null
+        Window window = wizardArg != null
+            ? new SetupWizardWindow()
+            : legalArg != null
             ? new LegalWindow(LegalWindow.DocKind.Privacy)
             : dialogArg != null
             ? new AddGameWindow()
@@ -485,7 +488,8 @@ public partial class App : Application
                     var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
                     encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
 
-                    var file = legalArg != null ? Path.Combine(Path.GetTempPath(), "shot-legal.png")
+                    var file = wizardArg != null ? Path.Combine(Path.GetTempPath(), "shot-wizard.png")
+                        : legalArg != null ? Path.Combine(Path.GetTempPath(), "shot-legal.png")
                         : dialogArg != null ? Path.Combine(Path.GetTempPath(), "shot-dialog.png")
                         : controlsArg != null ? Path.Combine(Path.GetTempPath(), "shot-controls.png")
                         : overlayArg != null ? PathOf(overlayArg)
