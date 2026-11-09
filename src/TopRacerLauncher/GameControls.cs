@@ -13,6 +13,7 @@ public static class GameControls
     {
         "counter-strike", "cs2", "cs:", "cs 1.6", "valorant", "doom", "quake", "apex", "overwatch",
         "battlefield", "call of duty", "warzone", "tarkov", "warface", "crossfire", "point blank",
+        "war thunder", "warthunder", "world of tanks", "crossout", "enlisted",
     };
 
     private static readonly string[] Moba =

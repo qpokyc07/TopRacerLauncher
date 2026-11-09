@@ -25,10 +25,8 @@ public partial class LaunchOverlayWindow : Window
     {
         InitializeComponent();
 
-        TitleText.Text = "Памятка перед игрой";
-        HintText.Text = string.IsNullOrWhiteSpace(gameTitle)
-            ? "управление"
-            : "«" + gameTitle + "» — управление";
+        TitleText.Text = string.IsNullOrWhiteSpace(gameTitle) ? "Запуск игры" : gameTitle;
+        HintText.Text = "запускается…";
 
         if (controls != null) BuildControls(controls);
 

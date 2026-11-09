@@ -37,10 +37,11 @@
                 </Path>
             </Grid>
 
-            <TextBlock x:Name="TitleText" Text="Памятка перед игрой" FontSize="26" FontWeight="Bold"
-                       Foreground="White" HorizontalAlignment="Center" Margin="0,18,0,0"/>
-            <TextBlock x:Name="HintText" Text="ждите…" FontSize="18" Foreground="#B9B9C4"
-                       HorizontalAlignment="Center" Margin="0,9,0,0"/>
+            <TextBlock x:Name="TitleText" Text="Игра" FontSize="38" FontWeight="Black"
+                       Foreground="White" HorizontalAlignment="Center" Margin="0,20,0,0"
+                       TextAlignment="Center" MaxWidth="560" TextWrapping="Wrap"/>
+            <TextBlock x:Name="HintText" Text="запускается…" FontSize="15" Foreground="#B9B9C4"
+                       HorizontalAlignment="Center" Margin="0,8,0,0"/>
 
             <!-- Управление: мини-клавиатура с нужными клавишами -->
             <StackPanel x:Name="ControlsPanel" HorizontalAlignment="Center" Margin="0,24,0,0"
