@@ -132,6 +132,14 @@ public partial class App : Application
 
         if (colorsFixed) { try { SaveState(); } catch { } }
 
+        // Таймер по умолчанию выключен: администратор включает его сам в настройках.
+        if (!Settings.TimerOffApplied)
+        {
+            Settings.TimerEnabled = false;
+            Settings.TimerOffApplied = true;
+            try { SaveState(); } catch { }
+        }
+
         // С версии 1.9.29 оверлей в игре по умолчанию выключен — остаётся памятка перед запуском.
         if (!Settings.OverlayOffApplied)
         {

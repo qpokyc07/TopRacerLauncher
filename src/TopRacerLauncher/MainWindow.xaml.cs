@@ -482,17 +482,15 @@ public partial class MainWindow : Window
     /// На время запуска уступаем место и возвращаемся через 20 секунд.
     /// </summary>
     /// <summary>
-    /// Киоск: лаунчер висит поверх окон, но только пока не запущена игра.
-    /// Иначе War Thunder и другие игры сворачиваются при потере фокуса.
+    /// Киоск: лаунчер держится поверх окон, только пока активно его окно и не запущена игра.
+    /// Логику считает KioskGuard (раз в секунду), здесь — точка применения.
     /// </summary>
     private void ApplyKioskTopmost()
     {
-        bool gameRunning;
+        if (App.Settings.KioskMode) KioskGuard.Start(this);
+        else KioskGuard.Stop();
 
-        try { gameRunning = App.Runner.IsRunning; }
-        catch { gameRunning = false; }
-
-        Topmost = App.Settings.KioskMode && !gameRunning;
+        KioskGuard.Refresh();
     }
     private void YieldKioskTopmost(int seconds = 20)
     {

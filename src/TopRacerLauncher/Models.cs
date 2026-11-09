@@ -105,7 +105,7 @@ public sealed class Settings
     public bool FullScreen { get; set; } = true;
 
     /// <summary>Ограничение по времени включено. Выключено — таймера нет и блокировки нет.</summary>
-    public bool TimerEnabled { get; set; } = true;
+    public bool TimerEnabled { get; set; }
 
     /// <summary>Имя пользователя в лаунчере (видно друзьям в сети).</summary>
     public string UserName { get; set; } = "";
@@ -209,6 +209,9 @@ public sealed class Settings
 
     /// <summary>Свой узор поверх фона: none, stripes, diag, dots, grid, rings. Пусто — из темы.</summary>
     public string BgPattern { get; set; } = "";
+
+    /// <summary>Разовая миграция: таймер по умолчанию выключен.</summary>
+    public bool TimerOffApplied { get; set; }
 
     /// <summary>Мастер первого запуска уже показан.</summary>
     public bool SetupDone { get; set; }
