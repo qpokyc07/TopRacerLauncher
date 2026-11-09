@@ -506,6 +506,33 @@ public partial class MainWindow : Window
         };
         timer.Start();
     }
+    /// <summary>Roblox из Microsoft Store стартует свёрнутым — доводим его окно до полного экрана.</summary>
+    private async Task BringRobloxToScreenAsync()
+    {
+        var until = DateTime.UtcNow.AddSeconds(45);
+
+        while (DateTime.UtcNow < until)
+        {
+            try
+            {
+                var process = System.Diagnostics.Process.GetProcessesByName("RobloxPlayerBeta").FirstOrDefault();
+                if (process != null)
+                {
+                    await GameWindow.BringToScreenAsync(process, TimeSpan.FromSeconds(25));
+                    return;
+                }
+            }
+            catch { }
+
+            await Task.Delay(1000);
+        }
+    }
+
+    private static bool IsRobloxGame(GameItem game)
+    {
+        var text = (game.Title + " " + game.ExecutablePath).ToLowerInvariant();
+        return text.Contains("roblox");
+    }
     private void LaunchGame(GameItem game)
     {
         LaunchOverlayWindow? overlay = null;
@@ -526,6 +553,9 @@ public partial class MainWindow : Window
             overlay.Show();
 
             App.Runner.Start(game);
+
+            // Roblox: довести окно до полного экрана, иначе оно открывается свёрнутым.
+            if (IsRobloxGame(game)) _ = BringRobloxToScreenAsync();
         }
         catch (Exception ex)
         {
