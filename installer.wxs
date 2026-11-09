@@ -1,5 +1,5 @@
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <Package Name="TopRacer Launcher" Manufacturer="Top Racer Club" Version="1.9.48.0"
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="TopRacer Launcher" Manufacturer="Top Racer Club" Version="1.9.49.0"
            UpgradeCode="A3F5C1D2-8B44-4E19-9C77-2E6D4B1A9F30"
            Scope="perMachine" Compressed="yes" Language="1049">
 

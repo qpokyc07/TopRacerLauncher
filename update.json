@@ -1,5 +1,5 @@
 {
-  "version": "1.9.48",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.48/TopRacerLauncher.exe",
-  "notes": "1.9.48 — киоск-режим уступает активным приложениям, лончеры Rockstar скрываются, таймер по умолчанию выключен."
+  "version": "1.9.49",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.49/TopRacerLauncher.exe",
+  "notes": "1.9.49 — при запуске игры лаунчер сворачивается и не мешает Roblox; после игры возвращается в киоск."
 }

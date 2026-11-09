@@ -25,6 +25,11 @@ public static class KioskGuard
     private static Window? _window;
     private static readonly HashSet<int> _hidden = new();
 
+    // Пока идёт «уступка» (запуск игры), лаунчер не лезет наверх.
+    private static DateTime _yieldUntil;
+    private static bool _wasMaximized;
+    private static bool _yieldMinimized;
+
     public static void Start(Window window)
     {
         _window = window;
@@ -39,7 +44,36 @@ public static class KioskGuard
         Timer.Stop();
         _window = null;
         _hidden.Clear();
+        _yieldUntil = default;
     }
+
+    /// <summary>
+    /// Уступить экран запускаемой игре: сворачиваем лаунчер, чтобы игра точно
+    /// получила передний план (важно для Roblox из Microsoft Store и лончеров).
+    /// </summary>
+    public static void Yield(int seconds = 25)
+    {
+        _yieldUntil = DateTime.UtcNow.AddSeconds(seconds);
+
+        var main = _window;
+        if (main == null) return;
+
+        try
+        {
+            if (main.WindowState != WindowState.Minimized)
+            {
+                _wasMaximized = main.WindowState == WindowState.Maximized;
+                _yieldMinimized = true;
+            }
+
+            main.Topmost = false;
+            main.WindowState = WindowState.Minimized;
+        }
+        catch { }
+    }
+
+    /// <summary>Идёт ли сейчас уступка экрана игре.</summary>
+    public static bool IsYielding => DateTime.UtcNow < _yieldUntil;
 
     /// <summary>Пересчитывает «поверх окон» и прячет служебные лончеры.</summary>
     public static void Refresh()
@@ -55,7 +89,27 @@ public static class KioskGuard
             return;
         }
 
-        main.Topmost = IsOwnWindowForeground(main) || GameRunning();
+        // Уступка закончилась и игры нет — возвращаем лаунчер на экран.
+        if (!IsYielding && !GameRunning() && _yieldMinimized)
+        {
+            _yieldMinimized = false;
+
+            try
+            {
+                main.WindowState = _wasMaximized ? WindowState.Maximized : WindowState.Normal;
+                main.Topmost = true;
+            }
+            catch { }
+        }
+
+        // Идёт запуск игры — не мешаем ей выйти на передний план.
+        if (IsYielding || GameRunning())
+        {
+            if (main.Topmost) main.Topmost = false;
+            return;
+        }
+
+        main.Topmost = IsOwnWindowForeground(main);
     }
 
     private static bool GameRunning()
