@@ -1,5 +1,5 @@
 {
-  "version": "1.9.52",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.52/TopRacerLauncher.exe",
-  "notes": "1.9.52 — раздел «О приложении» и защита настроек от ручной правки."
+  "version": "1.9.53",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.53/TopRacerLauncher.exe",
+  "notes": "1.9.53 — TLauncher и другие лончеры больше не прячутся за панелью лаунчера."
 }

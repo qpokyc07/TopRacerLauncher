@@ -89,17 +89,28 @@ public static class KioskGuard
             return;
         }
 
-        // Уступка закончилась и игры нет — возвращаем лаунчер на экран.
+        // Уступка закончилась и игры нет — возвращаем лаунчер на экран,
+        // но только если на переднем плане снова мы. Иначе (TLauncher, браузер,
+        // любой чужой лончер) — не лезем наверх и продлеваем уступку.
         if (!IsYielding && !GameRunning() && _yieldMinimized)
         {
-            _yieldMinimized = false;
-
-            try
+            if (IsOwnWindowForeground(main))
             {
-                main.WindowState = _wasMaximized ? WindowState.Maximized : WindowState.Normal;
-                main.Topmost = true;
+                _yieldMinimized = false;
+
+                try
+                {
+                    main.WindowState = _wasMaximized ? WindowState.Maximized : WindowState.Normal;
+                    main.Topmost = true;
+                }
+                catch { }
             }
-            catch { }
+            else
+            {
+                _yieldUntil = DateTime.UtcNow.AddSeconds(15);
+                if (main.Topmost) main.Topmost = false;
+                return;
+            }
         }
 
         // Идёт запуск игры — не мешаем ей выйти на передний план.
@@ -119,6 +130,16 @@ public static class KioskGuard
     }
 
     private static void OnTick(object? sender, EventArgs e) => Refresh();
+
+    /// <summary>На переднем плане чужая программа (игра, лончер, браузер)?</summary>
+    public static bool ForeignWindowActive()
+    {
+        var main = _window;
+        if (main == null) return false;
+
+        try { return !IsOwnWindowForeground(main); }
+        catch { return false; }
+    }
 
     /// <summary>Активно ли окно лаунчера (или рабочий стол), а не сторонняя программа.</summary>
     private static bool IsOwnWindowForeground(Window main)
