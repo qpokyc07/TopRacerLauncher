@@ -1655,6 +1655,9 @@ public partial class AdminWindow : Window
     private string? _editingAfishaId;
     private string? _afishaFormImagePath;
 
+    private void About_Click(object sender, RoutedEventArgs e)
+        => new AboutWindow { Owner = this }.ShowDialog();
+
     private void SetupWizard_Click(object sender, RoutedEventArgs e)
     {
         var wizard = new SetupWizardWindow { Owner = this };

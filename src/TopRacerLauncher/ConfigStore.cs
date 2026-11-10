@@ -107,6 +107,17 @@ public static class ConfigStore
 
             loaded.Games ??= new List<GameItem>();
             Normalize(loaded);
+
+            // Защита от ручной правки: подпись не сошлась — сбрасываем пароль администратора.
+            if (!ConfigProtection.Verify(loaded))
+            {
+                loaded.PasswordHash = "";
+                loaded.PasswordSalt = "";
+                loaded.Locked = false;
+                Warning = "Настройки были изменены вручную — пароль администратора сброшен";
+                try { HistoryLog.Add("tamper", detail: "config.json изменён извне"); } catch { }
+            }
+
             settings = loaded;
             return true;
         }
@@ -165,6 +176,7 @@ public static class ConfigStore
         {
             Directory.CreateDirectory(ConfigDirectory);
             settings.SavedAtUtc = DateTime.UtcNow;
+            ConfigProtection.Apply(settings);
 
             var json = JsonSerializer.Serialize(settings, JsonOptions);
             var tmp = ConfigPath + ".tmp";

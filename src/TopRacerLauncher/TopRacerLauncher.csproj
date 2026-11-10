@@ -3,9 +3,9 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <Version>1.9.32</Version>
-    <AssemblyVersion>1.9.51.0</AssemblyVersion>
-    <FileVersion>1.9.51.0</FileVersion>
+    <Version>1.9.52</Version>
+    <AssemblyVersion>1.9.52.0</AssemblyVersion>
+    <FileVersion>1.9.52.0</FileVersion>
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -25,6 +25,7 @@
 
   <ItemGroup>
         <Resource Include="Assets\logo.png" />
+        <Resource Include="Assets\icon.png" />
     <Resource Include="Assets\qr-tg.png" />
     <Resource Include="Assets\qr-vk.png" />
     <Resource Include="Assets\qr-max.png" />

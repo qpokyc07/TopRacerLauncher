@@ -285,6 +285,7 @@ public partial class App : Application
                 Probe("CallWindow", () => new CallWindow());
                 Probe("ChangelogWindow", () => new ChangelogWindow());
             Probe("LegalWindow", () => new LegalWindow(LegalWindow.DocKind.Privacy));
+            Probe("AboutWindow", () => new AboutWindow());
                 Probe("IncomingCallWindow", () => new IncomingCallWindow("Тест"));
                 Probe("VoiceOverlayWindow", () => new VoiceOverlayWindow());
                 Probe("NoticeWindow", () => new NoticeWindow("Тест", "Текст уведомления"));
@@ -383,7 +384,8 @@ public partial class App : Application
         var dialogArg = Arg("--shot-dialog");
         var legalArg = Arg("--shot-legal");
         var wizardArg = Arg("--shot-wizard");
-        if (mainArg == null && adminArg == null && overlayArg == null && controlsArg == null && dialogArg == null && legalArg == null && wizardArg == null) return false;
+        var aboutArg = Arg("--shot-about");
+        if (mainArg == null && adminArg == null && overlayArg == null && controlsArg == null && dialogArg == null && legalArg == null && wizardArg == null && aboutArg == null) return false;
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
@@ -425,7 +427,9 @@ public partial class App : Application
 
         if (controlsArg != null) ControlsOverlayWindow.SuppressAutoPlace = true;
 
-        Window window = wizardArg != null
+        Window window = aboutArg != null
+            ? new AboutWindow()
+            : wizardArg != null
             ? new SetupWizardWindow()
             : legalArg != null
             ? new LegalWindow(LegalWindow.DocKind.Privacy)
@@ -496,7 +500,8 @@ public partial class App : Application
                     var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
                     encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
 
-                    var file = wizardArg != null ? Path.Combine(Path.GetTempPath(), "shot-wizard.png")
+                    var file = aboutArg != null ? Path.Combine(Path.GetTempPath(), "shot-about.png")
+                        : wizardArg != null ? Path.Combine(Path.GetTempPath(), "shot-wizard.png")
                         : legalArg != null ? Path.Combine(Path.GetTempPath(), "shot-legal.png")
                         : dialogArg != null ? Path.Combine(Path.GetTempPath(), "shot-dialog.png")
                         : controlsArg != null ? Path.Combine(Path.GetTempPath(), "shot-controls.png")

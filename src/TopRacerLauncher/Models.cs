@@ -210,6 +210,9 @@ public sealed class Settings
     /// <summary>Свой узор поверх фона: none, stripes, diag, dots, grid, rings. Пусто — из темы.</summary>
     public string BgPattern { get; set; } = "";
 
+    /// <summary>Подпись критичных полей — защита от ручной правки конфига.</summary>
+    public string ProtectionStamp { get; set; } = "";
+
     /// <summary>Разовая миграция: таймер по умолчанию выключен.</summary>
     public bool TimerOffApplied { get; set; }
 
