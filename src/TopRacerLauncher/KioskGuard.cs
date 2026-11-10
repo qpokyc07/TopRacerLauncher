@@ -29,6 +29,7 @@ public static class KioskGuard
     private static DateTime _yieldUntil;
     private static bool _wasMaximized;
     private static bool _yieldMinimized;
+    private static bool _gameEnded;
 
     public static void Start(Window window)
     {
@@ -72,6 +73,9 @@ public static class KioskGuard
         catch { }
     }
 
+    /// <summary>Игра закрылась: лаунчер вернётся, когда экран освободится.</summary>
+    public static void NotifyGameEnded() => _gameEnded = true;
+
     /// <summary>Идёт ли сейчас уступка экрана игре.</summary>
     public static bool IsYielding => DateTime.UtcNow < _yieldUntil;
 
@@ -89,14 +93,24 @@ public static class KioskGuard
             return;
         }
 
-        // Уступка закончилась и игры нет — возвращаем лаунчер на экран,
-        // но только если на переднем плане снова мы. Иначе (TLauncher, браузер,
-        // любой чужой лончер) — не лезем наверх и продлеваем уступку.
-        if (!IsYielding && !GameRunning() && _yieldMinimized)
+        // Идёт запуск игры или игра работает — не мешаем ей ни секунды.
+        if (IsYielding || GameRunning())
         {
-            if (IsOwnWindowForeground(main))
+            if (main.Topmost) main.Topmost = false;
+            return;
+        }
+
+        // Лаунчер свёрнут после запуска: возвращаемся, только когда экран свободен —
+        // либо пользователь сам вернулся в лаунчер, либо игра закрылась и виден рабочий стол.
+        if (_yieldMinimized)
+        {
+            bool launcherActive = IsLauncherForeground();
+            bool screenFree = IsDesktopForeground();
+
+            if (launcherActive || (_gameEnded && screenFree))
             {
                 _yieldMinimized = false;
+                _gameEnded = false;
 
                 try
                 {
@@ -104,23 +118,16 @@ public static class KioskGuard
                     main.Topmost = true;
                 }
                 catch { }
-            }
-            else
-            {
-                _yieldUntil = DateTime.UtcNow.AddSeconds(15);
-                if (main.Topmost) main.Topmost = false;
+
                 return;
             }
-        }
 
-        // Идёт запуск игры — не мешаем ей выйти на передний план.
-        if (IsYielding || GameRunning())
-        {
             if (main.Topmost) main.Topmost = false;
             return;
         }
 
-        main.Topmost = IsOwnWindowForeground(main);
+        // Обычный режим киоска: поверх окон, пока активно окно лаунчера.
+        main.Topmost = IsLauncherForeground();
     }
 
     private static bool GameRunning()
@@ -137,33 +144,39 @@ public static class KioskGuard
         var main = _window;
         if (main == null) return false;
 
-        try { return !IsOwnWindowForeground(main); }
+        try { return !IsLauncherForeground() && !IsDesktopForeground(); }
         catch { return false; }
     }
 
-    /// <summary>Активно ли окно лаунчера (или рабочий стол), а не сторонняя программа.</summary>
-    private static bool IsOwnWindowForeground(Window main)
+    /// <summary>Активно ли именно окно лаунчера.</summary>
+    private static bool IsLauncherForeground()
     {
         var foreground = GetForegroundWindow();
         if (foreground == IntPtr.Zero) return true;
 
         GetWindowThreadProcessId(foreground, out int pid);
-        if (pid == 0) return true;
+        return pid == Environment.ProcessId;
+    }
 
+    /// <summary>На переднем плане рабочий стол или проводник.</summary>
+    private static bool IsDesktopForeground()
+    {
+        var foreground = GetForegroundWindow();
+        if (foreground == IntPtr.Zero) return true;
+
+        GetWindowThreadProcessId(foreground, out int pid);
         if (pid == Environment.ProcessId) return true;
 
         try
         {
             using var process = Process.GetProcessById(pid);
-            var name = process.ProcessName;
-
-            // Рабочий стол, проводник и панель задач — это «свой» экран.
-            if (name.Equals("explorer", StringComparison.OrdinalIgnoreCase)) return true;
+            return process.ProcessName.Equals("explorer", StringComparison.OrdinalIgnoreCase);
         }
-        catch { }
-
-        return false;
+        catch { return true; }
     }
+
+    /// <summary>Активно ли окно лаунчера (или рабочий стол), а не сторонняя программа.</summary>
+
 
     /// <summary>Прячет окна служебных лончеров (Rockstar, Ubisoft, EA).</summary>
     private static void HideServiceLaunchers()

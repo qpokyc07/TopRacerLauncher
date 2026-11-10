@@ -492,19 +492,14 @@ public partial class MainWindow : Window
 
         KioskGuard.Refresh();
     }
-    private void YieldKioskTopmost(int seconds = 20)
+    private void YieldKioskTopmost(int seconds = 60)
     {
         if (!Topmost && !App.Settings.KioskMode) return;
 
         Topmost = false;
 
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(seconds) };
-        timer.Tick += (_, _) =>
-        {
-            timer.Stop();
-            ApplyKioskTopmost();
-        };
-        timer.Start();
+        // Сворачиваем лаунчер: иначе игры и лончеры стартуют «за» ним.
+        KioskGuard.Yield(Math.Max(seconds, 60));
     }
     /// <summary>Roblox из Microsoft Store стартует свёрнутым — доводим его окно до полного экрана.</summary>
     private async Task BringRobloxToScreenAsync()
@@ -1413,6 +1408,10 @@ public partial class MainWindow : Window
         bool running = App.Runner.IsRunning;
         string? title = App.Runner.CurrentTitle;
 
+        // Игра закончилась — сторож вернёт лаунчер, когда экран освободится.
+        if (!running && _gameWasRunning) KioskGuard.NotifyGameEnded();
+        _gameWasRunning = running;
+
         if (running && !string.IsNullOrEmpty(title))
         {
             GameStatusDot.Fill = FindResource("OkBrush") as Brush ?? Brushes.LimeGreen;
@@ -1571,6 +1570,8 @@ public partial class MainWindow : Window
 
         TimerRingArc.Data = new System.Windows.Media.PathGeometry(new[] { figure });
     }
+
+    private bool _gameWasRunning;   // для возврата лаунчера после выхода из игры
 
     private static string FormatTime(int seconds)
     {

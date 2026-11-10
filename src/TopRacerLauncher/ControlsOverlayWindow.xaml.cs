@@ -110,7 +110,7 @@ public partial class ControlsOverlayWindow : Window
     }
 
     /// <summary>Спрятать оверлей (игра закрылась или настройку отключили).</summary>
-    public static void Hide()
+    public static new void Hide()
     {
         if (_instance == null) return;
 
@@ -119,7 +119,7 @@ public partial class ControlsOverlayWindow : Window
         _instance = null;
     }
 
-    public static bool IsVisible => _instance != null;
+    public static new bool IsVisible => _instance != null;
 
     private void BuildKeyboard(IReadOnlySet<string> used)
     {

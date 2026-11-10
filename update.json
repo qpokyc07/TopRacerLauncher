@@ -1,5 +1,5 @@
 {
-  "version": "1.9.53",
-  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.53/TopRacerLauncher.exe",
-  "notes": "1.9.53 — TLauncher и другие лончеры больше не прячутся за панелью лаунчера."
+  "version": "1.9.54",
+  "url": "https://github.com/qpokyc07/TopRacerLauncher/releases/download/v1.9.54/TopRacerLauncher.exe",
+  "notes": "1.9.54 — киоск больше не мешает играм и лончерам открываться; возврат только после выхода из игры."
 }
